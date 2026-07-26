@@ -7,8 +7,26 @@ struct KeychainStore: Sendable {
     var service: String
     var account: String = "default"
 
-    static let geminiKey = KeychainStore(service: "clipnote.gemini-key")
-    static let notionToken = KeychainStore(service: "clipnote.notion-token")
+    static let geminiKey = KeychainStore(service: "stepkeeper.gemini-key")
+    static let notionToken = KeychainStore(service: "stepkeeper.notion-token")
+
+    /// clipnote → stepkeeper 개명 전에 저장된 항목. 앱 시작 시 1회 이전한다.
+    /// (제거 시점: 사용자 기반이 새 이름으로 넘어간 뒤 — 그전까지 지우면 기존 사용자가 키를 다시 넣어야 한다)
+    static let legacyPairs = [
+        (legacy: KeychainStore(service: "clipnote.gemini-key"), current: geminiKey),
+        (legacy: KeychainStore(service: "clipnote.notion-token"), current: notionToken),
+    ]
+
+    /// 구 서비스명에 값이 있고 새 이름이 비어 있으면 옮긴다. 실패해도 앱 동작을 막지 않는다
+    /// (사용자는 설정에서 다시 입력할 수 있고, 구 항목은 지우지 않으므로 데이터 손실도 없다).
+    static func migrateLegacyItems() {
+        for pair in legacyPairs {
+            guard let value = try? pair.legacy.load(), !value.isEmpty,
+                  (try? pair.current.load()) ?? nil == nil else { continue }
+            guard (try? pair.current.save(value)) != nil else { continue }
+            try? pair.legacy.delete()
+        }
+    }
 
     struct UnexpectedStatus: Error, Equatable { let status: OSStatus }
 

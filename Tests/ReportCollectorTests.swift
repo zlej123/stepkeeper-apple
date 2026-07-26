@@ -1,11 +1,11 @@
 import Testing
 import Foundation
-@testable import clipnote
+@testable import stepkeeper
 
 struct ReportCollectorTests {
     private func makeDefaults() -> UserDefaults {
-        let suite = UserDefaults(suiteName: "clipnote.tests.collector")!
-        suite.removePersistentDomain(forName: "clipnote.tests.collector")
+        let suite = UserDefaults(suiteName: "stepkeeper.tests.collector")!
+        suite.removePersistentDomain(forName: "stepkeeper.tests.collector")
         return suite
     }
 

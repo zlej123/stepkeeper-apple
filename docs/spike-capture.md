@@ -102,24 +102,24 @@ WebKit에서 seek 후 canvas로 유튜브 재생 화면을 캡처하는 핵심 �
 
 브리프 Step 10은 앱 바이너리를 쉘 백그라운드 잡으로 직접 실행한다:
 ```bash
-CLIPNOTE_SPIKE=1 ./build/Build/Products/Debug/clipnote.app/Contents/MacOS/clipnote &
+STEPKEEPER_SPIKE=1 ./build/Build/Products/Debug/stepkeeper.app/Contents/MacOS/stepkeeper &
 ```
 
 이 방식으로 실행하면 **프로세스는 정상적으로 떠서 15시간 넘게 살아있지만, SwiftUI의
 `.task` 뷰 모디파이어가 끝내 한 번도 발화하지 않는다** — `status.log`에 첫 줄(동기 코드
 구간, await 이전)조차 기록되지 않는다. 진단 과정:
 
-1. `ps eww -p <pid>`로 확인 — `CLIPNOTE_SPIKE=1`이 프로세스 환경에 정확히 전달됨을 확인
+1. `ps eww -p <pid>`로 확인 — `STEPKEEPER_SPIKE=1`이 프로세스 환경에 정확히 전달됨을 확인
    (환경변수 전달 자체는 문제 아님).
 2. `sample <pid> 3`으로 전체 스레드 콜스택 채집 — 메인 스레드가 `-[NSApplication run]`의
    정상 이벤트 루프(`mach_msg` 대기)에서 유휴 상태. 우리 앱 코드(Task 동기 구간)가 스택
    어디에도 없음 — Swift Concurrency Task 자체가 아직 시작되지 않았다는 뜻(시작됐다면
    await 이전 동기 구간이 즉시 실행되어 `status.log`가 이미 존재했어야 함).
-3. TCC 관련 가능성도 배제하지 않고 확인 시도 — `tccd` 유닛 로그에서 `com.clipnote.app`에
+3. TCC 관련 가능성도 배제하지 않고 확인 시도 — `tccd` 유닛 로그에서 `com.stepkeeper.app`에
    대한 `AUTHREQ_ATTRIBUTION`(귀속 확인) 이벤트는 있었지만 명시적 거부(denied) 로그는
    없음. `TCC.db` 직접 조회는 권한 없음(`authorization denied`) — 이 환경 자체가 Full Disk
    Access가 없어 확인 불가. **TCC가 원인인지 최종 확정은 못 했다.**
-4. **해결**: `launchctl setenv CLIPNOTE_SPIKE 1` + `open build/.../clipnote.app`(LaunchServices
+4. **해결**: `launchctl setenv STEPKEEPER_SPIKE 1` + `open build/.../stepkeeper.app`(LaunchServices
    경유 정상 실행)로 바꾸자 **즉시(로드 시작 후 16초 내) 정상 동작** — 메타데이터 획득,
    prime, 캡처 3장, result.json 저장까지 전부 성공.
 
@@ -133,7 +133,7 @@ Xcode Run)에서는 항상 LaunchServices 경로를 타므로 이 이슈가 실�
 
 **향후 macOS 자동화 스크립트를 만든다면** (`scripts/spike-verify.sh`의 macOS 버전 등)
 `launchctl setenv <KEY> <VALUE>` + `open <app>` 조합을 표준 패턴으로 채택할 것.
-브리프 Step 10 문서의 원문 커맨드(`CLIPNOTE_SPIKE=1 ./path/to/binary &`)는 이 환경에서는
+브리프 Step 10 문서의 원문 커맨드(`STEPKEEPER_SPIKE=1 ./path/to/binary &`)는 이 환경에서는
 동작하지 않으므로 참고용으로만 남기고, 실제 재현은 위 방법을 사용해야 한다.
 
 ## 추가로 적용한 예방적 변경 (`Sources/Capture/SpikeCaptureView.swift`)
@@ -147,7 +147,7 @@ macOS의 `spikeDir()`을 `~/Documents/spike`에서 `~/Library/Caches/spike`로 �
 보듯 launch 방식 쪽으로 밝혀졌지만, Documents 접근도 별도의 잠재 리스크로 남아있어
 선제적으로 제거했다 — 스파이크 산출물은 사용자 문서가 아니므로 Caches가 더 적절하기도
 하다. **주의**: 이 변경으로 macOS 결과 위치가 브리프 원문의
-`~/Library/Containers/com.clipnote.app/Data/Documents/spike/result.json` /
+`~/Library/Containers/com.stepkeeper.app/Data/Documents/spike/result.json` /
 `~/Documents/spike/result.json`이 아니라 `~/Library/Caches/spike/result.json`이 됐다.
 
 ## 기록 누락 보완 (리뷰 반영)
@@ -193,13 +193,13 @@ export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
 **macOS:**
 ```bash
 export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
-xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote \
+xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper \
   -destination 'platform=macOS' -derivedDataPath build build
-launchctl setenv CLIPNOTE_SPIKE 1
-open build/Build/Products/Debug/clipnote.app
+launchctl setenv STEPKEEPER_SPIKE 1
+open build/Build/Products/Debug/stepkeeper.app
 # 결과: ~/Library/Caches/spike/result.json (최대 수십초 대기, 광고가 끼면 최악 수 분)
-launchctl unsetenv CLIPNOTE_SPIKE   # 정리
-pkill -x clipnote                   # 정리
+launchctl unsetenv STEPKEEPER_SPIKE   # 정리
+pkill -x stepkeeper                   # 정리
 ```
 
 ## 남은 리스크 / 후속 과제

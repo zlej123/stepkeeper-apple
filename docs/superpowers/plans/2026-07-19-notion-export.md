@@ -1,4 +1,4 @@
-# clipnote-apple v1.1 Notion 내보내기 Implementation Plan
+# stepkeeper-apple v1.1 Notion 내보내기 Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -6,12 +6,12 @@
 
 **Architecture:** `NotionAPI`(URLSession, 업로드 2단계·페이지 생성·100블록 배칭) + `NotionBlockBuilder`(코어 1:1 포팅, 골든) + `NotionExporter`(오케스트레이션) + 설정(토큰 Keychain/부모 페이지 ID)·DocumentView 버튼. 스펙: `docs/superpowers/specs/2026-07-19-notion-export-design.md` — 충돌 시 스펙 우선.
 
-**Tech Stack:** Swift 6 / URLSession / JSONSerialization / Swift Testing / 골든 생성은 코어 파이썬(`src/clipnote/export.py`) 임포트.
+**Tech Stack:** Swift 6 / URLSession / JSONSerialization / Swift Testing / 골든 생성은 코어 파이썬(`src/stepkeeper/export.py`) 임포트.
 
 ## Global Constraints
 
 - 모든 `xcodebuild` 앞에 `export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer`. 새 Swift 파일 후 `xcodegen generate`. 단위 테스트 기본: `-destination 'platform=macOS' test`, 로그는 `/tmp/*.log` 리다이렉트 후 tail.
-- 코어 위치: `/Users/choejunhwan/dev/clipnote` — **v0.2.0 pip 레이아웃**: 모듈은 `src/clipnote/`, skill-core는 `src/clipnote/skill-core/`. 코어 수정 금지(읽기·임포트만).
+- 코어 위치: `/Users/choejunhwan/dev/stepkeeper` — **v0.2.0 pip 레이아웃**: 모듈은 `src/stepkeeper/`, skill-core는 `src/stepkeeper/skill-core/`. 코어 수정 금지(읽기·임포트만).
 - Notion 상수(코어와 동일): base `https://api.notion.com/v1`, 헤더 `Notion-Version: 2022-06-28`, 타임아웃 120초.
 - **토큰 값은 Authorization 헤더 세팅 외 어디에도 등장 금지** (로그·에러 메시지·테스트 출력).
 - UI 문구 한국어(스펙 4절 표 문구 그대로). docs/superpowers/ 수정 금지. build/ 커밋 금지. `.xcodeproj`는 소스 변경 시 함께 커밋(리포 관례).
@@ -21,7 +21,7 @@
 ## File Structure (최종 상태)
 
 ```
-scripts/sync-assets.sh               # 수정: src/clipnote 경로 (Task 1)
+scripts/sync-assets.sh               # 수정: src/stepkeeper 경로 (Task 1)
 scripts/make-golden.py               # 수정: 패키지 임포트 (Task 1)
 scripts/make-notion-golden.py        # 신규: 기대 블록 JSON 생성 (Task 3)
 Sources/Models/NotionPageID.swift    # 페이지 ID 정규화 (Task 2)
@@ -55,10 +55,10 @@ docs/TESTING.md + README.md          # 수정 (Task 7)
 `scripts/sync-assets.sh`의 `SRC=` 줄을 다음으로 교체:
 
 ```bash
-SRC="${CLIPNOTE_PATH:-../clipnote}/src/clipnote/skill-core/profiles"
+SRC="${STEPKEEPER_PATH:-../stepkeeper}/src/stepkeeper/skill-core/profiles"
 ```
 
-(코어 v0.2.0 pip 레이아웃 — skill-core가 src/clipnote/ 밑으로 이동. 구경로 폴백 불필요.)
+(코어 v0.2.0 pip 레이아웃 — skill-core가 src/stepkeeper/ 밑으로 이동. 구경로 폴백 불필요.)
 
 - [ ] **Step 2: make-golden.py 임포트 수정**
 
@@ -73,7 +73,7 @@ import render as core_render  # noqa: E402
 
 ```python
 sys.path.insert(0, str(CORE / "src"))
-from clipnote import render as core_render  # noqa: E402
+from stepkeeper import render as core_render  # noqa: E402
 ```
 
 (주석 등 다른 줄은 그대로. `CORE` 변수 정의는 기존 유지.)
@@ -81,7 +81,7 @@ from clipnote import render as core_render  # noqa: E402
 - [ ] **Step 3: 동작 검증 — 산출물 무변화 확인**
 
 ```bash
-cd /Users/choejunhwan/dev/clipnote-apple
+cd /Users/choejunhwan/dev/stepkeeper-apple
 ./scripts/sync-assets.sh
 python3 scripts/make-golden.py
 git status --short
@@ -105,7 +105,7 @@ git commit -m "chore: 코어 v0.2.0 pip 레이아웃 대응 (스크립트 경로
 - Modify: `Sources/Services/Settings.swift`, `Sources/Services/KeychainStore.swift`
 
 **Interfaces:**
-- Produces: `NotionPageID.normalize(_ input: String) -> String?`(하이픈 없는 32자 소문자 hex 또는 nil), `Settings.notionParentPageKey`(= "notionParentPage"), `KeychainStore.notionToken`(service "clipnote.notion-token"). Task 5·6이 사용.
+- Produces: `NotionPageID.normalize(_ input: String) -> String?`(하이픈 없는 32자 소문자 hex 또는 nil), `Settings.notionParentPageKey`(= "notionParentPage"), `KeychainStore.notionToken`(service "stepkeeper.notion-token"). Task 5·6이 사용.
 
 - [ ] **Step 1: 실패하는 테스트 작성**
 
@@ -113,7 +113,7 @@ git commit -m "chore: 코어 v0.2.0 pip 레이아웃 대응 (스크립트 경로
 
 ```swift
 import Testing
-@testable import clipnote
+@testable import stepkeeper
 
 struct NotionPageIDTests {
     @Test func normalizesURLDashedAndRawInputs() {
@@ -150,7 +150,7 @@ struct NotionPageIDTests {
 
 ```bash
 export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
-xcodegen generate && xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test > /tmp/n2.log 2>&1; tail -5 /tmp/n2.log
+xcodegen generate && xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test > /tmp/n2.log 2>&1; tail -5 /tmp/n2.log
 ```
 
 Expected: 컴파일 실패 — `cannot find 'NotionPageID' in scope`.
@@ -186,13 +186,13 @@ enum NotionPageID {
 `Sources/Services/KeychainStore.swift`의 `static let geminiKey` 아래에 추가:
 
 ```swift
-    static let notionToken = KeychainStore(service: "clipnote.notion-token")
+    static let notionToken = KeychainStore(service: "stepkeeper.notion-token")
 ```
 
 - [ ] **Step 4: 통과 확인**
 
 ```bash
-xcodegen generate && xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test > /tmp/n2b.log 2>&1; tail -3 /tmp/n2b.log
+xcodegen generate && xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test > /tmp/n2b.log 2>&1; tail -3 /tmp/n2b.log
 ```
 
 Expected: `** TEST SUCCEEDED **` (기존 42 + 신규 3 = 45 tests).
@@ -200,7 +200,7 @@ Expected: `** TEST SUCCEEDED **` (기존 42 + 신규 3 = 45 tests).
 - [ ] **Step 5: 커밋**
 
 ```bash
-git add Sources Tests clipnote-apple.xcodeproj
+git add Sources Tests stepkeeper-apple.xcodeproj
 git commit -m "feat: NotionPageID 정규화 + Notion 설정 키·Keychain 인스턴스"
 ```
 
@@ -213,7 +213,7 @@ git commit -m "feat: NotionPageID 정규화 + Notion 설정 키·Keychain 인스
 
 **Interfaces:**
 - Consumes: `Analysis`/`VisualGuide`(v1 Task 2), `MarkdownBuilder.hms`(v1 Task 5), v1 골든 fixture(`analysis.json`/`case.json`), `Bundle.fixtureData`
-- Produces: `typealias NotionBlock = [String: Any]`, `NotionBlockBuilder.rich(_ text: String, link: String?) -> [[String: Any]]`, `NotionBlockBuilder.blocks(analysis: Analysis, videoId: String, imageUploadIds: [String: String]) -> [NotionBlock]`. Task 4(createPage의 title rich)·Task 5가 사용. **파리티 원본은 코어 `src/clipnote/export.py` 244~288행 — 임의 개선 금지, 골든이 심판.**
+- Produces: `typealias NotionBlock = [String: Any]`, `NotionBlockBuilder.rich(_ text: String, link: String?) -> [[String: Any]]`, `NotionBlockBuilder.blocks(analysis: Analysis, videoId: String, imageUploadIds: [String: String]) -> [NotionBlock]`. Task 4(createPage의 title rich)·Task 5가 사용. **파리티 원본은 코어 `src/stepkeeper/export.py` 244~288행 — 임의 개선 금지, 골든이 심판.**
 
 - [ ] **Step 1: 골든 생성 스크립트 작성·실행**
 
@@ -222,7 +222,7 @@ git commit -m "feat: NotionPageID 정규화 + Notion 설정 키·Keychain 인스
 ```python
 #!/usr/bin/env python3
 """Notion 블록 골든 생성 — 코어 build_notion_blocks로 기대 JSON을 만든다.
-사용: python3 scripts/make-notion-golden.py  (코어: CLIPNOTE_PATH, 기본 ../clipnote)
+사용: python3 scripts/make-notion-golden.py  (코어: STEPKEEPER_PATH, 기본 ../stepkeeper)
 이미지 업로드 id는 case.json의 image_refs 키에 fake-<guide_id>를 주입한다."""
 import json
 import os
@@ -230,9 +230,9 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-CORE = Path(os.environ.get("CLIPNOTE_PATH", ROOT.parent / "clipnote")).resolve()
+CORE = Path(os.environ.get("STEPKEEPER_PATH", ROOT.parent / "stepkeeper")).resolve()
 sys.path.insert(0, str(CORE / "src"))
-from clipnote import export as core_export  # noqa: E402
+from stepkeeper import export as core_export  # noqa: E402
 
 golden_root = ROOT / "Tests" / "Fixtures" / "golden"
 for case_dir in sorted(p for p in golden_root.iterdir() if p.is_dir()):
@@ -258,7 +258,7 @@ Expected: 3줄 `wrote ...`. 각 파일을 열어 형태 확인(요약 문단, Yo
 ```swift
 import Testing
 import Foundation
-@testable import clipnote
+@testable import stepkeeper
 
 struct NotionBlockBuilderGoldenTests {
     @Test(arguments: ["generic-mixed", "generic-links-only", "recipe-mixed"])
@@ -287,7 +287,7 @@ struct NotionBlockBuilderGoldenTests {
 - [ ] **Step 3: 실패 확인**
 
 ```bash
-xcodegen generate && xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test > /tmp/n3.log 2>&1; tail -5 /tmp/n3.log
+xcodegen generate && xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test > /tmp/n3.log 2>&1; tail -5 /tmp/n3.log
 ```
 
 Expected: 컴파일 실패 — `cannot find 'NotionBlockBuilder' in scope`.
@@ -366,7 +366,7 @@ enum NotionBlockBuilder {
 - [ ] **Step 5: 통과 확인**
 
 ```bash
-xcodegen generate && xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test > /tmp/n3b.log 2>&1; tail -3 /tmp/n3b.log
+xcodegen generate && xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test > /tmp/n3b.log 2>&1; tail -3 /tmp/n3b.log
 ```
 
 Expected: `** TEST SUCCEEDED **` (45 + 3 = 48 tests). 골든 불일치 시 expected-notion.json을 고치지 말고 Swift 쪽을 고친다.
@@ -374,7 +374,7 @@ Expected: `** TEST SUCCEEDED **` (45 + 3 = 48 tests). 골든 불일치 시 expec
 - [ ] **Step 6: 커밋**
 
 ```bash
-git add scripts/make-notion-golden.py Tests Sources/Services/NotionBlockBuilder.swift clipnote-apple.xcodeproj
+git add scripts/make-notion-golden.py Tests Sources/Services/NotionBlockBuilder.swift stepkeeper-apple.xcodeproj
 git commit -m "feat: NotionBlockBuilder — 코어 블록 매핑 포팅 + 골든"
 ```
 
@@ -386,7 +386,7 @@ git commit -m "feat: NotionBlockBuilder — 코어 블록 매핑 포팅 + 골든
 - Create: `Sources/Services/NotionAPI.swift`, `Tests/NotionAPITests.swift`
 
 **Interfaces:**
-- Consumes: `NotionBlock`/`NotionBlockBuilder.rich`(Task 3), `StubURLProtocol`(v1 Task 7 — Tests/ClipnoteAPITests.swift의 것 재사용, static 공유라 `.serialized` 필수)
+- Consumes: `NotionBlock`/`NotionBlockBuilder.rich`(Task 3), `StubURLProtocol`(v1 Task 7 — Tests/StepkeeperAPITests.swift의 것 재사용, static 공유라 `.serialized` 필수)
 - Produces: `NotionAPIError`(`.invalidToken .parentNotFound .rateLimited .api(Int, String) .network(String)`, LocalizedError 한국어 — 스펙 4절 문구), `NotionAPI(token: String, session: URLSession = .shared)` — `createFileUpload() async throws -> String`, `sendFileUpload(id:data:filename:mime:) async throws`, `createPage(parentPageID:title:children:) async throws -> (id: String, url: String?)`, `appendChildren(pageID:blocks:) async throws`. Task 5가 사용.
 
 - [ ] **Step 1: 실패하는 테스트 작성**
@@ -396,7 +396,7 @@ git commit -m "feat: NotionBlockBuilder — 코어 블록 매핑 포팅 + 골든
 ```swift
 import Testing
 import Foundation
-@testable import clipnote
+@testable import stepkeeper
 
 @Suite(.serialized)
 struct NotionAPITests {
@@ -477,7 +477,7 @@ struct NotionAPITests {
 - [ ] **Step 2: 실패 확인**
 
 ```bash
-xcodegen generate && xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test > /tmp/n4.log 2>&1; tail -5 /tmp/n4.log
+xcodegen generate && xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test > /tmp/n4.log 2>&1; tail -5 /tmp/n4.log
 ```
 
 Expected: 컴파일 실패 — `cannot find 'NotionAPI' in scope`.
@@ -610,7 +610,7 @@ final class NotionAPI: Sendable {
 - [ ] **Step 4: 통과 확인**
 
 ```bash
-xcodegen generate && xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test > /tmp/n4b.log 2>&1; tail -3 /tmp/n4b.log
+xcodegen generate && xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test > /tmp/n4b.log 2>&1; tail -3 /tmp/n4b.log
 ```
 
 Expected: `** TEST SUCCEEDED **` (48 + 3 = 51 tests).
@@ -618,7 +618,7 @@ Expected: `** TEST SUCCEEDED **` (48 + 3 = 51 tests).
 - [ ] **Step 5: 커밋**
 
 ```bash
-git add Sources/Services/NotionAPI.swift Tests/NotionAPITests.swift clipnote-apple.xcodeproj
+git add Sources/Services/NotionAPI.swift Tests/NotionAPITests.swift stepkeeper-apple.xcodeproj
 git commit -m "feat: NotionAPI — 파일 업로드 2단계·페이지 생성·에러 매핑"
 ```
 
@@ -640,7 +640,7 @@ git commit -m "feat: NotionAPI — 파일 업로드 2단계·페이지 생성·�
 ```swift
 import Testing
 import Foundation
-@testable import clipnote
+@testable import stepkeeper
 
 @Suite(.serialized)
 struct NotionExporterTests {
@@ -773,7 +773,7 @@ struct NotionExporterTests {
 - [ ] **Step 2: 실패 확인**
 
 ```bash
-xcodegen generate && xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test > /tmp/n5.log 2>&1; tail -5 /tmp/n5.log
+xcodegen generate && xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test > /tmp/n5.log 2>&1; tail -5 /tmp/n5.log
 ```
 
 Expected: 컴파일 실패 — `cannot find 'NotionExporter' in scope`.
@@ -830,7 +830,7 @@ final class NotionExporter: Sendable {
 - [ ] **Step 4: 통과 확인**
 
 ```bash
-xcodegen generate && xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test > /tmp/n5b.log 2>&1; tail -3 /tmp/n5b.log
+xcodegen generate && xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test > /tmp/n5b.log 2>&1; tail -3 /tmp/n5b.log
 ```
 
 Expected: `** TEST SUCCEEDED **` (51 + 3 = 54 tests).
@@ -838,7 +838,7 @@ Expected: `** TEST SUCCEEDED **` (51 + 3 = 54 tests).
 - [ ] **Step 5: 커밋**
 
 ```bash
-git add Sources/Services/NotionExporter.swift Tests/NotionExporterTests.swift clipnote-apple.xcodeproj
+git add Sources/Services/NotionExporter.swift Tests/NotionExporterTests.swift stepkeeper-apple.xcodeproj
 git commit -m "feat: NotionExporter — 업로드·배칭 오케스트레이션"
 ```
 
@@ -864,7 +864,7 @@ git commit -m "feat: NotionExporter — 업로드·배칭 오케스트레이션"
     @State private var notionSaveError: String?
 ```
 
-"clipnote 서버" 섹션 아래에 섹션 추가:
+"stepkeeper 서버" 섹션 아래에 섹션 추가:
 
 ```swift
                 Section {
@@ -972,8 +972,8 @@ git commit -m "feat: NotionExporter — 업로드·배칭 오케스트레이션"
 ```bash
 export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
 xcodegen generate
-xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test > /tmp/n6.log 2>&1; tail -3 /tmp/n6.log
-xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build > /tmp/n6b.log 2>&1; tail -3 /tmp/n6b.log
+xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test > /tmp/n6.log 2>&1; tail -3 /tmp/n6.log
+xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build > /tmp/n6b.log 2>&1; tail -3 /tmp/n6b.log
 ```
 
 Expected: TEST SUCCEEDED(54) / BUILD SUCCEEDED. 이어서 M1 E2E로 문서를 하나 만들고 시뮬레이터 스크린샷으로 문서 화면 툴바에 Notion 버튼이 보이는지 확인(`./scripts/e2e-m1.sh` 후 앱을 수동 launch, `xcrun simctl io "iPhone 17 Pro" screenshot build/n6-doc.png`). 버튼 동작 자체(실토큰)는 Task 7의 사용자 항목.
@@ -981,7 +981,7 @@ Expected: TEST SUCCEEDED(54) / BUILD SUCCEEDED. 이어서 M1 E2E로 문서를 �
 - [ ] **Step 4: 커밋**
 
 ```bash
-git add Sources/Views clipnote-apple.xcodeproj
+git add Sources/Views stepkeeper-apple.xcodeproj
 git commit -m "feat: 설정·문서 화면에 Notion 내보내기 통합"
 ```
 
@@ -1020,8 +1020,8 @@ git commit -m "feat: 설정·문서 화면에 Notion 내보내기 통합"
 
 ```bash
 export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
-xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test > /tmp/n7.log 2>&1; tail -3 /tmp/n7.log
-xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=iOS Simulator,name=iPhone 17 Pro' test > /tmp/n7b.log 2>&1; tail -3 /tmp/n7b.log
+xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test > /tmp/n7.log 2>&1; tail -3 /tmp/n7.log
+xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=iOS Simulator,name=iPhone 17 Pro' test > /tmp/n7b.log 2>&1; tail -3 /tmp/n7b.log
 ./scripts/e2e-m1.sh && ./scripts/e2e-m2.sh
 ```
 

@@ -1,32 +1,32 @@
-# clipnote-apple v1 Implementation Plan
+# stepkeeper-apple v1 Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 유튜브 how-to 영상 URL → 분석(clipnote-server) → 사용자 프레임 선택 → 이미지/링크가 첨부된 마크다운 문서 내보내기까지 되는 SwiftUI 멀티플랫폼 앱(iOS/iPadOS/macOS).
+**Goal:** 유튜브 how-to 영상 URL → 분석(stepkeeper-server) → 사용자 프레임 선택 → 이미지/링크가 첨부된 마크다운 문서 내보내기까지 되는 SwiftUI 멀티플랫폼 앱(iOS/iPadOS/macOS).
 
-**Architecture:** 서버는 분석만, 캡처는 WKWebView(유튜브 재생 화면 canvas 캡처), 문서 조립은 로컬 Swift(코어의 미니 mustache 렌더러 포팅 + template.md 번들). 스펙: `docs/superpowers/specs/2026-07-17-clipnote-apple-v1-design.md` — 이 계획과 충돌 시 스펙이 우선.
+**Architecture:** 서버는 분석만, 캡처는 WKWebView(유튜브 재생 화면 canvas 캡처), 문서 조립은 로컬 Swift(코어의 미니 mustache 렌더러 포팅 + template.md 번들). 스펙: `docs/superpowers/specs/2026-07-17-stepkeeper-apple-v1-design.md` — 이 계획과 충돌 시 스펙이 우선.
 
 **Tech Stack:** Swift 6 / SwiftUI / WKWebView / Swift Testing(`import Testing`) / XcodeGen / 로컬 검증용 Python 스텁 서버(stdlib).
 
 ## Global Constraints
 
 - 모든 `xcodebuild`/`xcrun` 앞에 `export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer` (이 Mac의 xcode-select는 CLT를 가리킴).
-- 빌드 대상: iOS 17.0+ / macOS 14.0+, Swift 6(strict concurrency), 단일 멀티플랫폼 타깃 `Clipnote` + 테스트 타깃 `ClipnoteTests`.
+- 빌드 대상: iOS 17.0+ / macOS 14.0+, Swift 6(strict concurrency), 단일 멀티플랫폼 타깃 `Stepkeeper` + 테스트 타깃 `StepkeeperTests`.
 - `project.yml`이 프로젝트 원본 — 파일/타깃 추가 시 project.yml 수정 후 `xcodegen generate` (xcodegen은 소스 glob이라 Sources/Tests 아래 새 .swift 파일은 regen만 하면 됨).
-- 단위 테스트 실행(빠른 기본): `xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test`. 시뮬레이터 검증: `-destination 'platform=iOS Simulator,name=iPhone 17 Pro'`.
+- 단위 테스트 실행(빠른 기본): `xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test`. 시뮬레이터 검증: `-destination 'platform=iOS Simulator,name=iPhone 17 Pro'`.
 - 영상 다운로드 절대 금지(App Store 5.2.3). yt-dlp/ffmpeg 사용 금지. 캡처는 플레이어 화면 스틸만.
 - 시간 값은 전부 초 단위 `Int` (서버가 정규화해서 반환).
 - Gemini 키를 로그·에러 메시지·커밋에 절대 노출하지 않는다. 실키 입력이 필요한 검증은 사용자에게 맡긴다(에이전트가 키를 다루지 않음).
 - UI 문구는 한국어(스펙 5·6절의 문구 그대로).
 - 커밋은 태스크당 1개 이상, 메시지는 각 태스크의 커밋 스텝 참조.
-- 작업 디렉토리: `/Users/choejunhwan/dev/clipnote-apple`. 참조 레포: `../clipnote`(코어), `../clipnote-server`, `../clipnote-extension`.
+- 작업 디렉토리: `/Users/choejunhwan/dev/stepkeeper-apple`. 참조 레포: `../stepkeeper`(코어), `../stepkeeper-server`, `../stepkeeper-extension`.
 
 ## File Structure (최종 상태)
 
 ```
 project.yml                          # 타깃·plist·리소스 정의 (Task 2, 5, 13, 14에서 수정)
 Sources/
-  App/ClipnoteApp.swift              # @main + 스파이크/기본값 부팅 (Task 1, 10)
+  App/StepkeeperApp.swift              # @main + 스파이크/기본값 부팅 (Task 1, 10)
   App/AppModel.swift                 # @Observable 플로우 상태 머신 (Task 9, 11)
   App/ShareInbox.swift               # App Group 인박스 (Task 13)
   Models/Analysis.swift              # Analysis·Step·VisualGuide·Material Codable (Task 2)
@@ -36,7 +36,7 @@ Sources/
   Services/MarkdownBuilder.swift     # buildContext 포팅 + 템플릿 렌더 (Task 5)
   Services/KeychainStore.swift       # Gemini 키 (Task 6)
   Services/Settings.swift            # @AppStorage 키·기본값 (Task 6)
-  Services/ClipnoteAPI.swift         # /v1/analyze + 에러 매핑 (Task 7)
+  Services/StepkeeperAPI.swift         # /v1/analyze + 에러 매핑 (Task 7)
   Services/DocumentStore.swift       # 문서 저장/목록/재열람 (Task 8)
   Capture/CaptureScript.swift        # 주입 JS 문자열 (Task 1, 11)
   Capture/PlayerBridge.swift         # WKWebView 브리지 (Task 1, 11)
@@ -49,17 +49,17 @@ Sources/
   Views/SettingsView.swift           # 키·언어·서버·링크모드 (Task 10)
   Views/Support.swift                # Pasteboard·LocalImage·JPEGImage·ExportHelper (Task 10, 12)
   ContentView.swift                  # 루트 (Task 1 스파이크 링크, Task 10 대체, Task 13 픽업)
-  Clipnote-iOS.entitlements          # App Group (Task 13)
-  Clipnote-macOS.entitlements        # 샌드박스 (Task 14)
-Resources/skill-core/generic/template.md   # ../clipnote에서 복사 (Task 5)
+  Stepkeeper-iOS.entitlements          # App Group (Task 13)
+  Stepkeeper-macOS.entitlements        # 샌드박스 (Task 14)
+Resources/skill-core/generic/template.md   # ../stepkeeper에서 복사 (Task 5)
 Resources/skill-core/recipe/template.md
 ShareExtension/ShareViewController.swift   # (Task 13)
-ShareExtension/ClipnoteShare.entitlements  # (Task 13; Info.plist는 project.yml info로 생성)
+ShareExtension/StepkeeperShare.entitlements  # (Task 13; Info.plist는 project.yml info로 생성)
 Tests/
   TestBundle.swift·AnalysisTests.swift (Task 2)
   YouTubeURLTests.swift·CandidateTimesTests.swift (Task 3)
   MustacheLiteTests.swift (Task 4) / MarkdownBuilderGoldenTests.swift (Task 5)
-  KeychainStoreTests.swift·SettingsTests.swift (Task 6) / ClipnoteAPITests.swift (Task 7)
+  KeychainStoreTests.swift·SettingsTests.swift (Task 6) / StepkeeperAPITests.swift (Task 7)
   DocumentStoreTests.swift (Task 8) / AppModelTests.swift (Task 9)
   CapturePipelineTests.swift (Task 11) / ShareInboxTests.swift (Task 13)
   Fixtures/analyze-response.json (Task 2)
@@ -89,7 +89,7 @@ README.md                            # (Task 14)
 
 **Interfaces:**
 - Produces: `PlayerBridge`(@MainActor, ObservableObject) — `load(videoID:)`, `waitForMetadata(timeout:) async throws -> (duration: Int, title: String)`, `captureFrame(at:) async throws -> Data`, `beginCaptureSession()/endCaptureSession()`은 Task 10에서 추가. `PlayerError` enum. Task 8·10이 이 시그니처를 그대로 사용.
-- 주입 JS 전역: `window.__clipnote.waitMeta(timeoutMs)`, `window.__clipnote.capture(t, timeoutMs)` — dataURL 문자열 반환.
+- 주입 JS 전역: `window.__stepkeeper.waitMeta(timeoutMs)`, `window.__stepkeeper.capture(t, timeoutMs)` — dataURL 문자열 반환.
 
 - [ ] **Step 1: capture.js를 Swift 상수로 작성**
 
@@ -100,7 +100,7 @@ README.md                            # (Task 14)
 enum CaptureScript {
     static let source = #"""
     (() => {
-      if (window.__clipnote) return;
+      if (window.__stepkeeper) return;
       const video = () => document.querySelector("video");
       const sleep = (ms) => new Promise(r => setTimeout(r, ms));
       async function waitMeta(timeoutMs) {
@@ -141,7 +141,7 @@ enum CaptureScript {
         v.pause();
         return true;
       }
-      window.__clipnote = { waitMeta, capture, prime };
+      window.__stepkeeper = { waitMeta, capture, prime };
     })();
     """#
 }
@@ -194,7 +194,7 @@ final class PlayerBridge: NSObject, ObservableObject {
 
     func waitForMetadata(timeout: TimeInterval = 20) async throws -> (duration: Int, title: String) {
         let result = try await callJS(
-            "return await window.__clipnote.waitMeta(\(Int(timeout * 1000)));", timeout: timeout)
+            "return await window.__stepkeeper.waitMeta(\(Int(timeout * 1000)));", timeout: timeout)
         guard let dict = result as? [String: Any],
               let duration = dict["duration"] as? Int,
               let title = dict["title"] as? String, duration > 0 else {
@@ -204,14 +204,14 @@ final class PlayerBridge: NSObject, ObservableObject {
     }
 
     func primePlayer() async throws {
-        _ = try await callJS("return await window.__clipnote.prime();", timeout: 5)
+        _ = try await callJS("return await window.__stepkeeper.prime();", timeout: 5)
     }
 
     func captureFrame(at seconds: Int) async throws -> Data {
         let result: Any?
         do {
             result = try await callJS(
-                "return await window.__clipnote.capture(\(seconds), 8000);", timeout: 10)
+                "return await window.__stepkeeper.capture(\(seconds), 8000);", timeout: 10)
         } catch {
             throw PlayerError.captureFailed(String(describing: error))
         }
@@ -369,7 +369,7 @@ struct SpikeCaptureView: View {
         }
         .padding()
         .task {
-            if ProcessInfo.processInfo.environment["CLIPNOTE_SPIKE"] == "1" { await runner.run() }
+            if ProcessInfo.processInfo.environment["STEPKEEPER_SPIKE"] == "1" { await runner.run() }
         }
         .toolbar { Button("실행") { Task { await runner.run() } } }
     }
@@ -398,7 +398,7 @@ struct ContentView: View {
             VStack(spacing: 12) {
                 Image(systemName: "doc.text.image")
                     .font(.system(size: 44))
-                Text("clipnote")
+                Text("stepkeeper")
                     .font(.largeTitle.bold())
                 Text("영상을 문서로. 애매한 순간은 실제 화면으로.")
                     .foregroundStyle(.secondary)
@@ -419,11 +419,11 @@ struct ContentView: View {
 - [ ] **Step 6: 빌드 확인 (양 플랫폼)**
 
 ```bash
-cd /Users/choejunhwan/dev/clipnote-apple
+cd /Users/choejunhwan/dev/stepkeeper-apple
 export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
 xcodegen generate
-xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' build 2>&1 | tail -3
-xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build 2>&1 | tail -3
+xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' build 2>&1 | tail -3
+xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build 2>&1 | tail -3
 ```
 
 Expected: 둘 다 `BUILD SUCCEEDED`. (경고는 허용, 에러 0)
@@ -439,17 +439,17 @@ set -euo pipefail
 export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
 cd "$(dirname "$0")/.."
 SIM="iPhone 17 Pro"
-BUNDLE=com.clipnote.app
+BUNDLE=com.stepkeeper.app
 
-xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote \
+xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper \
   -destination "platform=iOS Simulator,name=$SIM" -derivedDataPath build build | tail -2
 xcrun simctl boot "$SIM" 2>/dev/null || true
-xcrun simctl install "$SIM" build/Build/Products/Debug-iphonesimulator/clipnote.app
+xcrun simctl install "$SIM" build/Build/Products/Debug-iphonesimulator/stepkeeper.app
 xcrun simctl terminate "$SIM" $BUNDLE 2>/dev/null || true
-SIMCTL_CHILD_CLIPNOTE_SPIKE=1 xcrun simctl launch "$SIM" $BUNDLE
+SIMCTL_CHILD_STEPKEEPER_SPIKE=1 xcrun simctl launch "$SIM" $BUNDLE
 
 # 스파이크 하네스는 홈 화면에서 진입해야 하므로 UI 없이는 자동 진입이 안 된다 →
-# 앱 시작 시 CLIPNOTE_SPIKE=1이면 스파이크 뷰를 루트로 띄우는 분기가 ClipnoteApp에 필요(Step 8).
+# 앱 시작 시 STEPKEEPER_SPIKE=1이면 스파이크 뷰를 루트로 띄우는 분기가 StepkeeperApp에 필요(Step 8).
 CONTAINER=$(xcrun simctl get_app_container "$SIM" $BUNDLE data)
 RESULT="$CONTAINER/Documents/spike/result.json"
 echo "waiting for $RESULT"
@@ -471,17 +471,17 @@ EOF
 
 - [ ] **Step 8: 스파이크 자동 진입 분기**
 
-`Sources/App/ClipnoteApp.swift` — 기존 `Sources/ClipnoteApp.swift`를 `Sources/App/`으로 이동하고 내용 교체:
+`Sources/App/StepkeeperApp.swift` — 기존 `Sources/StepkeeperApp.swift`를 `Sources/App/`으로 이동하고 내용 교체:
 
 ```swift
 import SwiftUI
 
 @main
-struct ClipnoteApp: App {
+struct StepkeeperApp: App {
     var body: some Scene {
         WindowGroup {
             #if DEBUG
-            if ProcessInfo.processInfo.environment["CLIPNOTE_SPIKE"] == "1" {
+            if ProcessInfo.processInfo.environment["STEPKEEPER_SPIKE"] == "1" {
                 SpikeCaptureView()
             } else {
                 ContentView()
@@ -495,7 +495,7 @@ struct ClipnoteApp: App {
 ```
 
 ```bash
-mkdir -p Sources/App && git mv Sources/ClipnoteApp.swift Sources/App/ClipnoteApp.swift
+mkdir -p Sources/App && git mv Sources/StepkeeperApp.swift Sources/App/StepkeeperApp.swift
 # 내용을 위 코드로 교체 후
 xcodegen generate
 ```
@@ -513,11 +513,11 @@ Expected: `SPIKE PASS (iOS simulator)` + result.json에 frames 3개, 각 `ok: tr
 
 ```bash
 export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
-xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' -derivedDataPath build build | tail -2
-CLIPNOTE_SPIKE=1 ./build/Build/Products/Debug/clipnote.app/Contents/MacOS/clipnote &
+xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' -derivedDataPath build build | tail -2
+STEPKEEPER_SPIKE=1 ./build/Build/Products/Debug/stepkeeper.app/Contents/MacOS/stepkeeper &
 APP_PID=$!
 sleep 45 && kill $APP_PID 2>/dev/null || true
-RESULT=$(ls ~/Library/Containers/com.clipnote.app/Data/Documents/spike/result.json 2>/dev/null \
+RESULT=$(ls ~/Library/Containers/com.stepkeeper.app/Data/Documents/spike/result.json 2>/dev/null \
       || ls ~/Documents/spike/result.json 2>/dev/null)
 cat "$RESULT" && python3 -c "import json,sys; r=json.load(open('$RESULT')); assert r['ok'], r; print('SPIKE PASS (macOS)')"
 ```
@@ -551,15 +551,15 @@ git commit -m "feat: M0 캡처 스파이크 — WKWebView 유튜브 프레임 �
 `project.yml` 전체를 다음으로 교체 (기존 `INFOPLIST_KEY_*`·`GENERATE_INFOPLIST_FILE` 제거, info/테스트 타깃/스킴 test 추가):
 
 ```yaml
-name: clipnote-apple
+name: stepkeeper-apple
 options:
-  bundleIdPrefix: com.clipnote
+  bundleIdPrefix: com.stepkeeper
   deploymentTarget:
     iOS: "17.0"
     macOS: "14.0"
   createIntermediateGroups: true
 targets:
-  Clipnote:
+  Stepkeeper:
     type: application
     supportedDestinations: [iOS, macOS]
     sources:
@@ -567,7 +567,7 @@ targets:
     info:
       path: Sources/Info.plist
       properties:
-        CFBundleDisplayName: clipnote
+        CFBundleDisplayName: stepkeeper
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: true
         UILaunchScreen: {}
@@ -577,13 +577,13 @@ targets:
           NSAllowsLocalNetworking: true
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.clipnote.app
-        PRODUCT_NAME: clipnote
+        PRODUCT_BUNDLE_IDENTIFIER: com.stepkeeper.app
+        PRODUCT_NAME: stepkeeper
         CURRENT_PROJECT_VERSION: 1
         MARKETING_VERSION: 0.1.0
         SWIFT_VERSION: "6.0"
         TARGETED_DEVICE_FAMILY: "1,2"
-  ClipnoteTests:
+  StepkeeperTests:
     type: bundle.unit-test
     supportedDestinations: [iOS, macOS]
     sources:
@@ -594,25 +594,25 @@ targets:
         type: folder
         buildPhase: resources
     dependencies:
-      - target: Clipnote
+      - target: Stepkeeper
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.clipnote.tests
+        PRODUCT_BUNDLE_IDENTIFIER: com.stepkeeper.tests
         SWIFT_VERSION: "6.0"
         BUNDLE_LOADER: $(TEST_HOST)
-        "TEST_HOST[sdk=macosx*]": $(BUILT_PRODUCTS_DIR)/clipnote.app/Contents/MacOS/clipnote
-        "TEST_HOST[sdk=iphonesimulator*]": $(BUILT_PRODUCTS_DIR)/clipnote.app/clipnote
+        "TEST_HOST[sdk=macosx*]": $(BUILT_PRODUCTS_DIR)/stepkeeper.app/Contents/MacOS/stepkeeper
+        "TEST_HOST[sdk=iphonesimulator*]": $(BUILT_PRODUCTS_DIR)/stepkeeper.app/stepkeeper
 schemes:
-  Clipnote:
+  Stepkeeper:
     build:
       targets:
-        Clipnote: all
+        Stepkeeper: all
     run:
       config: Debug
     test:
       config: Debug
       targets:
-        - ClipnoteTests
+        - StepkeeperTests
 ```
 
 주의: `Tests/Fixtures`는 **폴더 레퍼런스(type: folder)** 로 번들에 들어가 디렉토리 구조가 보존된다 — Task 5의 골든 케이스들(`golden/<case>/analysis.json` 3벌)이 같은 파일명이라 평면 복사면 충돌한다. `Sources/Info.plist`는 xcodegen이 생성하므로 커밋에 포함.
@@ -683,7 +683,7 @@ extension Bundle {
 ```swift
 import Testing
 import Foundation
-@testable import clipnote
+@testable import stepkeeper
 
 struct AnalysisTests {
     @Test func decodesAnalyzeResponseFixture() throws {
@@ -708,10 +708,10 @@ struct AnalysisTests {
 - [ ] **Step 4: 실패 확인**
 
 ```bash
-cd /Users/choejunhwan/dev/clipnote-apple
+cd /Users/choejunhwan/dev/stepkeeper-apple
 export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
 xcodegen generate
-xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test 2>&1 | tail -20
+xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test 2>&1 | tail -20
 ```
 
 Expected: 컴파일 실패 — `cannot find 'AnalyzeEnvelope' in scope` (테스트가 먼저, 타입이 없음).
@@ -803,7 +803,7 @@ struct AnalyzeEnvelope: Codable, Sendable {
 - [ ] **Step 6: 통과 확인**
 
 ```bash
-xcodegen generate && xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test 2>&1 | tail -5
+xcodegen generate && xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test 2>&1 | tail -5
 ```
 
 Expected: `** TEST SUCCEEDED **`
@@ -832,7 +832,7 @@ git commit -m "feat: Analysis 모델 + 테스트 타깃 (fixture 디코딩)"
 
 ```swift
 import Testing
-@testable import clipnote
+@testable import stepkeeper
 
 struct YouTubeURLTests {
     @Test func parsesCommonForms() {
@@ -853,7 +853,7 @@ struct YouTubeURLTests {
 
 ```swift
 import Testing
-@testable import clipnote
+@testable import stepkeeper
 
 struct CandidateTimesTests {
     private func makeStep(_ tStart: Int, _ tEnd: Int) -> Step {
@@ -882,7 +882,7 @@ struct CandidateTimesTests {
 - [ ] **Step 2: 실패 확인**
 
 ```bash
-xcodegen generate && xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test 2>&1 | tail -10
+xcodegen generate && xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test 2>&1 | tail -10
 ```
 
 Expected: 컴파일 실패 — `cannot find 'YouTubeURL' in scope`.
@@ -941,7 +941,7 @@ struct CandidateTimes: Equatable, Sendable {
 - [ ] **Step 4: 통과 확인**
 
 ```bash
-xcodegen generate && xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test 2>&1 | tail -5
+xcodegen generate && xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test 2>&1 | tail -5
 ```
 
 Expected: `** TEST SUCCEEDED **`
@@ -957,7 +957,7 @@ git commit -m "feat: YouTubeURL 파싱 + CandidateTimes (코어 규칙 포팅)"
 
 ### Task 4: MustacheLite — 코어 미니 mustache 렌더러 포팅
 
-문서 출력 파리티의 핵심. `../clipnote/render.py` 47–107행(`render`/`capture_block`/`_lookup`)을 그대로 포팅한다. **동작을 임의로 개선하지 말 것** — 파이썬과 같은 입력이면 같은 출력이 목표.
+문서 출력 파리티의 핵심. `../stepkeeper/render.py` 47–107행(`render`/`capture_block`/`_lookup`)을 그대로 포팅한다. **동작을 임의로 개선하지 말 것** — 파이썬과 같은 입력이면 같은 출력이 목표.
 
 **Files:**
 - Create: `Sources/Services/MustacheLite.swift`, `Tests/MustacheLiteTests.swift`
@@ -971,14 +971,14 @@ git commit -m "feat: YouTubeURL 파싱 + CandidateTimes (코어 규칙 포팅)"
 
 ```swift
 import Testing
-@testable import clipnote
+@testable import stepkeeper
 
 struct MustacheLiteTests {
     private func d(_ pairs: [String: MustacheValue]) -> MustacheValue { .dict(pairs) }
 
     @Test func substitutesVariables() throws {
-        #expect(try MustacheLite.render("Hello {{name}}!", d(["name": .string("clipnote")]))
-                == "Hello clipnote!")
+        #expect(try MustacheLite.render("Hello {{name}}!", d(["name": .string("stepkeeper")]))
+                == "Hello stepkeeper!")
     }
     @Test func missingKeyRendersEmpty() throws {
         #expect(try MustacheLite.render("[{{nope}}]", d([:])) == "[]")
@@ -1027,7 +1027,7 @@ struct MustacheLiteTests {
 - [ ] **Step 2: 실패 확인**
 
 ```bash
-xcodegen generate && xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test 2>&1 | tail -10
+xcodegen generate && xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test 2>&1 | tail -10
 ```
 
 Expected: 컴파일 실패 — `cannot find 'MustacheLite' in scope`.
@@ -1156,7 +1156,7 @@ enum MustacheLite {
 - [ ] **Step 4: 통과 확인**
 
 ```bash
-xcodegen generate && xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test 2>&1 | tail -5
+xcodegen generate && xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test 2>&1 | tail -5
 ```
 
 Expected: `** TEST SUCCEEDED **`
@@ -1176,7 +1176,7 @@ git commit -m "feat: MustacheLite — 코어 미니 mustache 렌더러 포팅"
 
 **Files:**
 - Create: `scripts/sync-assets.sh`, `Resources/skill-core/{generic,recipe}/template.md`(복사본), `scripts/make-golden.py`, `Tests/Fixtures/golden/<case>/{analysis.json,case.json,expected.md}`(3케이스), `Sources/Services/MarkdownBuilder.swift`, `Tests/MarkdownBuilderGoldenTests.swift`
-- Modify: `project.yml` (Clipnote 타깃에 Resources 폴더 레퍼런스 추가)
+- Modify: `project.yml` (Stepkeeper 타깃에 Resources 폴더 레퍼런스 추가)
 
 **Interfaces:**
 - Consumes: `MustacheValue`/`MustacheLite.render` (Task 4), `Analysis` (Task 2)
@@ -1188,10 +1188,10 @@ git commit -m "feat: MustacheLite — 코어 미니 mustache 렌더러 포팅"
 
 ```bash
 #!/bin/bash
-# skill-core 템플릿을 앱 리소스로 복사 (원본: ../clipnote). 코어 템플릿 갱신 시 재실행 후 골든 재생성.
+# skill-core 템플릿을 앱 리소스로 복사 (원본: ../stepkeeper). 코어 템플릿 갱신 시 재실행 후 골든 재생성.
 set -euo pipefail
 cd "$(dirname "$0")/.."
-SRC="${CLIPNOTE_PATH:-../clipnote}/skill-core/profiles"
+SRC="${STEPKEEPER_PATH:-../stepkeeper}/skill-core/profiles"
 for p in generic recipe; do
   mkdir -p "Resources/skill-core/$p"
   cp "$SRC/$p/template.md" "Resources/skill-core/$p/template.md"
@@ -1203,11 +1203,11 @@ echo "synced templates from $SRC"
 chmod +x scripts/sync-assets.sh && ./scripts/sync-assets.sh
 ```
 
-Expected: `synced templates from ../clipnote/skill-core/profiles`, `Resources/skill-core/{generic,recipe}/template.md` 생성.
+Expected: `synced templates from ../stepkeeper/skill-core/profiles`, `Resources/skill-core/{generic,recipe}/template.md` 생성.
 
 - [ ] **Step 2: project.yml에 리소스 폴더 레퍼런스 추가**
 
-`project.yml`의 Clipnote 타깃 `sources:`를 다음으로 교체:
+`project.yml`의 Stepkeeper 타깃 `sources:`를 다음으로 교체:
 
 ```yaml
     sources:
@@ -1307,7 +1307,7 @@ Expected: `synced templates from ../clipnote/skill-core/profiles`, `Resources/sk
 ```python
 #!/usr/bin/env python3
 """골든 기대 출력 생성 — 코어 render.py로 Tests/Fixtures/golden/<case>/expected.md 를 만든다.
-사용: python3 scripts/make-golden.py   (코어 위치는 CLIPNOTE_PATH, 기본 ../clipnote)
+사용: python3 scripts/make-golden.py   (코어 위치는 STEPKEEPER_PATH, 기본 ../stepkeeper)
 서버 /v1/documents 와 동일 파이프라인: template 프론트매터 분리 → build_context(picks={}, image_refs) → render → strip + \\n
 """
 import json
@@ -1317,7 +1317,7 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-CORE = Path(os.environ.get("CLIPNOTE_PATH", ROOT.parent / "clipnote")).resolve()
+CORE = Path(os.environ.get("STEPKEEPER_PATH", ROOT.parent / "stepkeeper")).resolve()
 sys.path.insert(0, str(CORE))
 import render as core_render  # noqa: E402
 
@@ -1350,7 +1350,7 @@ Expected: `wrote generic-links-only/expected.md ...` 등 3줄. 각 expected.md�
 ```swift
 import Testing
 import Foundation
-@testable import clipnote
+@testable import stepkeeper
 
 struct MarkdownBuilderGoldenTests {
     struct GoldenCase: Codable {
@@ -1389,7 +1389,7 @@ struct MarkdownBuilderGoldenTests {
 - [ ] **Step 6: 실패 확인**
 
 ```bash
-xcodegen generate && xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test 2>&1 | tail -10
+xcodegen generate && xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test 2>&1 | tail -10
 ```
 
 Expected: 컴파일 실패 — `cannot find 'MarkdownBuilder' in scope`.
@@ -1501,7 +1501,7 @@ enum MarkdownBuilder {
 - [ ] **Step 8: 통과 확인**
 
 ```bash
-xcodegen generate && xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test 2>&1 | tail -5
+xcodegen generate && xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test 2>&1 | tail -5
 ```
 
 Expected: `** TEST SUCCEEDED **` (골든 3케이스 + hms 포함 전부 그린). 골든 불일치 시 출력 diff를 보고 **MustacheLite/컨텍스트 쪽을 고친다** — expected.md를 손으로 고치는 것 금지(그건 파리티 포기).
@@ -1530,11 +1530,11 @@ git commit -m "feat: MarkdownBuilder — build_context 포팅 + 코어 골든 �
 ```swift
 import Testing
 import Foundation
-@testable import clipnote
+@testable import stepkeeper
 
 struct KeychainStoreTests {
     @Test func roundTripSaveLoadOverwriteDelete() throws {
-        let store = KeychainStore(service: "clipnote.tests.\(UUID().uuidString)")
+        let store = KeychainStore(service: "stepkeeper.tests.\(UUID().uuidString)")
         defer { try? store.delete() }
 
         #expect(try store.load() == nil)
@@ -1554,12 +1554,12 @@ struct KeychainStoreTests {
 ```swift
 import Testing
 import Foundation
-@testable import clipnote
+@testable import stepkeeper
 
 struct SettingsTests {
     @Test func registersDefaults() {
-        let suite = UserDefaults(suiteName: "clipnote.tests.settings")!
-        suite.removePersistentDomain(forName: "clipnote.tests.settings")
+        let suite = UserDefaults(suiteName: "stepkeeper.tests.settings")!
+        suite.removePersistentDomain(forName: "stepkeeper.tests.settings")
         Settings.registerDefaults(suite)
         #expect(suite.string(forKey: Settings.serverURLKey) == "http://127.0.0.1:8787")
         #expect(suite.string(forKey: Settings.languageKey) == "ko")
@@ -1571,7 +1571,7 @@ struct SettingsTests {
 - [ ] **Step 2: 실패 확인**
 
 ```bash
-xcodegen generate && xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test 2>&1 | tail -10
+xcodegen generate && xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test 2>&1 | tail -10
 ```
 
 Expected: 컴파일 실패 — `cannot find 'KeychainStore' in scope`.
@@ -1590,7 +1590,7 @@ struct KeychainStore: Sendable {
     var service: String
     var account: String = "default"
 
-    static let geminiKey = KeychainStore(service: "clipnote.gemini-key")
+    static let geminiKey = KeychainStore(service: "stepkeeper.gemini-key")
 
     struct UnexpectedStatus: Error, Equatable { let status: OSStatus }
 
@@ -1666,7 +1666,7 @@ enum Settings {
 - [ ] **Step 4: 통과 확인**
 
 ```bash
-xcodegen generate && xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test 2>&1 | tail -5
+xcodegen generate && xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test 2>&1 | tail -5
 ```
 
 Expected: `** TEST SUCCEEDED **`
@@ -1680,23 +1680,23 @@ git commit -m "feat: KeychainStore + Settings 기본값"
 
 ---
 
-### Task 7: ClipnoteAPI — /v1/analyze 클라이언트 + 에러 매핑
+### Task 7: StepkeeperAPI — /v1/analyze 클라이언트 + 에러 매핑
 
 **Files:**
-- Create: `Sources/Services/ClipnoteAPI.swift`, `Tests/ClipnoteAPITests.swift`
+- Create: `Sources/Services/StepkeeperAPI.swift`, `Tests/StepkeeperAPITests.swift`
 
 **Interfaces:**
 - Consumes: `AnalyzeEnvelope`/`Analysis` (Task 2), `Settings.maxGuides` (Task 6)
-- Produces: `ClipnoteAPIError`(`.missingKey .badRequest(String) .rateLimited .modelFailure(String) .server(Int, String) .network(String) .invalidResponse` — `LocalizedError`, 스펙 6절 문구), `AnalyzeResult(videoId: String, analysis: Analysis, rawAnalysis: Data)`, `ClipnoteAPI(baseURL: URL, session: URLSession = .shared)` — `analyze(videoURL: String, profile: String, language: String, maxGuides: Int = Settings.maxGuides, duration: Int, geminiKey: String) async throws -> AnalyzeResult`. Task 9가 사용. `rawAnalysis`는 서버가 준 analysis 객체를 필드 손실 없이 보존(JSONSerialization 재직렬화 — `_model` 등 모델에 없는 키 유지), Task 8이 analysis.json으로 저장.
+- Produces: `StepkeeperAPIError`(`.missingKey .badRequest(String) .rateLimited .modelFailure(String) .server(Int, String) .network(String) .invalidResponse` — `LocalizedError`, 스펙 6절 문구), `AnalyzeResult(videoId: String, analysis: Analysis, rawAnalysis: Data)`, `StepkeeperAPI(baseURL: URL, session: URLSession = .shared)` — `analyze(videoURL: String, profile: String, language: String, maxGuides: Int = Settings.maxGuides, duration: Int, geminiKey: String) async throws -> AnalyzeResult`. Task 9가 사용. `rawAnalysis`는 서버가 준 analysis 객체를 필드 손실 없이 보존(JSONSerialization 재직렬화 — `_model` 등 모델에 없는 키 유지), Task 8이 analysis.json으로 저장.
 
 - [ ] **Step 1: 실패하는 테스트 작성**
 
-`Tests/ClipnoteAPITests.swift` (URLProtocol 스텁 — static 상태를 쓰므로 **`.serialized`** 필수):
+`Tests/StepkeeperAPITests.swift` (URLProtocol 스텁 — static 상태를 쓰므로 **`.serialized`** 필수):
 
 ```swift
 import Testing
 import Foundation
-@testable import clipnote
+@testable import stepkeeper
 
 final class StubURLProtocol: URLProtocol {
     nonisolated(unsafe) static var handler: (@Sendable (URLRequest) -> (Int, Data))?
@@ -1741,11 +1741,11 @@ extension URLRequest {
 }
 
 @Suite(.serialized)
-struct ClipnoteAPITests {
-    private func makeAPI() -> ClipnoteAPI {
+struct StepkeeperAPITests {
+    private func makeAPI() -> StepkeeperAPI {
         let config = URLSessionConfiguration.ephemeral
         config.protocolClasses = [StubURLProtocol.self]
-        return ClipnoteAPI(baseURL: URL(string: "http://stub.local:8787")!,
+        return StepkeeperAPI(baseURL: URL(string: "http://stub.local:8787")!,
                            session: URLSession(configuration: config))
     }
     private func reset() {
@@ -1780,7 +1780,7 @@ struct ClipnoteAPITests {
         StubURLProtocol.handler = { _ in
             (401, Data(#"{"detail": "X-Gemini-Key 헤더가 필요합니다."}"#.utf8))
         }
-        await #expect(throws: ClipnoteAPIError.missingKey) {
+        await #expect(throws: StepkeeperAPIError.missingKey) {
             _ = try await self.makeAPI().analyze(
                 videoURL: "u", profile: "generic", language: "ko", duration: 10, geminiKey: "k")
         }
@@ -1789,12 +1789,12 @@ struct ClipnoteAPITests {
     @Test func maps422To429To502() async throws {
         defer { reset() }
         StubURLProtocol.handler = { _ in (422, Data(#"{"detail": "bad url"}"#.utf8)) }
-        await #expect(throws: ClipnoteAPIError.badRequest("bad url")) {
+        await #expect(throws: StepkeeperAPIError.badRequest("bad url")) {
             _ = try await self.makeAPI().analyze(
                 videoURL: "u", profile: "generic", language: "ko", duration: 10, geminiKey: "k")
         }
         StubURLProtocol.handler = { _ in (429, Data(#"{"detail": "quota"}"#.utf8)) }
-        await #expect(throws: ClipnoteAPIError.rateLimited) {
+        await #expect(throws: StepkeeperAPIError.rateLimited) {
             _ = try await self.makeAPI().analyze(
                 videoURL: "u", profile: "generic", language: "ko", duration: 10, geminiKey: "k")
         }
@@ -1806,7 +1806,7 @@ struct ClipnoteAPITests {
             _ = try await makeAPI().analyze(
                 videoURL: "u", profile: "generic", language: "ko", duration: 10, geminiKey: "k")
             Issue.record("should throw")
-        } catch let error as ClipnoteAPIError {
+        } catch let error as StepkeeperAPIError {
             guard case .modelFailure(let detail) = error else {
                 Issue.record("wrong case: \(error)"); return
             }
@@ -1821,7 +1821,7 @@ struct ClipnoteAPITests {
             _ = try await makeAPI().analyze(
                 videoURL: "u", profile: "generic", language: "ko", duration: 10, geminiKey: "k")
             Issue.record("should throw")
-        } catch let error as ClipnoteAPIError {
+        } catch let error as StepkeeperAPIError {
             guard case .network = error else { Issue.record("wrong case: \(error)"); return }
         }
     }
@@ -1831,19 +1831,19 @@ struct ClipnoteAPITests {
 - [ ] **Step 2: 실패 확인**
 
 ```bash
-xcodegen generate && xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test 2>&1 | tail -10
+xcodegen generate && xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test 2>&1 | tail -10
 ```
 
-Expected: 컴파일 실패 — `cannot find 'ClipnoteAPI' in scope`.
+Expected: 컴파일 실패 — `cannot find 'StepkeeperAPI' in scope`.
 
 - [ ] **Step 3: 구현**
 
-`Sources/Services/ClipnoteAPI.swift`:
+`Sources/Services/StepkeeperAPI.swift`:
 
 ```swift
 import Foundation
 
-enum ClipnoteAPIError: Error, Equatable, LocalizedError {
+enum StepkeeperAPIError: Error, Equatable, LocalizedError {
     case missingKey            // 401
     case badRequest(String)    // 422
     case rateLimited           // 429
@@ -1872,7 +1872,7 @@ struct AnalyzeResult: Sendable {
     var rawAnalysis: Data
 }
 
-final class ClipnoteAPI: Sendable {
+final class StepkeeperAPI: Sendable {
     private let baseURL: URL
     private let session: URLSession
 
@@ -1900,25 +1900,25 @@ final class ClipnoteAPI: Sendable {
         do {
             (data, response) = try await session.data(for: request)
         } catch {
-            throw ClipnoteAPIError.network(String(describing: error))
+            throw StepkeeperAPIError.network(String(describing: error))
         }
         guard let http = response as? HTTPURLResponse else {
-            throw ClipnoteAPIError.invalidResponse
+            throw StepkeeperAPIError.invalidResponse
         }
         switch http.statusCode {
         case 200: break
-        case 401: throw ClipnoteAPIError.missingKey
-        case 422: throw ClipnoteAPIError.badRequest(Self.detail(from: data))
-        case 429: throw ClipnoteAPIError.rateLimited
-        case 502: throw ClipnoteAPIError.modelFailure(Self.detail(from: data))
-        default: throw ClipnoteAPIError.server(http.statusCode, Self.detail(from: data))
+        case 401: throw StepkeeperAPIError.missingKey
+        case 422: throw StepkeeperAPIError.badRequest(Self.detail(from: data))
+        case 429: throw StepkeeperAPIError.rateLimited
+        case 502: throw StepkeeperAPIError.modelFailure(Self.detail(from: data))
+        default: throw StepkeeperAPIError.server(http.statusCode, Self.detail(from: data))
         }
 
         guard let envelope = try? JSONDecoder().decode(AnalyzeEnvelope.self, from: data),
               let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let rawAnalysisObject = object["analysis"],
               let rawAnalysis = try? JSONSerialization.data(withJSONObject: rawAnalysisObject)
-        else { throw ClipnoteAPIError.invalidResponse }
+        else { throw StepkeeperAPIError.invalidResponse }
         return AnalyzeResult(videoId: envelope.videoId,
                              analysis: envelope.analysis, rawAnalysis: rawAnalysis)
     }
@@ -1940,7 +1940,7 @@ final class ClipnoteAPI: Sendable {
 - [ ] **Step 4: 통과 확인**
 
 ```bash
-xcodegen generate && xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test 2>&1 | tail -5
+xcodegen generate && xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test 2>&1 | tail -5
 ```
 
 Expected: `** TEST SUCCEEDED **`
@@ -1948,8 +1948,8 @@ Expected: `** TEST SUCCEEDED **`
 - [ ] **Step 5: 커밋**
 
 ```bash
-git add Sources/Services/ClipnoteAPI.swift Tests/ClipnoteAPITests.swift
-git commit -m "feat: ClipnoteAPI — /v1/analyze 클라이언트 + 상태코드 에러 매핑"
+git add Sources/Services/StepkeeperAPI.swift Tests/StepkeeperAPITests.swift
+git commit -m "feat: StepkeeperAPI — /v1/analyze 클라이언트 + 상태코드 에러 매핑"
 ```
 
 ---
@@ -1961,7 +1961,7 @@ git commit -m "feat: ClipnoteAPI — /v1/analyze 클라이언트 + 상태코드 
 
 **Interfaces:**
 - Consumes: `Analysis` (Task 2)
-- Produces: `DocumentMeta(id, title, videoId, profile, language, createdAt)`(`Codable, Identifiable`), `SavedDocument(meta, analysis, picks: [String: String], markdown, folder: URL)`, `DocumentStore(root: URL)` — `save(videoId:title:analysis:rawAnalysis:picks:images:markdown:) throws -> DocumentMeta`(images는 `파일명→JPEG Data`), `list() throws -> [DocumentMeta]`(생성일 내림차순), `load(id:) throws -> SavedDocument`, `delete(id:) throws`, `folderURL(id:) -> URL`, `static defaultRoot() throws -> URL`(= `Documents/clipnote`). Task 9·10·12가 사용. 폴더 구성은 스펙 4.6: `document.md`, `vg-N.jpg`, `meta.json`, `analysis.json`(rawAnalysis 그대로), `picks.json`.
+- Produces: `DocumentMeta(id, title, videoId, profile, language, createdAt)`(`Codable, Identifiable`), `SavedDocument(meta, analysis, picks: [String: String], markdown, folder: URL)`, `DocumentStore(root: URL)` — `save(videoId:title:analysis:rawAnalysis:picks:images:markdown:) throws -> DocumentMeta`(images는 `파일명→JPEG Data`), `list() throws -> [DocumentMeta]`(생성일 내림차순), `load(id:) throws -> SavedDocument`, `delete(id:) throws`, `folderURL(id:) -> URL`, `static defaultRoot() throws -> URL`(= `Documents/stepkeeper`). Task 9·10·12가 사용. 폴더 구성은 스펙 4.6: `document.md`, `vg-N.jpg`, `meta.json`, `analysis.json`(rawAnalysis 그대로), `picks.json`.
 
 - [ ] **Step 1: 실패하는 테스트 작성**
 
@@ -1970,12 +1970,12 @@ git commit -m "feat: ClipnoteAPI — /v1/analyze 클라이언트 + 상태코드 
 ```swift
 import Testing
 import Foundation
-@testable import clipnote
+@testable import stepkeeper
 
 struct DocumentStoreTests {
     private func makeStore() throws -> (DocumentStore, URL) {
         let root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("clipnote-tests-\(UUID().uuidString)")
+            .appendingPathComponent("stepkeeper-tests-\(UUID().uuidString)")
         return (DocumentStore(root: root), root)
     }
     private func sampleAnalysis() throws -> (Analysis, Data) {
@@ -2046,7 +2046,7 @@ struct DocumentStoreTests {
 - [ ] **Step 2: 실패 확인**
 
 ```bash
-xcodegen generate && xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test 2>&1 | tail -10
+xcodegen generate && xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test 2>&1 | tail -10
 ```
 
 Expected: 컴파일 실패 — `cannot find 'DocumentStore' in scope`.
@@ -2075,7 +2075,7 @@ struct SavedDocument: Sendable {
     var folder: URL
 }
 
-/// 스펙 4.6: Documents/clipnote/<id>/ 아래 document.md + vg-N.jpg + meta.json + analysis.json + picks.json
+/// 스펙 4.6: Documents/stepkeeper/<id>/ 아래 document.md + vg-N.jpg + meta.json + analysis.json + picks.json
 final class DocumentStore: Sendable {
     private let root: URL
 
@@ -2084,7 +2084,7 @@ final class DocumentStore: Sendable {
     static func defaultRoot() throws -> URL {
         try FileManager.default.url(for: .documentDirectory, in: .userDomainMask,
                                     appropriateFor: nil, create: true)
-            .appendingPathComponent("clipnote", isDirectory: true)
+            .appendingPathComponent("stepkeeper", isDirectory: true)
     }
 
     func folderURL(id: String) -> URL { root.appendingPathComponent(id, isDirectory: true) }
@@ -2163,7 +2163,7 @@ final class DocumentStore: Sendable {
 - [ ] **Step 4: 통과 확인**
 
 ```bash
-xcodegen generate && xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test 2>&1 | tail -5
+xcodegen generate && xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test 2>&1 | tail -5
 ```
 
 Expected: `** TEST SUCCEEDED **`
@@ -2185,7 +2185,7 @@ Gemini 키 없이 전체 플로우를 돌리기 위한 스텁 서버와, 진입�
 - Create: `scripts/stub-server.py`, `Sources/App/AppModel.swift`, `Tests/AppModelTests.swift`
 
 **Interfaces:**
-- Consumes: `PlayerBridge`(Task 1), `YouTubeURL`(Task 3), `MarkdownBuilder`(Task 5), `KeychainStore`/`Settings`(Task 6), `ClipnoteAPI`(Task 7), `DocumentStore`(Task 8)
+- Consumes: `PlayerBridge`(Task 1), `YouTubeURL`(Task 3), `MarkdownBuilder`(Task 5), `KeychainStore`/`Settings`(Task 6), `StepkeeperAPI`(Task 7), `DocumentStore`(Task 8)
 - Produces: `FlowStage`(`.idle .loadingPlayer .readyToAnalyze(duration: Int, title: String) .analyzing(duration: Int) .capturing(current: Int, total: Int) .picking .building .done(DocumentMeta) .failed(String)`), `AppModel`(@MainActor @Observable) — `stage`, `bridge: PlayerBridge`, `detectedProfile: String`, `profileOverride: String?`, `autoContinue: Bool`, `start(urlString: String) async`, `confirmAnalyze() async`, `retry() async`, `reset()`, `documents() -> [DocumentMeta]`, `document(id: String) -> SavedDocument?`, `static detectProfile(title: String) -> String`, 내부 `performAnalysis(videoId: String, duration: Int) async`. Task 10~13이 사용.
 
 - [ ] **Step 1: 스텁 서버 작성**
@@ -2256,7 +2256,7 @@ class Handler(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8787
-    print(f"stub clipnote-server on http://127.0.0.1:{port}")
+    print(f"stub stepkeeper-server on http://127.0.0.1:{port}")
     HTTPServer(("127.0.0.1", port), Handler).serve_forever()
 ```
 
@@ -2279,7 +2279,7 @@ Expected: `"video_id": "4ioPBiTWm3M"` 포함 200 응답.
 ```swift
 import Testing
 import Foundation
-@testable import clipnote
+@testable import stepkeeper
 
 @Suite(.serialized)
 @MainActor
@@ -2288,17 +2288,17 @@ struct AppModelTests {
         let config = URLSessionConfiguration.ephemeral
         config.protocolClasses = [StubURLProtocol.self]
         let session = URLSession(configuration: config)
-        let keychain = KeychainStore(service: "clipnote.tests.appmodel-\(UUID().uuidString)")
+        let keychain = KeychainStore(service: "stepkeeper.tests.appmodel-\(UUID().uuidString)")
         try? keychain.save("test-key")
-        let defaults = UserDefaults(suiteName: "clipnote.tests.appmodel")!
-        defaults.removePersistentDomain(forName: "clipnote.tests.appmodel")
+        let defaults = UserDefaults(suiteName: "stepkeeper.tests.appmodel")!
+        defaults.removePersistentDomain(forName: "stepkeeper.tests.appmodel")
         Settings.registerDefaults(defaults)
         defaults.set(linkMode, forKey: Settings.linkModeKey)
         return AppModel(
             keychain: keychain,
             documentStore: DocumentStore(root: root),
             defaults: defaults,
-            makeAPI: { ClipnoteAPI(baseURL: $0, session: session) })
+            makeAPI: { StepkeeperAPI(baseURL: $0, session: session) })
     }
 
     @Test func detectsRecipeProfileFromTitle() {
@@ -2310,7 +2310,7 @@ struct AppModelTests {
 
     @Test func performAnalysisLinkModeSavesDocument() async throws {
         let root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("clipnote-appmodel-\(UUID().uuidString)")
+            .appendingPathComponent("stepkeeper-appmodel-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: root) }
         // linkMode: true — Task 11이 캡처 분기를 추가해도 이 테스트는 링크 경로를 검증한다
         let model = makeModel(root: root, linkMode: true)
@@ -2332,7 +2332,7 @@ struct AppModelTests {
 
     @Test func performAnalysisMapsErrorToFailedStage() async throws {
         let root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("clipnote-appmodel-\(UUID().uuidString)")
+            .appendingPathComponent("stepkeeper-appmodel-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: root) }
         let model = makeModel(root: root)
         StubURLProtocol.handler = { _ in (429, Data(#"{"detail": "quota"}"#.utf8)) }
@@ -2348,7 +2348,7 @@ struct AppModelTests {
 
     @Test func startRejectsInvalidURLWithoutTouchingPlayer() async {
         let root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("clipnote-appmodel-\(UUID().uuidString)")
+            .appendingPathComponent("stepkeeper-appmodel-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: root) }
         let model = makeModel(root: root)
         await model.start(urlString: "https://example.com/not-youtube")
@@ -2365,7 +2365,7 @@ struct AppModelTests {
 - [ ] **Step 3: 실패 확인**
 
 ```bash
-xcodegen generate && xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test 2>&1 | tail -10
+xcodegen generate && xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test 2>&1 | tail -10
 ```
 
 Expected: 컴파일 실패 — `cannot find 'AppModel' in scope`.
@@ -2403,7 +2403,7 @@ final class AppModel {
     private let keychain: KeychainStore
     private let store: DocumentStore
     private let defaults: UserDefaults
-    private let makeAPI: (URL) -> ClipnoteAPI
+    private let makeAPI: (URL) -> StepkeeperAPI
     private var currentVideoId: String?
     private var currentURLString: String?
     private var pendingDuration: Int?
@@ -2413,7 +2413,7 @@ final class AppModel {
     init(keychain: KeychainStore = .geminiKey,
          documentStore: DocumentStore? = nil,
          defaults: UserDefaults = .standard,
-         makeAPI: @escaping (URL) -> ClipnoteAPI = { ClipnoteAPI(baseURL: $0) }) {
+         makeAPI: @escaping (URL) -> StepkeeperAPI = { StepkeeperAPI(baseURL: $0) }) {
         self.keychain = keychain
         self.store = documentStore
             ?? ((try? DocumentStore.defaultRoot()).map(DocumentStore.init)
@@ -2535,7 +2535,7 @@ final class AppModel {
 - [ ] **Step 5: 통과 확인**
 
 ```bash
-xcodegen generate && xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test 2>&1 | tail -5
+xcodegen generate && xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test 2>&1 | tail -5
 ```
 
 Expected: `** TEST SUCCEEDED **`
@@ -2553,11 +2553,11 @@ git commit -m "feat: AppModel 플로우 상태 머신 (링크 모드) + 스텁 �
 
 **Files:**
 - Create: `Sources/Views/HomeView.swift`, `Sources/Views/AnalyzeFlowView.swift`, `Sources/Views/DocumentView.swift`, `Sources/Views/SettingsView.swift`, `Sources/Views/Support.swift`, `scripts/e2e-m1.sh`
-- Modify: `Sources/ContentView.swift`(루트 재구성), `Sources/App/ClipnoteApp.swift`(Settings.registerDefaults)
+- Modify: `Sources/ContentView.swift`(루트 재구성), `Sources/App/StepkeeperApp.swift`(Settings.registerDefaults)
 
 **Interfaces:**
 - Consumes: `AppModel`/`FlowStage`(Task 9), `DocumentStore`·`SavedDocument`(Task 8), `Settings`/`KeychainStore`(Task 6), `MarkdownBuilder.hms`(Task 5), `PlayerWebView`(Task 1)
-- Produces: `HomeView(model:)`, `AnalyzeFlowView(model:)`, `DocumentView(document: SavedDocument)`, `SettingsView()`, `Pasteboard.string`, `LocalImage(url:)`, `ExportHelper.copyFolder(from:to:name:) -> String?`. DEBUG 훅: 환경변수 `CLIPNOTE_E2E_URL` 자동 플로우(Task 12·13 E2E도 재사용).
+- Produces: `HomeView(model:)`, `AnalyzeFlowView(model:)`, `DocumentView(document: SavedDocument)`, `SettingsView()`, `Pasteboard.string`, `LocalImage(url:)`, `ExportHelper.copyFolder(from:to:name:) -> String?`. DEBUG 훅: 환경변수 `STEPKEEPER_E2E_URL` 자동 플로우(Task 12·13 E2E도 재사용).
 
 - [ ] **Step 1: 지원 유틸 작성**
 
@@ -2662,7 +2662,7 @@ struct SettingsView: View {
                     TextField("서버 URL", text: $serverURL)
                         .textFieldStyle(.roundedBorder)
                         .autocorrectionDisabled()
-                } header: { Text("clipnote 서버") } footer: {
+                } header: { Text("stepkeeper 서버") } footer: {
                     Text("실기기에서는 Mac의 LAN IP를 입력하세요 (예: http://192.168.0.10:8787)")
                 }
             }
@@ -2738,7 +2738,7 @@ struct HomeView: View {
                 }
             }
         }
-        .navigationTitle("clipnote")
+        .navigationTitle("stepkeeper")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button { showSettings = true } label: { Image(systemName: "gearshape") }
@@ -2873,7 +2873,7 @@ struct DocumentView: View {
                     stepSection(step)
                 }
                 Divider()
-                Link("출처: \(analysis.title) — clipnote로 생성",
+                Link("출처: \(analysis.title) — stepkeeper로 생성",
                      destination: URL(string: "https://youtu.be/\(document.meta.videoId)")!)
                     .font(.footnote)
                 if let exportMessage {
@@ -2957,7 +2957,7 @@ struct ContentView: View {
         }
         .task {
             #if DEBUG
-            if let url = ProcessInfo.processInfo.environment["CLIPNOTE_E2E_URL"] {
+            if let url = ProcessInfo.processInfo.environment["STEPKEEPER_E2E_URL"] {
                 try? KeychainStore.geminiKey.save("e2e-stub-key")
                 model.autoContinue = true
                 await model.start(urlString: url)
@@ -2972,17 +2972,17 @@ struct ContentView: View {
 }
 ```
 
-주의: E2E 링크 모드는 스크립트가 `SIMCTL_CHILD_CLIPNOTE_LINK_MODE=1`로 켠다 — 훅에서:
+주의: E2E 링크 모드는 스크립트가 `SIMCTL_CHILD_STEPKEEPER_LINK_MODE=1`로 켠다 — 훅에서:
 
 ```swift
-                if ProcessInfo.processInfo.environment["CLIPNOTE_LINK_MODE"] == "1" {
+                if ProcessInfo.processInfo.environment["STEPKEEPER_LINK_MODE"] == "1" {
                     UserDefaults.standard.set(true, forKey: Settings.linkModeKey)
                 }
 ```
 
 (`model.autoContinue = true` 줄 바로 위에 추가. Task 12의 캡처 E2E는 이 변수 없이 실행해 캡처 경로를 태운다.)
 
-`Sources/App/ClipnoteApp.swift`의 `ClipnoteApp`에 init 추가:
+`Sources/App/StepkeeperApp.swift`의 `StepkeeperApp`에 init 추가:
 
 ```swift
     init() {
@@ -2997,8 +2997,8 @@ struct ContentView: View {
 ```bash
 export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
 xcodegen generate
-xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' build 2>&1 | tail -3
-xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build 2>&1 | tail -3
+xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' build 2>&1 | tail -3
+xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build 2>&1 | tail -3
 ```
 
 Expected: 둘 다 `BUILD SUCCEEDED`.
@@ -3014,7 +3014,7 @@ set -euo pipefail
 export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
 cd "$(dirname "$0")/.."
 SIM="iPhone 17 Pro"
-BUNDLE=com.clipnote.app
+BUNDLE=com.stepkeeper.app
 URL="https://www.youtube.com/watch?v=4ioPBiTWm3M"
 
 python3 scripts/stub-server.py 8787 &
@@ -3022,27 +3022,27 @@ STUB=$!
 trap 'kill $STUB 2>/dev/null || true' EXIT
 sleep 1
 
-xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote \
+xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper \
   -destination "platform=iOS Simulator,name=$SIM" -derivedDataPath build build | tail -2
 xcrun simctl boot "$SIM" 2>/dev/null || true
-xcrun simctl install "$SIM" build/Build/Products/Debug-iphonesimulator/clipnote.app
+xcrun simctl install "$SIM" build/Build/Products/Debug-iphonesimulator/stepkeeper.app
 xcrun simctl terminate "$SIM" $BUNDLE 2>/dev/null || true
 CONTAINER=$(xcrun simctl get_app_container "$SIM" $BUNDLE data)
-rm -rf "$CONTAINER/Documents/clipnote"
+rm -rf "$CONTAINER/Documents/stepkeeper"
 
-SIMCTL_CHILD_CLIPNOTE_E2E_URL="$URL" SIMCTL_CHILD_CLIPNOTE_LINK_MODE=1 \
+SIMCTL_CHILD_STEPKEEPER_E2E_URL="$URL" SIMCTL_CHILD_STEPKEEPER_LINK_MODE=1 \
   xcrun simctl launch "$SIM" $BUNDLE
 
 DOC=""
 for i in $(seq 1 60); do
-  DOC=$(ls "$CONTAINER"/Documents/clipnote/*/document.md 2>/dev/null | head -1) && [ -n "$DOC" ] && break
+  DOC=$(ls "$CONTAINER"/Documents/stepkeeper/*/document.md 2>/dev/null | head -1) && [ -n "$DOC" ] && break
   sleep 2
 done
 [ -n "$DOC" ] || { echo "M1 E2E FAIL: document.md not produced"; exit 1; }
 echo "--- document.md ---"
 cat "$DOC"
 grep -q "▶ \[영상" "$DOC" || { echo "M1 E2E FAIL: no link fallback"; exit 1; }
-grep -q "clipnote로 생성" "$DOC" || { echo "M1 E2E FAIL: no footer"; exit 1; }
+grep -q "stepkeeper로 생성" "$DOC" || { echo "M1 E2E FAIL: no footer"; exit 1; }
 ls "$(dirname "$DOC")" | grep -q "analysis.json" || { echo "M1 E2E FAIL: no analysis.json"; exit 1; }
 xcrun simctl io "$SIM" screenshot build/m1-screenshot.png >/dev/null 2>&1 || true
 echo "M1 E2E PASS"
@@ -3057,8 +3057,8 @@ Expected: `M1 E2E PASS` + document.md 내용 출력(제목·준비물·▶ 링�
 - [ ] **Step 8: macOS 스모크 (수동 실행 1회)**
 
 ```bash
-xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' -derivedDataPath build build | tail -2
-open build/Build/Products/Debug/clipnote.app
+xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' -derivedDataPath build build | tail -2
+open build/Build/Products/Debug/stepkeeper.app
 ```
 
 확인: 홈 화면 표시, 설정 시트 열림(키 저장 동작), URL 붙여넣기 버튼 동작. (전체 플로우는 시뮬레이터 E2E로 이미 검증 — macOS 상세 검증은 Task 14)
@@ -3091,15 +3091,15 @@ git commit -m "feat: 화면 4종(홈·분석·문서·설정) + M1 링크 모드
 ```swift
 import Testing
 import Foundation
-@testable import clipnote
+@testable import stepkeeper
 
 @MainActor
 struct CapturePipelineTests {
     private func makeModel(root: URL) -> AppModel {
-        let keychain = KeychainStore(service: "clipnote.tests.capture-\(UUID().uuidString)")
+        let keychain = KeychainStore(service: "stepkeeper.tests.capture-\(UUID().uuidString)")
         try? keychain.save("test-key")
-        let defaults = UserDefaults(suiteName: "clipnote.tests.capture")!
-        defaults.removePersistentDomain(forName: "clipnote.tests.capture")
+        let defaults = UserDefaults(suiteName: "stepkeeper.tests.capture")!
+        defaults.removePersistentDomain(forName: "stepkeeper.tests.capture")
         Settings.registerDefaults(defaults)
         return AppModel(keychain: keychain, documentStore: DocumentStore(root: root),
                         defaults: defaults)
@@ -3193,14 +3193,14 @@ struct CapturePipelineTests {
 - [ ] **Step 2: 실패 확인**
 
 ```bash
-xcodegen generate && xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test 2>&1 | tail -10
+xcodegen generate && xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test 2>&1 | tail -10
 ```
 
 Expected: 컴파일 실패 — `cannot find 'GuideCapture' in scope`.
 
 - [ ] **Step 3: capture.js에 세션 함수 추가**
 
-`Sources/Capture/CaptureScript.swift`의 `window.__clipnote = { waitMeta, capture, prime };` 앞에 추가:
+`Sources/Capture/CaptureScript.swift`의 `window.__stepkeeper = { waitMeta, capture, prime };` 앞에 추가:
 
 ```js
       async function captureBegin() {   // content.js 패턴: 상태 저장 → 음소거·정지
@@ -3227,7 +3227,7 @@ Expected: 컴파일 실패 — `cannot find 'GuideCapture' in scope`.
 그리고 마지막 줄을 다음으로 교체:
 
 ```js
-      window.__clipnote = { waitMeta, capture, prime, captureBegin, captureEnd };
+      window.__stepkeeper = { waitMeta, capture, prime, captureBegin, captureEnd };
 ```
 
 - [ ] **Step 4: PlayerBridge에 세션 메서드 추가**
@@ -3238,7 +3238,7 @@ Expected: 컴파일 실패 — `cannot find 'GuideCapture' in scope`.
     /// 캡처 세션 시작: 플레이어 상태 저장 후 음소거·정지 (프레임 디코딩 유도 포함)
     func beginCaptureSession() async throws {
         do {
-            _ = try await callJS("return await window.__clipnote.captureBegin();", timeout: 8)
+            _ = try await callJS("return await window.__stepkeeper.captureBegin();", timeout: 8)
         } catch {
             throw PlayerError.captureFailed("세션 시작 실패: \(error)")
         }
@@ -3246,7 +3246,7 @@ Expected: 컴파일 실패 — `cannot find 'GuideCapture' in scope`.
 
     /// 캡처 세션 종료: currentTime·muted·재생 상태 복원 (실패해도 무시)
     func endCaptureSession() async {
-        _ = try? await callJS("return await window.__clipnote.captureEnd();", timeout: 5)
+        _ = try? await callJS("return await window.__stepkeeper.captureEnd();", timeout: 5)
     }
 ```
 
@@ -3357,7 +3357,7 @@ struct GuideCapture: Identifiable, Sendable {
 - [ ] **Step 6: 통과 확인**
 
 ```bash
-xcodegen generate && xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test 2>&1 | tail -5
+xcodegen generate && xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test 2>&1 | tail -5
 ```
 
 Expected: `** TEST SUCCEEDED **`
@@ -3508,8 +3508,8 @@ struct CandidatePickerView: View {
 
 ```bash
 xcodegen generate
-xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test 2>&1 | tail -5
-xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build 2>&1 | tail -3
+xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test 2>&1 | tail -5
+xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build 2>&1 | tail -3
 ```
 
 Expected: `** TEST SUCCEEDED **` / `BUILD SUCCEEDED`
@@ -3525,7 +3525,7 @@ set -euo pipefail
 export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
 cd "$(dirname "$0")/.."
 SIM="iPhone 17 Pro"
-BUNDLE=com.clipnote.app
+BUNDLE=com.stepkeeper.app
 URL="https://www.youtube.com/watch?v=4ioPBiTWm3M"
 
 python3 scripts/stub-server.py 8787 &
@@ -3533,19 +3533,19 @@ STUB=$!
 trap 'kill $STUB 2>/dev/null || true' EXIT
 sleep 1
 
-xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote \
+xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper \
   -destination "platform=iOS Simulator,name=$SIM" -derivedDataPath build build | tail -2
 xcrun simctl boot "$SIM" 2>/dev/null || true
-xcrun simctl install "$SIM" build/Build/Products/Debug-iphonesimulator/clipnote.app
+xcrun simctl install "$SIM" build/Build/Products/Debug-iphonesimulator/stepkeeper.app
 xcrun simctl terminate "$SIM" $BUNDLE 2>/dev/null || true
 CONTAINER=$(xcrun simctl get_app_container "$SIM" $BUNDLE data)
-rm -rf "$CONTAINER/Documents/clipnote"
+rm -rf "$CONTAINER/Documents/stepkeeper"
 
-SIMCTL_CHILD_CLIPNOTE_E2E_URL="$URL" xcrun simctl launch "$SIM" $BUNDLE
+SIMCTL_CHILD_STEPKEEPER_E2E_URL="$URL" xcrun simctl launch "$SIM" $BUNDLE
 
 DOC=""
 for i in $(seq 1 90); do
-  DOC=$(ls "$CONTAINER"/Documents/clipnote/*/document.md 2>/dev/null | head -1) && [ -n "$DOC" ] && break
+  DOC=$(ls "$CONTAINER"/Documents/stepkeeper/*/document.md 2>/dev/null | head -1) && [ -n "$DOC" ] && break
   sleep 2
 done
 [ -n "$DOC" ] || { echo "M2 E2E FAIL: document.md not produced"; exit 1; }
@@ -3582,12 +3582,12 @@ git commit -m "feat: 후보 선택 UI + M2 캡처 E2E"
 ### Task 13: iOS 공유 확장 + App Group 인박스
 
 **Files:**
-- Create: `ShareExtension/ShareViewController.swift`, `Sources/App/ShareInbox.swift`, `Sources/Clipnote-iOS.entitlements`, `ShareExtension/ClipnoteShare.entitlements`, `Tests/ShareInboxTests.swift`
-- Modify: `project.yml`(ClipnoteShare 타깃 + 의존성 + iOS 엔타이틀먼트), `Sources/ContentView.swift`(scenePhase 픽업)
+- Create: `ShareExtension/ShareViewController.swift`, `Sources/App/ShareInbox.swift`, `Sources/Stepkeeper-iOS.entitlements`, `ShareExtension/StepkeeperShare.entitlements`, `Tests/ShareInboxTests.swift`
+- Modify: `project.yml`(StepkeeperShare 타깃 + 의존성 + iOS 엔타이틀먼트), `Sources/ContentView.swift`(scenePhase 픽업)
 
 **Interfaces:**
 - Consumes: `YouTubeURL`(Task 3 — 확장 타깃에도 파일 포함), `AppModel.start`(Task 9)
-- Produces: `ShareInbox.push(_ url: String)` / `pop() -> String?` (App Group `group.com.clipnote.shared`, key `pendingURL`).
+- Produces: `ShareInbox.push(_ url: String)` / `pop() -> String?` (App Group `group.com.stepkeeper.shared`, key `pendingURL`).
 
 - [ ] **Step 1: 실패하는 테스트 작성**
 
@@ -3596,7 +3596,7 @@ git commit -m "feat: 후보 선택 UI + M2 캡처 E2E"
 ```swift
 import Testing
 import Foundation
-@testable import clipnote
+@testable import stepkeeper
 
 struct ShareInboxTests {
     @Test func pushPopRoundTripAndDrain() {
@@ -3612,7 +3612,7 @@ struct ShareInboxTests {
 - [ ] **Step 2: 실패 확인**
 
 ```bash
-xcodegen generate && xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test 2>&1 | tail -10
+xcodegen generate && xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test 2>&1 | tail -10
 ```
 
 Expected: 컴파일 실패 — `cannot find 'ShareInbox' in scope`.
@@ -3626,7 +3626,7 @@ import Foundation
 
 /// 공유 확장 → 본체 앱 URL 전달 (스펙 4.7). 확장은 push만, 앱은 활성화 시 pop.
 enum ShareInbox {
-    static let groupID = "group.com.clipnote.shared"
+    static let groupID = "group.com.stepkeeper.shared"
     static let urlKey = "pendingURL"
 
     static var defaults: UserDefaults? { UserDefaults(suiteName: groupID) }
@@ -3643,7 +3643,7 @@ enum ShareInbox {
 }
 ```
 
-`Sources/Clipnote-iOS.entitlements`:
+`Sources/Stepkeeper-iOS.entitlements`:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -3652,34 +3652,34 @@ enum ShareInbox {
 <dict>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.com.clipnote.shared</string>
+		<string>group.com.stepkeeper.shared</string>
 	</array>
 </dict>
 </plist>
 ```
 
-`ShareExtension/ClipnoteShare.entitlements` — 동일 내용으로 생성.
+`ShareExtension/StepkeeperShare.entitlements` — 동일 내용으로 생성.
 
 `project.yml` 변경 3곳:
 
-① Clipnote 타깃 settings.base에 추가:
+① Stepkeeper 타깃 settings.base에 추가:
 
 ```yaml
-        "CODE_SIGN_ENTITLEMENTS[sdk=iphone*]": Sources/Clipnote-iOS.entitlements
+        "CODE_SIGN_ENTITLEMENTS[sdk=iphone*]": Sources/Stepkeeper-iOS.entitlements
 ```
 
-② Clipnote 타깃에 의존성 추가:
+② Stepkeeper 타깃에 의존성 추가:
 
 ```yaml
     dependencies:
-      - target: ClipnoteShare
+      - target: StepkeeperShare
         platformFilter: iOS
 ```
 
 ③ targets에 추가:
 
 ```yaml
-  ClipnoteShare:
+  StepkeeperShare:
     type: app-extension
     platform: iOS
     deploymentTarget: "17.0"
@@ -3689,7 +3689,7 @@ enum ShareInbox {
     info:
       path: ShareExtension/Info.plist
       properties:
-        CFBundleDisplayName: clipnote
+        CFBundleDisplayName: stepkeeper
         NSExtension:
           NSExtensionPointIdentifier: com.apple.share-services
           NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ShareViewController
@@ -3698,9 +3698,9 @@ enum ShareInbox {
               NSExtensionActivationSupportsWebURLWithMaxCount: 1
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.clipnote.app.share
+        PRODUCT_BUNDLE_IDENTIFIER: com.stepkeeper.app.share
         SWIFT_VERSION: "6.0"
-        CODE_SIGN_ENTITLEMENTS: ShareExtension/ClipnoteShare.entitlements
+        CODE_SIGN_ENTITLEMENTS: ShareExtension/StepkeeperShare.entitlements
 ```
 
 - [ ] **Step 4: ShareViewController 작성**
@@ -3713,7 +3713,7 @@ import UniformTypeIdentifiers
 
 /// 유튜브 공유 → URL을 App Group에 저장하고 안내 후 닫힘 (스펙 4.7).
 final class ShareViewController: UIViewController {
-    private let groupID = "group.com.clipnote.shared"
+    private let groupID = "group.com.stepkeeper.shared"
     private let urlKey = "pendingURL"
     private let label = UILabel()
 
@@ -3753,7 +3753,7 @@ final class ShareViewController: UIViewController {
                 }
                 UserDefaults(suiteName: self?.groupID ?? "")?
                     .set(urlString, forKey: self?.urlKey ?? "pendingURL")
-                self?.finish("저장됐습니다.\nclipnote를 열면 분석이 시작됩니다.")
+                self?.finish("저장됐습니다.\nstepkeeper를 열면 분석이 시작됩니다.")
             }
         }
     }
@@ -3790,15 +3790,15 @@ final class ShareViewController: UIViewController {
 
 ```bash
 xcodegen generate
-xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test 2>&1 | tail -5
-xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote \
+xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test 2>&1 | tail -5
+xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -derivedDataPath build build 2>&1 | tail -3
-ls build/Build/Products/Debug-iphonesimulator/clipnote.app/PlugIns/
+ls build/Build/Products/Debug-iphonesimulator/stepkeeper.app/PlugIns/
 ```
 
-Expected: 테스트 그린, iOS 빌드 성공, `PlugIns/` 안에 `ClipnoteShare.appex` 존재. (macOS 테스트에서 ShareInbox suiteName은 일반 도메인으로 동작 — App Group 미서명 환경에서도 통과)
+Expected: 테스트 그린, iOS 빌드 성공, `PlugIns/` 안에 `StepkeeperShare.appex` 존재. (macOS 테스트에서 ShareInbox suiteName은 일반 도메인으로 동작 — App Group 미서명 환경에서도 통과)
 
-수동 확인(시뮬레이터): `xcrun simctl openurl booted "https://m.youtube.com/watch?v=4ioPBiTWm3M"` → Safari 공유 버튼 → clipnote 선택 → 앱 열기 → 자동 분석 시작. (이 확인은 사용자 M4 체크리스트에도 포함)
+수동 확인(시뮬레이터): `xcrun simctl openurl booted "https://m.youtube.com/watch?v=4ioPBiTWm3M"` → Safari 공유 버튼 → stepkeeper 선택 → 앱 열기 → 자동 분석 시작. (이 확인은 사용자 M4 체크리스트에도 포함)
 
 - [ ] **Step 7: 커밋**
 
@@ -3812,14 +3812,14 @@ git commit -m "feat: iOS 공유 확장 + App Group 인박스"
 ### Task 14: M4 폴리시 — macOS 마감 + 문서화 (최종 체크포인트)
 
 **Files:**
-- Create: `Sources/Clipnote-macOS.entitlements`, `docs/TESTING.md`, `README.md`
+- Create: `Sources/Stepkeeper-macOS.entitlements`, `docs/TESTING.md`, `README.md`
 - Modify: `project.yml`(macOS 엔타이틀먼트), 검증 중 발견되는 macOS 이슈 수정
 
 **Interfaces:** 없음 (마감 태스크)
 
 - [ ] **Step 1: macOS 샌드박스 엔타이틀먼트**
 
-`Sources/Clipnote-macOS.entitlements`:
+`Sources/Stepkeeper-macOS.entitlements`:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -3836,20 +3836,20 @@ git commit -m "feat: iOS 공유 확장 + App Group 인박스"
 </plist>
 ```
 
-`project.yml` Clipnote settings.base에 추가:
+`project.yml` Stepkeeper settings.base에 추가:
 
 ```yaml
-        "CODE_SIGN_ENTITLEMENTS[sdk=macosx*]": Sources/Clipnote-macOS.entitlements
+        "CODE_SIGN_ENTITLEMENTS[sdk=macosx*]": Sources/Stepkeeper-macOS.entitlements
 ```
 
 - [ ] **Step 2: macOS 전수 검증 + 이슈 수정**
 
 ```bash
 xcodegen generate
-xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test 2>&1 | tail -5
-xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' -derivedDataPath build build | tail -2
+xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test 2>&1 | tail -5
+xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' -derivedDataPath build build | tail -2
 python3 scripts/stub-server.py 8787 &
-open build/Build/Products/Debug/clipnote.app
+open build/Build/Products/Debug/stepkeeper.app
 ```
 
 확인 항목(각각 실패 시 수정 후 재확인): ①설정 키 저장/재열람 ②URL 붙여넣기→분석 시작→플레이어 표시 ③readyToAnalyze 세그먼트 ④링크 모드 문서 생성 ⑤캡처 경로(링크 모드 OFF) — M0에서 검증된 방식 ⑥문서 뷰 렌더 + 공유 + 폴더로 저장(샌드박스에서 fileImporter 동작) ⑦최근 문서 목록·삭제. 완료 후 `kill %1`.
@@ -3858,7 +3858,7 @@ open build/Build/Products/Debug/clipnote.app
 
 ```bash
 ./scripts/e2e-m1.sh && ./scripts/e2e-m2.sh
-xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote \
+xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro' test 2>&1 | tail -5
 ```
 
@@ -3866,13 +3866,13 @@ Expected: 두 E2E PASS + `** TEST SUCCEEDED **`
 
 - [ ] **Step 4: TESTING.md 작성**
 
-`docs/TESTING.md` — 수동 E2E 체크리스트 (clipnote-extension/TESTING.md 스타일):
+`docs/TESTING.md` — 수동 E2E 체크리스트 (stepkeeper-extension/TESTING.md 스타일):
 
 ```markdown
-# clipnote-apple 수동 테스트 가이드
+# stepkeeper-apple 수동 테스트 가이드
 
 ## 준비
-- 로컬 서버: `cd ../clipnote-server && python app.py` (실분석) 또는 `python3 scripts/stub-server.py` (스텁)
+- 로컬 서버: `cd ../stepkeeper-server && python app.py` (실분석) 또는 `python3 scripts/stub-server.py` (스텁)
 - 실분석에는 본인 Gemini 키 필요 (AI Studio 무료 발급) — 앱 설정에 입력
 - 시뮬레이터에서 서버 URL 기본값(127.0.0.1:8787) 그대로, 실기기는 Mac LAN IP로 변경
 
@@ -3884,7 +3884,7 @@ Expected: 두 E2E PASS + `** TEST SUCCEEDED **`
 5. [ ] 문서: 선택 이미지 표시, 부적합/실패 가이드는 ▶ 타임스탬프 링크
 6. [ ] 내보내기: 공유시트에 md+jpg / "폴더로 저장" 후 Obsidian 등에서 열기
 7. [ ] 링크 모드 ON: 캡처 없이 링크만으로 문서 생성
-8. [ ] 공유 확장(iOS): Safari/유튜브 앱 공유 → clipnote → 앱 열면 자동 시작
+8. [ ] 공유 확장(iOS): Safari/유튜브 앱 공유 → stepkeeper → 앱 열면 자동 시작
 9. [ ] 오류: 키 없이 시작(401 안내), 서버 끄고 시작(연결 안내), 잘못된 URL
 10. [ ] macOS: 위 1~7 동일 동작
 
@@ -3897,14 +3897,14 @@ Expected: 두 E2E PASS + `** TEST SUCCEEDED **`
 `README.md`:
 
 ```markdown
-# clipnote-apple
+# stepkeeper-apple
 
 영상을 문서로. 애매한 순간은 실제 화면으로.
 유튜브 how-to 영상을 단계별 문서로 만들고, "한입 크기" 같은 애매한 표현마다
 실제 프레임(사용자가 선택)이나 타임스탬프 링크를 첨부하는 SwiftUI 앱 (iOS/iPadOS/macOS).
 
-[clipnote](https://github.com/zlej123/clipnote) 생태계의 Apple 클라이언트 —
-분석은 [clipnote-server](https://github.com/zlej123/clipnote-server)(BYOK, 사용자 Gemini 키),
+[stepkeeper](https://github.com/zlej123/stepkeeper) 생태계의 Apple 클라이언트 —
+분석은 [stepkeeper-server](https://github.com/zlej123/stepkeeper-server)(BYOK, 사용자 Gemini 키),
 캡처는 앱의 WKWebView(영상 다운로드 없음), 문서 조립은 로컬(skill-core 템플릿 + 코어 렌더러 포팅).
 
 ## 개발
@@ -3912,11 +3912,11 @@ Expected: 두 E2E PASS + `** TEST SUCCEEDED **`
 요구: Xcode 26+, XcodeGen(`brew install xcodegen`), Python 3.10+(스크립트)
 
     xcodegen generate                # project.yml → xcodeproj
-    open clipnote-apple.xcodeproj
+    open stepkeeper-apple.xcodeproj
 
     # 테스트 (CLI, xcode-select가 CLT면 DEVELOPER_DIR 지정)
     export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
-    xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test
+    xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test
 
     # E2E (스텁 서버 — Gemini 키 불필요)
     ./scripts/e2e-m1.sh              # 링크 모드
@@ -3924,12 +3924,12 @@ Expected: 두 E2E PASS + `** TEST SUCCEEDED **`
 
 ## 스크립트
 - `scripts/stub-server.py` — /v1/analyze 스텁 (fixture 응답)
-- `scripts/sync-assets.sh` — ../clipnote skill-core 템플릿 재복사 (갱신 시 make-golden.py 재실행)
+- `scripts/sync-assets.sh` — ../stepkeeper skill-core 템플릿 재복사 (갱신 시 make-golden.py 재실행)
 - `scripts/make-golden.py` — 코어 render.py로 골든 기대 출력 재생성
 - `scripts/spike-verify.sh` — M0 캡처 검증
 
 ## 문서
-- 설계: `docs/superpowers/specs/2026-07-17-clipnote-apple-v1-design.md`
+- 설계: `docs/superpowers/specs/2026-07-17-stepkeeper-apple-v1-design.md`
 - 캡처 스파이크 기록: `docs/spike-capture.md`
 - 수동 테스트: `docs/TESTING.md`
 ```

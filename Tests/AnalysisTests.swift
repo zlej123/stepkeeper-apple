@@ -1,6 +1,6 @@
 import Testing
 import Foundation
-@testable import clipnote
+@testable import stepkeeper
 
 struct AnalysisTests {
     @Test func decodesAnalyzeResponseFixture() throws {

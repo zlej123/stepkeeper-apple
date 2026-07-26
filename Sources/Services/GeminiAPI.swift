@@ -78,14 +78,14 @@ final class GeminiAPI: Sendable {
         do {
             (data, response) = try await session.data(for: request)
         } catch {
-            throw ClipnoteAPIError.network(String(describing: error))
+            throw StepkeeperAPIError.network(String(describing: error))
         }
         guard let http = response as? HTTPURLResponse else {
-            throw ClipnoteAPIError.invalidResponse
+            throw StepkeeperAPIError.invalidResponse
         }
-        if http.statusCode == 429 { throw ClipnoteAPIError.rateLimited }
+        if http.statusCode == 429 { throw StepkeeperAPIError.rateLimited }
         guard (200...299).contains(http.statusCode) else {
-            throw ClipnoteAPIError.modelFailure("Gemini 오류 (HTTP \(http.statusCode))")
+            throw StepkeeperAPIError.modelFailure("Gemini 오류 (HTTP \(http.statusCode))")
         }
         guard let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let candidates = object["candidates"] as? [[String: Any]],
@@ -95,7 +95,7 @@ final class GeminiAPI: Sendable {
               let rawObject = try? JSONSerialization.jsonObject(with: Data(text.utf8))
                   as? [String: Any],
               let videoId = YouTubeURL.videoID(from: videoURL)
-        else { throw ClipnoteAPIError.invalidResponse }
+        else { throw StepkeeperAPIError.invalidResponse }
 
         let (analysis, raw) = try AnalysisNormalizer.normalized(
             rawObject: rawObject, duration: duration, profile: profile, language: language)

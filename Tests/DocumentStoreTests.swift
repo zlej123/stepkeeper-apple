@@ -1,11 +1,11 @@
 import Testing
 import Foundation
-@testable import clipnote
+@testable import stepkeeper
 
 struct DocumentStoreTests {
     private func makeStore() throws -> (DocumentStore, URL) {
         let root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("clipnote-tests-\(UUID().uuidString)")
+            .appendingPathComponent("stepkeeper-tests-\(UUID().uuidString)")
         return (DocumentStore(root: root), root)
     }
     private func sampleAnalysis() throws -> (Analysis, Data) {

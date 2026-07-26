@@ -3,7 +3,7 @@ import UniformTypeIdentifiers
 
 /// 유튜브 공유 → URL을 App Group에 저장하고 안내 후 닫힘 (스펙 4.7).
 final class ShareViewController: UIViewController {
-    private let groupID = "group.com.clipnote.shared"
+    private let groupID = "group.com.stepkeeper.shared"
     private let urlKey = "pendingURL"
     private let label = UILabel()
 
@@ -45,7 +45,7 @@ final class ShareViewController: UIViewController {
                     return
                 }
                 UserDefaults(suiteName: groupID)?.set(urlString, forKey: urlKey)
-                self.finish("저장됐습니다.\nclipnote를 열면 분석이 시작됩니다.")
+                self.finish("저장됐습니다.\nstepkeeper를 열면 분석이 시작됩니다.")
             }
         }
     }

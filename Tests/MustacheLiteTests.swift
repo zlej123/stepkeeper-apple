@@ -1,12 +1,12 @@
 import Testing
-@testable import clipnote
+@testable import stepkeeper
 
 struct MustacheLiteTests {
     private func d(_ pairs: [String: MustacheValue]) -> MustacheValue { .dict(pairs) }
 
     @Test func substitutesVariables() throws {
-        #expect(try MustacheLite.render("Hello {{name}}!", d(["name": .string("clipnote")]))
-                == "Hello clipnote!")
+        #expect(try MustacheLite.render("Hello {{name}}!", d(["name": .string("stepkeeper")]))
+                == "Hello stepkeeper!")
     }
     @Test func missingKeyRendersEmpty() throws {
         #expect(try MustacheLite.render("[{{nope}}]", d([:])) == "[]")

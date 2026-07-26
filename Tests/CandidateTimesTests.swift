@@ -1,5 +1,5 @@
 import Testing
-@testable import clipnote
+@testable import stepkeeper
 
 struct CandidateTimesTests {
     private func makeStep(_ tStart: Int, _ tEnd: Int) -> Step {

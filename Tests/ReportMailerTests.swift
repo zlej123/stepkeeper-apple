@@ -1,6 +1,6 @@
 import Testing
 import Foundation
-@testable import clipnote
+@testable import stepkeeper
 
 struct ReportMailerTests {
     private func makeReport(note: String = "후보가 전부 인트로 화면") -> IssueReport {

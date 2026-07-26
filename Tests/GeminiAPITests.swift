@@ -1,6 +1,6 @@
 import Testing
 import Foundation
-@testable import clipnote
+@testable import stepkeeper
 
 @Suite(.serialized)
 struct GeminiAPITests {
@@ -69,19 +69,19 @@ struct GeminiAPITests {
     @Test func mapsRateLimitAndModelErrors() async throws {
         defer { reset() }
         GeminiAPIStub.shared.handler = { _ in (429, Data("{}".utf8)) }
-        await #expect(throws: ClipnoteAPIError.rateLimited) {
+        await #expect(throws: StepkeeperAPIError.rateLimited) {
             _ = try await self.makeAPI().analyze(
                 videoURL: "https://youtu.be/4ioPBiTWm3M", profile: "generic",
                 language: "ko", duration: 10, geminiKey: "k")
         }
         GeminiAPIStub.shared.handler = { _ in (500, Data("{}".utf8)) }
-        await #expect(throws: ClipnoteAPIError.modelFailure("Gemini 오류 (HTTP 500)")) {
+        await #expect(throws: StepkeeperAPIError.modelFailure("Gemini 오류 (HTTP 500)")) {
             _ = try await self.makeAPI().analyze(
                 videoURL: "https://youtu.be/4ioPBiTWm3M", profile: "generic",
                 language: "ko", duration: 10, geminiKey: "k")
         }
         GeminiAPIStub.shared.handler = { _ in (200, Data(#"{"candidates": []}"#.utf8)) }
-        await #expect(throws: ClipnoteAPIError.invalidResponse) {
+        await #expect(throws: StepkeeperAPIError.invalidResponse) {
             _ = try await self.makeAPI().analyze(
                 videoURL: "https://youtu.be/4ioPBiTWm3M", profile: "generic",
                 language: "ko", duration: 10, geminiKey: "k")

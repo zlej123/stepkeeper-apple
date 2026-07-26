@@ -41,7 +41,7 @@ final class AppModel {
     private let keychain: KeychainStore
     private let store: DocumentStore
     private let defaults: UserDefaults
-    private let makeAPI: (URL) -> ClipnoteAPI
+    private let makeAPI: (URL) -> StepkeeperAPI
     private let makeGeminiAPI: () -> GeminiAPI
     private var currentVideoId: String?
     private var currentURLString: String?
@@ -54,7 +54,7 @@ final class AppModel {
     init(keychain: KeychainStore = .geminiKey,
          documentStore: DocumentStore? = nil,
          defaults: UserDefaults = .standard,
-         makeAPI: @escaping (URL) -> ClipnoteAPI = { ClipnoteAPI(baseURL: $0) },
+         makeAPI: @escaping (URL) -> StepkeeperAPI = { StepkeeperAPI(baseURL: $0) },
          makeGeminiAPI: @escaping () -> GeminiAPI = { GeminiAPI() }) {
         self.keychain = keychain
         self.store = documentStore

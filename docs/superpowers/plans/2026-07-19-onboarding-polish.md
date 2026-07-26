@@ -1,4 +1,4 @@
-# clipnote-apple v1.2 온보딩 폴리시 Implementation Plan
+# stepkeeper-apple v1.2 온보딩 폴리시 Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -97,12 +97,12 @@ struct KeyNudgeBackground: View {
 
 ```bash
 export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
-xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test > /tmp/ob1.log 2>&1; tail -3 /tmp/ob1.log
-xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -derivedDataPath build build > /tmp/ob2.log 2>&1; tail -3 /tmp/ob2.log
+xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test > /tmp/ob1.log 2>&1; tail -3 /tmp/ob1.log
+xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -derivedDataPath build build > /tmp/ob2.log 2>&1; tail -3 /tmp/ob2.log
 xcrun simctl bootstatus "iPhone 17 Pro" -b
-xcrun simctl uninstall "iPhone 17 Pro" com.clipnote.app 2>/dev/null || true
-xcrun simctl install "iPhone 17 Pro" build/Build/Products/Debug-iphonesimulator/clipnote.app
-xcrun simctl launch "iPhone 17 Pro" com.clipnote.app && sleep 4
+xcrun simctl uninstall "iPhone 17 Pro" com.stepkeeper.app 2>/dev/null || true
+xcrun simctl install "iPhone 17 Pro" build/Build/Products/Debug-iphonesimulator/stepkeeper.app
+xcrun simctl launch "iPhone 17 Pro" com.stepkeeper.app && sleep 4
 xcrun simctl io "iPhone 17 Pro" screenshot build/onboarding-banner.png
 ```
 

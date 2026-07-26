@@ -30,7 +30,7 @@ struct DocumentView: View {
                     stepSection(step)
                 }
                 Divider()
-                Link("출처: \(analysis.title) — clipnote로 생성",
+                Link("출처: \(analysis.title) — stepkeeper로 생성",
                      destination: URL(string: "https://youtu.be/\(document.meta.videoId)")!)
                     .font(.footnote)
                 if exportingNotion {
@@ -179,7 +179,7 @@ struct DocumentView: View {
                 : "메일 앱을 열지 못했습니다 — 신고 내용을 클립보드에 복사했습니다"
         }
         do {
-            try await ClipnoteAPI(baseURL: serverURL).submitReport(report)
+            try await StepkeeperAPI(baseURL: serverURL).submitReport(report)
             return nil
         } catch {
             return (error as? LocalizedError)?.errorDescription ?? "신고 전송에 실패했습니다"

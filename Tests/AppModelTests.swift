@@ -1,6 +1,6 @@
 import Testing
 import Foundation
-@testable import clipnote
+@testable import stepkeeper
 
 @Suite(.serialized)
 @MainActor
@@ -10,10 +10,10 @@ struct AppModelTests {
         let config = URLSessionConfiguration.ephemeral
         config.protocolClasses = [AppModelStub.self]
         let session = URLSession(configuration: config)
-        let keychain = KeychainStore(service: "clipnote.tests.appmodel-\(UUID().uuidString)")
+        let keychain = KeychainStore(service: "stepkeeper.tests.appmodel-\(UUID().uuidString)")
         try? keychain.save("test-key")
-        let defaults = UserDefaults(suiteName: "clipnote.tests.appmodel")!
-        defaults.removePersistentDomain(forName: "clipnote.tests.appmodel")
+        let defaults = UserDefaults(suiteName: "stepkeeper.tests.appmodel")!
+        defaults.removePersistentDomain(forName: "stepkeeper.tests.appmodel")
         Settings.registerDefaults(defaults)
         if let serverURL {
             defaults.set(serverURL, forKey: Settings.serverURLKey)
@@ -25,7 +25,7 @@ struct AppModelTests {
             keychain: keychain,
             documentStore: DocumentStore(root: root),
             defaults: defaults,
-            makeAPI: { ClipnoteAPI(baseURL: $0, session: session) },
+            makeAPI: { StepkeeperAPI(baseURL: $0, session: session) },
             makeGeminiAPI: { GeminiAPI(session: session) })
     }
 
@@ -38,7 +38,7 @@ struct AppModelTests {
 
     @Test func performAnalysisLinkModeSavesDocument() async throws {
         let root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("clipnote-appmodel-\(UUID().uuidString)")
+            .appendingPathComponent("stepkeeper-appmodel-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: root) }
         // linkMode: true — Task 11이 캡처 분기를 추가해도 이 테스트는 링크 경로를 검증한다
         let model = makeModel(root: root, linkMode: true)
@@ -60,7 +60,7 @@ struct AppModelTests {
 
     @Test func performAnalysisMapsErrorToFailedStage() async throws {
         let root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("clipnote-appmodel-\(UUID().uuidString)")
+            .appendingPathComponent("stepkeeper-appmodel-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: root) }
         let model = makeModel(root: root)
         AppModelStub.shared.handler = { _ in (429, Data(#"{"detail": "quota"}"#.utf8)) }
@@ -74,11 +74,11 @@ struct AppModelTests {
         #expect(message.contains("한도"))
     }
 
-    /// v1.3: 서버 URL이 비면 ClipnoteAPI(서버)가 아니라 GeminiAPI(직접)로 라우팅된다.
+    /// v1.3: 서버 URL이 비면 StepkeeperAPI(서버)가 아니라 GeminiAPI(직접)로 라우팅된다.
     /// 핸들러 내부 #expect 금지(v1 교훈) — 요청을 캡처만 하고, 단언은 테스트 본문에서 한다.
     @Test func emptyServerURLRoutesToDirectGemini() async throws {
         let root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("clipnote-appmodel-\(UUID().uuidString)")
+            .appendingPathComponent("stepkeeper-appmodel-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: root) }
         let model = makeModel(root: root, linkMode: true, serverURL: nil)   // 빈 URL → 직접
         let analysisText: [String: Any] = [
@@ -105,7 +105,7 @@ struct AppModelTests {
 
     @Test func startRejectsInvalidURLWithoutTouchingPlayer() async {
         let root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("clipnote-appmodel-\(UUID().uuidString)")
+            .appendingPathComponent("stepkeeper-appmodel-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: root) }
         let model = makeModel(root: root)
         await model.start(urlString: "https://example.com/not-youtube")
@@ -117,7 +117,7 @@ struct AppModelTests {
 
     @Test func startInvalidatesInFlightFlowState() async throws {
         let root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("clipnote-appmodel-\(UUID().uuidString)")
+            .appendingPathComponent("stepkeeper-appmodel-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: root) }
         let model = makeModel(root: root)
         let fixture = try Bundle.fixtureData("analyze-response")

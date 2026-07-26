@@ -82,7 +82,7 @@ final class PlayerBridge: NSObject, ObservableObject {
         while Date() < deadline {
             try Task.checkCancellation()
             let result = try? await callJS(
-                "if (!window.__clipnote) { return null; } return JSON.stringify(await window.__clipnote.waitMeta(1500, \(expectId)));",
+                "if (!window.__stepkeeper) { return null; } return JSON.stringify(await window.__stepkeeper.waitMeta(1500, \(expectId)));",
                 timeout: 5)
             if let json = result,
                let dict = try? JSONSerialization.jsonObject(with: Data(json.utf8)) as? [String: Any],
@@ -97,7 +97,7 @@ final class PlayerBridge: NSObject, ObservableObject {
 
     func primePlayer() async throws {
         // prime() 최악 경로: play 대기 500ms + readyState 폴링 5s → 워치독 10s
-        _ = try await callJS("await window.__clipnote.prime(); return \"ok\";", timeout: 10)
+        _ = try await callJS("await window.__stepkeeper.prime(); return \"ok\";", timeout: 10)
     }
 
     /// 스파이크 실패 진단용: 현재 페이지 URL·video 엘리먼트 상태를 한 줄로 반환.
@@ -106,7 +106,7 @@ final class PlayerBridge: NSObject, ObservableObject {
         const v = document.querySelector("video");
         const mp = document.querySelector("#movie_player");
         const buf = v && v.buffered && v.buffered.length ? v.buffered.end(v.buffered.length - 1).toFixed(1) : "0";
-        return location.href + " | bridge=" + typeof window.__clipnote + " | vis=" + document.visibilityState + " | playerState=" + (mp && mp.getPlayerState ? mp.getPlayerState() : "n/a") + " | video=" + (v ? ("w=" + v.videoWidth + " rs=" + v.readyState + " paused=" + v.paused + " buf=" + buf + " dur=" + v.duration) : "none") + " | title=" + document.title;
+        return location.href + " | bridge=" + typeof window.__stepkeeper + " | vis=" + document.visibilityState + " | playerState=" + (mp && mp.getPlayerState ? mp.getPlayerState() : "n/a") + " | video=" + (v ? ("w=" + v.videoWidth + " rs=" + v.readyState + " paused=" + v.paused + " buf=" + buf + " dur=" + v.duration) : "none") + " | title=" + document.title;
         """
         return try await callJS(js, timeout: 3) ?? "no result"
     }
@@ -116,7 +116,7 @@ final class PlayerBridge: NSObject, ObservableObject {
         do {
             // capture() 최악 경로: 광고 대기 8s + seek 8s + 프레임 제시 대기 8s → 워치독 30s
             result = try await callJS(
-                "return await window.__clipnote.capture(\(seconds), 8000);", timeout: 30)
+                "return await window.__stepkeeper.capture(\(seconds), 8000);", timeout: 30)
         } catch {
             throw PlayerError.captureFailed(String(describing: error))
         }
@@ -132,7 +132,7 @@ final class PlayerBridge: NSObject, ObservableObject {
     /// 캡처 세션 시작: 플레이어 상태 저장 후 음소거·정지 (프레임 디코딩 유도 포함)
     func beginCaptureSession() async throws {
         do {
-            _ = try await callJS("return await window.__clipnote.captureBegin();", timeout: 8)
+            _ = try await callJS("return await window.__stepkeeper.captureBegin();", timeout: 8)
         } catch {
             throw PlayerError.captureFailed("세션 시작 실패: \(error)")
         }
@@ -140,6 +140,6 @@ final class PlayerBridge: NSObject, ObservableObject {
 
     /// 캡처 세션 종료: currentTime·muted·재생 상태 복원 (실패해도 무시)
     func endCaptureSession() async {
-        _ = try? await callJS("return await window.__clipnote.captureEnd();", timeout: 5)
+        _ = try? await callJS("return await window.__stepkeeper.captureEnd();", timeout: 5)
     }
 }

@@ -1,6 +1,6 @@
 import Testing
 import Foundation
-@testable import clipnote
+@testable import stepkeeper
 
 struct ShareInboxTests {
     @Test func pushPopRoundTripAndDrain() {

@@ -1,14 +1,14 @@
 import Testing
 import Foundation
-@testable import clipnote
+@testable import stepkeeper
 
 @MainActor
 struct CapturePipelineTests {
     private func makeModel(root: URL) -> AppModel {
-        let keychain = KeychainStore(service: "clipnote.tests.capture-\(UUID().uuidString)")
+        let keychain = KeychainStore(service: "stepkeeper.tests.capture-\(UUID().uuidString)")
         try? keychain.save("test-key")
-        let defaults = UserDefaults(suiteName: "clipnote.tests.capture")!
-        defaults.removePersistentDomain(forName: "clipnote.tests.capture")
+        let defaults = UserDefaults(suiteName: "stepkeeper.tests.capture")!
+        defaults.removePersistentDomain(forName: "stepkeeper.tests.capture")
         Settings.registerDefaults(defaults)
         return AppModel(keychain: keychain, documentStore: DocumentStore(root: root),
                         defaults: defaults)

@@ -1,4 +1,4 @@
-# clipnote v1.3 서버리스 Implementation Plan
+# stepkeeper v1.3 서버리스 Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -12,7 +12,7 @@
 
 - 앱: 모든 xcodebuild 앞에 `export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer`, 로그 /tmp 리다이렉트, `.xcodeproj` 함께 커밋. 서버: `.venv/bin/python`, 코어 수정 금지, 실행 중인 8787 서버 건드리지 말 것.
 - Gemini 상수: 모델 `gemini-flash-lite-latest`(설정 비노출), base `https://generativelanguage.googleapis.com/v1beta/models`, 타임아웃 180초, 헤더 `x-goog-api-key`. **키 값은 헤더 세팅 외 등장 금지.**
-- 에러는 기존 `ClipnoteAPIError` 재사용: 429→`.rateLimited`, 기타 비2xx→`.modelFailure("Gemini 오류 (HTTP n)")`, 해석 불가→`.invalidResponse` (UI 분기 무변경).
+- 에러는 기존 `StepkeeperAPIError` 재사용: 429→`.rateLimited`, 기타 비2xx→`.modelFailure("Gemini 오류 (HTTP n)")`, 해석 불가→`.invalidResponse` (UI 분기 무변경).
 - rawAnalysis = 정규화+메타(`_duration`/`_profile`/`_output_language`) 주입된 dict의 직렬화 — 서버 모드와 동일 형식 유지(저장·신고 호환).
 - UI 문구 한국어 아래 코드 그대로. docs/superpowers/ 수정 금지. 커밋 메시지: 앱 한국어·서버 영어 관례.
 
@@ -26,12 +26,12 @@ Sources/Services/GeminiAPI.swift           # 직접 분석 (T1)
 Sources/Services/Settings.swift            # defaultServerURL=""·reportServerURLKey (T2·T3)
 Sources/App/AppModel.swift                 # 라우팅 분기·신고 resolveURL (T2·T3)
 Sources/Views/SettingsView.swift           # footer 문구·신고 수집 필드 (T2·T3)
-Sources/ContentView.swift                  # CLIPNOTE_SERVER_URL env 훅 (T2)
+Sources/ContentView.swift                  # STEPKEEPER_SERVER_URL env 훅 (T2)
 Sources/Models/ReportCollector.swift       # resolveURL (T3)
 Sources/Views/{CandidatePickerView,DocumentView}.swift  # 신고 pre-check (T3)
 scripts/e2e-m1.sh·e2e-m2.sh                # SERVER_URL env 주입 (T2)
 Tests/: AnalysisNormalizerTests·GeminiAPITests(T1), AppModelTests 조정(T2), ReportCollectorTests(T3), StubURLProtocol.swift에 GeminiAPIStub 추가(T1)
-clipnote-server: app.py 토큰 브리지 + tests/test_reports.py 확장 + docs/deploy.md + README (T4)
+stepkeeper-server: app.py 토큰 브리지 + tests/test_reports.py 확장 + docs/deploy.md + README (T4)
 docs/TESTING.md·README.md                  # (T5)
 ```
 
@@ -46,18 +46,18 @@ docs/TESTING.md·README.md                  # (T5)
 - Create: `Resources/skill-core/...`(스크립트 산출·커밋), `Sources/Services/AnalysisNormalizer.swift`, `Sources/Services/GeminiAPI.swift`, `Tests/AnalysisNormalizerTests.swift`, `Tests/GeminiAPITests.swift`
 
 **Interfaces:**
-- Consumes: `Analysis`/`AnalyzeResult`/`ClipnoteAPIError`/`Settings.maxGuides`/`MarkdownBuilder.hms`/`YouTubeURL.videoID`, `StubURLProtocolBase`
-- Produces: `AnalysisNormalizer.mmssToSec(_ value: Any?) -> Int?`, `AnalysisNormalizer.normalized(rawObject:duration:profile:language:) throws -> (analysis: Analysis, rawAnalysis: Data)`, `GeminiAPI(session:assets:)` — `buildPrompt(profile:duration:language:maxGuides:) throws -> String`, `loadSchema(profile:) throws -> [String: Any]`, `analyze(videoURL:profile:language:maxGuides:duration:geminiKey:) async throws -> AnalyzeResult`(ClipnoteAPI.analyze와 동일 시그니처 — T2 라우팅이 의존). `GeminiAPIStub`.
+- Consumes: `Analysis`/`AnalyzeResult`/`StepkeeperAPIError`/`Settings.maxGuides`/`MarkdownBuilder.hms`/`YouTubeURL.videoID`, `StubURLProtocolBase`
+- Produces: `AnalysisNormalizer.mmssToSec(_ value: Any?) -> Int?`, `AnalysisNormalizer.normalized(rawObject:duration:profile:language:) throws -> (analysis: Analysis, rawAnalysis: Data)`, `GeminiAPI(session:assets:)` — `buildPrompt(profile:duration:language:maxGuides:) throws -> String`, `loadSchema(profile:) throws -> [String: Any]`, `analyze(videoURL:profile:language:maxGuides:duration:geminiKey:) async throws -> AnalyzeResult`(StepkeeperAPI.analyze와 동일 시그니처 — T2 라우팅이 의존). `GeminiAPIStub`.
 
 - [ ] **Step 1: sync-assets.sh 전체 교체 + 실행**
 
 ```bash
 #!/bin/bash
-# skill-core 자산(템플릿·프롬프트·스키마·규칙)을 앱 리소스로 복사 (원본: ../clipnote).
+# skill-core 자산(템플릿·프롬프트·스키마·규칙)을 앱 리소스로 복사 (원본: ../stepkeeper).
 # 코어 갱신 시 재실행 후 make-golden.py / make-notion-golden.py 재생성.
 set -euo pipefail
 cd "$(dirname "$0")/.."
-SRC="${CLIPNOTE_PATH:-../clipnote}/src/clipnote/skill-core"
+SRC="${STEPKEEPER_PATH:-../stepkeeper}/src/stepkeeper/skill-core"
 for p in generic recipe; do
   mkdir -p "Resources/skill-core/$p"
   cp "$SRC/profiles/$p/template.md" "Resources/skill-core/$p/template.md"
@@ -93,7 +93,7 @@ final class GeminiAPIStub: StubURLProtocolBase {
 ```swift
 import Testing
 import Foundation
-@testable import clipnote
+@testable import stepkeeper
 
 struct AnalysisNormalizerTests {
     @Test func convertsTimeStrings() {
@@ -137,7 +137,7 @@ struct AnalysisNormalizerTests {
 ```swift
 import Testing
 import Foundation
-@testable import clipnote
+@testable import stepkeeper
 
 @Suite(.serialized)
 struct GeminiAPITests {
@@ -204,19 +204,19 @@ struct GeminiAPITests {
     @Test func mapsRateLimitAndModelErrors() async throws {
         defer { reset() }
         GeminiAPIStub.shared.handler = { _ in (429, Data("{}".utf8)) }
-        await #expect(throws: ClipnoteAPIError.rateLimited) {
+        await #expect(throws: StepkeeperAPIError.rateLimited) {
             _ = try await self.makeAPI().analyze(
                 videoURL: "https://youtu.be/4ioPBiTWm3M", profile: "generic",
                 language: "ko", duration: 10, geminiKey: "k")
         }
         GeminiAPIStub.shared.handler = { _ in (500, Data("{}".utf8)) }
-        await #expect(throws: ClipnoteAPIError.modelFailure("Gemini 오류 (HTTP 500)")) {
+        await #expect(throws: StepkeeperAPIError.modelFailure("Gemini 오류 (HTTP 500)")) {
             _ = try await self.makeAPI().analyze(
                 videoURL: "https://youtu.be/4ioPBiTWm3M", profile: "generic",
                 language: "ko", duration: 10, geminiKey: "k")
         }
         GeminiAPIStub.shared.handler = { _ in (200, Data(#"{"candidates": []}"#.utf8)) }
-        await #expect(throws: ClipnoteAPIError.invalidResponse) {
+        await #expect(throws: StepkeeperAPIError.invalidResponse) {
             _ = try await self.makeAPI().analyze(
                 videoURL: "https://youtu.be/4ioPBiTWm3M", profile: "generic",
                 language: "ko", duration: 10, geminiKey: "k")
@@ -229,7 +229,7 @@ struct GeminiAPITests {
 
 ```bash
 export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
-xcodegen generate && xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test > /tmp/s1.log 2>&1; tail -5 /tmp/s1.log
+xcodegen generate && xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test > /tmp/s1.log 2>&1; tail -5 /tmp/s1.log
 ```
 
 Expected: 컴파일 실패 — `cannot find 'AnalysisNormalizer' in scope`.
@@ -369,14 +369,14 @@ final class GeminiAPI: Sendable {
         do {
             (data, response) = try await session.data(for: request)
         } catch {
-            throw ClipnoteAPIError.network(String(describing: error))
+            throw StepkeeperAPIError.network(String(describing: error))
         }
         guard let http = response as? HTTPURLResponse else {
-            throw ClipnoteAPIError.invalidResponse
+            throw StepkeeperAPIError.invalidResponse
         }
-        if http.statusCode == 429 { throw ClipnoteAPIError.rateLimited }
+        if http.statusCode == 429 { throw StepkeeperAPIError.rateLimited }
         guard (200...299).contains(http.statusCode) else {
-            throw ClipnoteAPIError.modelFailure("Gemini 오류 (HTTP \(http.statusCode))")
+            throw StepkeeperAPIError.modelFailure("Gemini 오류 (HTTP \(http.statusCode))")
         }
         guard let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let candidates = object["candidates"] as? [[String: Any]],
@@ -386,7 +386,7 @@ final class GeminiAPI: Sendable {
               let rawObject = try? JSONSerialization.jsonObject(with: Data(text.utf8))
                   as? [String: Any],
               let videoId = YouTubeURL.videoID(from: videoURL)
-        else { throw ClipnoteAPIError.invalidResponse }
+        else { throw StepkeeperAPIError.invalidResponse }
 
         let (analysis, raw) = try AnalysisNormalizer.normalized(
             rawObject: rawObject, duration: duration, profile: profile, language: language)
@@ -398,8 +398,8 @@ final class GeminiAPI: Sendable {
 - [ ] **Step 6: GREEN + 커밋**
 
 ```bash
-xcodegen generate && xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test > /tmp/s1b.log 2>&1; grep -E "Test run|TEST" /tmp/s1b.log | tail -2
-git add scripts Resources Sources Tests clipnote-apple.xcodeproj
+xcodegen generate && xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test > /tmp/s1b.log 2>&1; grep -E "Test run|TEST" /tmp/s1b.log | tail -2
+git add scripts Resources Sources Tests stepkeeper-apple.xcodeproj
 git commit -m "feat: 직접 Gemini 분석 — 자산 번들·normalize·GeminiAPI"
 ```
 
@@ -438,7 +438,7 @@ Expected: 61 tests(55+6) 그린 (파라미터화 카운트 관례로 ±는 스�
             keychain: keychain,
             documentStore: DocumentStore(root: root),
             defaults: defaults,
-            makeAPI: { ClipnoteAPI(baseURL: $0, session: session) },
+            makeAPI: { StepkeeperAPI(baseURL: $0, session: session) },
             makeGeminiAPI: { GeminiAPI(session: session) })
 ```
 
@@ -447,7 +447,7 @@ Expected: 61 tests(55+6) 그린 (파라미터화 카운트 관례로 ±는 스�
 ```swift
     @Test func emptyServerURLRoutesToDirectGemini() async throws {
         let root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("clipnote-appmodel-\(UUID().uuidString)")
+            .appendingPathComponent("stepkeeper-appmodel-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: root) }
         let model = makeModel(root: root, linkMode: true, serverURL: nil)   // 빈 URL → 직접
         let analysisText: [String: Any] = [
@@ -477,7 +477,7 @@ Expected: 61 tests(55+6) 그린 (파라미터화 카운트 관례로 ±는 스�
 - [ ] **Step 2: RED 확인**
 
 ```bash
-xcodegen generate && xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test > /tmp/s2.log 2>&1; tail -5 /tmp/s2.log
+xcodegen generate && xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test > /tmp/s2.log 2>&1; tail -5 /tmp/s2.log
 ```
 
 Expected: 컴파일 실패 — AppModel에 `makeGeminiAPI` 파라미터 없음.
@@ -526,7 +526,7 @@ Expected: 컴파일 실패 — AppModel에 `makeGeminiAPI` 파라미터 없음.
 `Sources/Views/SettingsView.swift` 서버 섹션 footer 교체:
 
 ```swift
-                } header: { Text("clipnote 서버 (선택)") } footer: {
+                } header: { Text("stepkeeper 서버 (선택)") } footer: {
                     Text("비워두면 서버 없이 Gemini를 직접 호출합니다(기본). 개발용 서버를 쓰려면 URL 입력 — 실기기에서는 Mac의 LAN IP (예: http://192.168.0.10:8787)")
                 }
 ```
@@ -534,7 +534,7 @@ Expected: 컴파일 실패 — AppModel에 `makeGeminiAPI` 파라미터 없음.
 `Sources/ContentView.swift` DEBUG 훅의 키 시드 줄 앞에 추가:
 
 ```swift
-                if let server = ProcessInfo.processInfo.environment["CLIPNOTE_SERVER_URL"] {
+                if let server = ProcessInfo.processInfo.environment["STEPKEEPER_SERVER_URL"] {
                     UserDefaults.standard.set(server, forKey: Settings.serverURLKey)
                 }
 ```
@@ -542,15 +542,15 @@ Expected: 컴파일 실패 — AppModel에 `makeGeminiAPI` 파라미터 없음.
 `scripts/e2e-m1.sh`·`e2e-m2.sh`의 launch 줄에 env 추가 (두 파일 모두, 기존 SIMCTL_CHILD_* 나열에):
 
 ```bash
-SIMCTL_CHILD_CLIPNOTE_SERVER_URL="http://127.0.0.1:8787" \
+SIMCTL_CHILD_STEPKEEPER_SERVER_URL="http://127.0.0.1:8787" \
 ```
 
 - [ ] **Step 4: GREEN + E2E + 커밋**
 
 ```bash
-xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test > /tmp/s2b.log 2>&1; grep -E "Test run|TEST" /tmp/s2b.log | tail -2
+xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test > /tmp/s2b.log 2>&1; grep -E "Test run|TEST" /tmp/s2b.log | tail -2
 ./scripts/e2e-m1.sh && ./scripts/e2e-m2.sh
-git add Sources Tests scripts clipnote-apple.xcodeproj
+git add Sources Tests scripts stepkeeper-apple.xcodeproj
 git commit -m "feat: 서버 URL 비면 직접 Gemini 모드 (v1.3 기본) + E2E env 주입"
 ```
 
@@ -574,12 +574,12 @@ Expected: 전체 그린 + 두 E2E PASS (env 주입으로 스텁 서버 경로 �
 ```swift
 import Testing
 import Foundation
-@testable import clipnote
+@testable import stepkeeper
 
 struct ReportCollectorTests {
     private func makeDefaults() -> UserDefaults {
-        let suite = UserDefaults(suiteName: "clipnote.tests.collector")!
-        suite.removePersistentDomain(forName: "clipnote.tests.collector")
+        let suite = UserDefaults(suiteName: "stepkeeper.tests.collector")!
+        suite.removePersistentDomain(forName: "stepkeeper.tests.collector")
         return suite
     }
 
@@ -617,7 +617,7 @@ import Foundation
 /// 신고 전송 대상 결정 — 일반 사용자는 배포판에 내장된 수집기 주소(defaultURL)로,
 /// 개발자는 설정의 신고 URL 또는 분석 서버로 보낸다.
 enum ReportCollector {
-    /// 배포 후 호스팅 수집기 주소로 교체하는 단일 지점 (예: "https://clipnote-reports-xxxx.run.app").
+    /// 배포 후 호스팅 수집기 주소로 교체하는 단일 지점 (예: "https://stepkeeper-reports-xxxx.run.app").
     /// 비어 있는 동안에는 설정의 신고 URL → 분석 서버 URL 순으로 폴백한다.
     static let defaultURL = ""
 
@@ -712,15 +712,15 @@ CandidatePickerView의 신고 버튼도 동일 패턴 (안내는 픽커에 별�
 - [ ] **Step 4: GREEN + 커밋**
 
 ```bash
-xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test > /tmp/s3.log 2>&1; grep -E "Test run|TEST" /tmp/s3.log | tail -2
-xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build > /tmp/s3b.log 2>&1; tail -1 /tmp/s3b.log
-git add Sources Tests clipnote-apple.xcodeproj
+xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test > /tmp/s3.log 2>&1; grep -E "Test run|TEST" /tmp/s3.log | tail -2
+xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build > /tmp/s3b.log 2>&1; tail -1 /tmp/s3b.log
+git add Sources Tests stepkeeper-apple.xcodeproj
 git commit -m "feat: 신고 수집기 URL 분리 — 배포 기본값 단일 지점 + 미설정 안내"
 ```
 
 ---
 
-### Task 4: 서버 토큰 브리지 + 배포 가이드 (Work from: /Users/choejunhwan/dev/clipnote-server)
+### Task 4: 서버 토큰 브리지 + 배포 가이드 (Work from: /Users/choejunhwan/dev/stepkeeper-server)
 
 **Files:**
 - Modify: `app.py`(`_create_github_issue` 토큰 경로), `tests/test_reports.py`(토큰 케이스), `README.md`(브리지 문단 갱신)
@@ -733,7 +733,7 @@ git commit -m "feat: 신고 수집기 URL 분리 — 배포 기본값 단일 지
 
 ```python
     def test_token_path_posts_via_urllib(self):
-        os.environ["CLIPNOTE_REPORTS_REPO"] = "zlej123/clipnote-reports"
+        os.environ["STEPKEEPER_REPORTS_REPO"] = "zlej123/stepkeeper-reports"
         os.environ["GITHUB_TOKEN"] = "test-token"
         try:
             captured = {}
@@ -757,17 +757,17 @@ git commit -m "feat: 신고 수집기 URL 분리 — 배포 기본값 단일 지
             self.assertEqual(200, response.status_code)
             self.assertEqual("ok", response.json()["github"])
             self.assertEqual(
-                "https://api.github.com/repos/zlej123/clipnote-reports/issues",
+                "https://api.github.com/repos/zlej123/stepkeeper-reports/issues",
                 captured["url"])
             self.assertEqual("Bearer test-token", captured["auth"])
             self.assertTrue(captured["payload"]["title"].startswith("[report:candidates]"))
             fake_run.assert_not_called()   # 토큰이 gh보다 우선
         finally:
-            os.environ.pop("CLIPNOTE_REPORTS_REPO", None)
+            os.environ.pop("STEPKEEPER_REPORTS_REPO", None)
             os.environ.pop("GITHUB_TOKEN", None)
 
     def test_token_path_failure_still_ok(self):
-        os.environ["CLIPNOTE_REPORTS_REPO"] = "zlej123/clipnote-reports"
+        os.environ["STEPKEEPER_REPORTS_REPO"] = "zlej123/stepkeeper-reports"
         os.environ["GITHUB_TOKEN"] = "test-token"
         try:
             with unittest.mock.patch(
@@ -777,7 +777,7 @@ git commit -m "feat: 신고 수집기 URL 분리 — 배포 기본값 단일 지
             self.assertEqual(200, response.status_code)
             self.assertEqual("failed", response.json()["github"])
         finally:
-            os.environ.pop("CLIPNOTE_REPORTS_REPO", None)
+            os.environ.pop("STEPKEEPER_REPORTS_REPO", None)
             os.environ.pop("GITHUB_TOKEN", None)
 ```
 
@@ -809,10 +809,10 @@ def _create_github_issue(entry: dict) -> str:
     """Optional bridge after the JSONL write — never fails the report.
 
     Prefers GITHUB_TOKEN (works on hosted deploys without gh CLI), falls back
-    to the local `gh` CLI, else "skipped". Opt-in via CLIPNOTE_REPORTS_REPO.
+    to the local `gh` CLI, else "skipped". Opt-in via STEPKEEPER_REPORTS_REPO.
     Returns "ok" | "skipped" | "failed".
     """
-    repo = os.environ.get("CLIPNOTE_REPORTS_REPO")
+    repo = os.environ.get("STEPKEEPER_REPORTS_REPO")
     if not repo:
         return "skipped"
     payload = _github_issue_payload(entry)
@@ -839,17 +839,17 @@ README 브리지 문단에 한 줄 추가: "On hosted deploys set `GITHUB_TOKEN`
 # Deploying the report collector (Cloud Run)
 
 The app's one-tap reports need a hosted collector so end users configure nothing.
-This is the same clipnote-server — deploy it once, then point the app's
+This is the same stepkeeper-server — deploy it once, then point the app's
 `ReportCollector.defaultURL` at it.
 
 ## Deploy
 
-    gcloud run deploy clipnote-reports --source . --region asia-northeast3 \
+    gcloud run deploy stepkeeper-reports --source . --region asia-northeast3 \
       --allow-unauthenticated \
-      --set-env-vars CLIPNOTE_REPORTS_REPO=zlej123/clipnote-reports,GITHUB_TOKEN=<fine-grained PAT>
+      --set-env-vars STEPKEEPER_REPORTS_REPO=zlej123/stepkeeper-reports,GITHUB_TOKEN=<fine-grained PAT>
 
 - Token: fine-grained PAT, **Issues Read/Write on the reports repo only**.
-- `CLIPNOTE_REPORTS` (JSONL dir) is ephemeral on Cloud Run — GitHub issues are
+- `STEPKEEPER_REPORTS` (JSONL dir) is ephemeral on Cloud Run — GitHub issues are
   the durable record. Mount a bucket later if you want the JSONL corpus too.
 - `/v1/analyze`·`/v1/documents` also work on this deployment (BYOK passthrough,
   the server still pays for nothing) — optional for users who prefer server mode.
@@ -857,7 +857,7 @@ This is the same clipnote-server — deploy it once, then point the app's
 ## After deploying
 
 1. `curl -s https://<service-url>/healthz` → `{"status": "ok", ...}`
-2. clipnote-apple의 `Sources/Models/ReportCollector.swift` `defaultURL`을
+2. stepkeeper-apple의 `Sources/Models/ReportCollector.swift` `defaultURL`을
    서비스 URL로 교체하고 릴리스.
 ```
 
@@ -870,7 +870,7 @@ git commit -m "reports: token-based GitHub bridge for hosted deploys + deploy gu
 
 ---
 
-### Task 5: 문서 + 전체 회귀 (Work from: /Users/choejunhwan/dev/clipnote-apple, 체크포인트)
+### Task 5: 문서 + 전체 회귀 (Work from: /Users/choejunhwan/dev/stepkeeper-apple, 체크포인트)
 
 **Files:**
 - Modify: `docs/TESTING.md`, `README.md`
@@ -884,16 +884,16 @@ git commit -m "reports: token-based GitHub bridge for hosted deploys + deploy gu
 
 준비 절의 서버 안내 문구를 갱신: "서버는 선택 사항 — 기본은 직접 모드(키만). 개발·회귀용 스텁/실서버는 기존 명령."
 
-- [ ] **Step 2: README.md** — 개발 절 위에 갱신: 첫 문단의 서버 설명을 "분석은 기본적으로 앱이 Gemini를 직접 호출(BYOK)하며, [clipnote-server](https://github.com/zlej123/clipnote-server)는 선택(개발·프롬프트 반복·신고 수집기 호스팅)"으로 교체. 스크립트 목록 아래 문서 링크에 `clipnote-server/docs/deploy.md`(신고 수집기 배포) 추가.
+- [ ] **Step 2: README.md** — 개발 절 위에 갱신: 첫 문단의 서버 설명을 "분석은 기본적으로 앱이 Gemini를 직접 호출(BYOK)하며, [stepkeeper-server](https://github.com/zlej123/stepkeeper-server)는 선택(개발·프롬프트 반복·신고 수집기 호스팅)"으로 교체. 스크립트 목록 아래 문서 링크에 `stepkeeper-server/docs/deploy.md`(신고 수집기 배포) 추가.
 
 - [ ] **Step 3: 전체 회귀**
 
 ```bash
 export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
-xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test > /tmp/s5.log 2>&1; grep -E "Test run|TEST" /tmp/s5.log | tail -2
-xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=iOS Simulator,name=iPhone 17 Pro' test > /tmp/s5b.log 2>&1; grep -E "Test run|TEST" /tmp/s5b.log | tail -2
+xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test > /tmp/s5.log 2>&1; grep -E "Test run|TEST" /tmp/s5.log | tail -2
+xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=iOS Simulator,name=iPhone 17 Pro' test > /tmp/s5b.log 2>&1; grep -E "Test run|TEST" /tmp/s5b.log | tail -2
 ./scripts/e2e-m1.sh && ./scripts/e2e-m2.sh
-cd /Users/choejunhwan/dev/clipnote-server && .venv/bin/python -m unittest discover -s tests 2>&1 | tail -2
+cd /Users/choejunhwan/dev/stepkeeper-server && .venv/bin/python -m unittest discover -s tests 2>&1 | tail -2
 ```
 
 Expected: 앱 양 destination 그린 + E2E 2종 PASS + 서버 15 tests OK.
@@ -901,7 +901,7 @@ Expected: 앱 양 destination 그린 + E2E 2종 PASS + 서버 15 tests OK.
 - [ ] **Step 4: 커밋 (체크포인트: 사용자 보고)**
 
 ```bash
-cd /Users/choejunhwan/dev/clipnote-apple
+cd /Users/choejunhwan/dev/stepkeeper-apple
 git add docs/TESTING.md README.md
 git commit -m "docs: v1.3 서버리스 안내 (직접 모드·신고 수집기)"
 ```

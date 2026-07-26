@@ -1,4 +1,4 @@
-# clipnote-apple v1.1: Notion 내보내기 설계
+# stepkeeper-apple v1.1: Notion 내보내기 설계
 
 2026-07-19 브레인스토밍 승인분. 코어 v0.2.0의 `export.py` Notion 타깃(클라이언트사이드, 직접 파일 업로드 API)을 앱에 포팅한다.
 
@@ -41,7 +41,7 @@
 
 ### 3.4 설정
 
-- `KeychainStore.notionToken = KeychainStore(service: "clipnote.notion-token")`.
+- `KeychainStore.notionToken = KeychainStore(service: "stepkeeper.notion-token")`.
 - `Settings.notionParentPageKey`(@AppStorage). 입력은 노션 페이지 **URL을 그대로 붙여넣어도** 되게 32자 hex ID를 추출·정규화(하이픈 유무 허용)하는 `NotionPageID.normalize(_:) -> String?`를 두고, 저장·사용 시 적용.
 - SettingsView에 "Notion 내보내기" 섹션: 토큰 SecureField+저장(기존 Gemini 키 패턴 — do/catch, 실패 라벨), 부모 페이지 필드, 안내 링크(`https://www.notion.so/my-integrations`) + 캡션 "통합(integration)을 만들고, 대상 페이지의 ··· 메뉴 → 연결에서 통합을 추가해야 합니다."
 
@@ -71,8 +71,8 @@
 
 ## 6. 부수: 코어 v0.2.0 레이아웃 대응
 
-- `scripts/sync-assets.sh`: `$SRC`를 `${CLIPNOTE_PATH:-../clipnote}/src/clipnote/skill-core/profiles`로 (구경로 폴백 불필요 — 코어는 이미 이동).
-- `scripts/make-golden.py`: `sys.path`에 `<core>/src` 추가 후 `from clipnote import render` 임포트로 변경. 수정 후 골든 재생성 실행해 **기존 expected.md와 diff 무변화**임을 확인(템플릿 동일함은 이미 검증됨 — 변화가 있으면 중단·보고).
+- `scripts/sync-assets.sh`: `$SRC`를 `${STEPKEEPER_PATH:-../stepkeeper}/src/stepkeeper/skill-core/profiles`로 (구경로 폴백 불필요 — 코어는 이미 이동).
+- `scripts/make-golden.py`: `sys.path`에 `<core>/src` 추가 후 `from stepkeeper import render` 임포트로 변경. 수정 후 골든 재생성 실행해 **기존 expected.md와 diff 무변화**임을 확인(템플릿 동일함은 이미 검증됨 — 변화가 있으면 중단·보고).
 - `scripts/make-notion-golden.py`(신규)도 같은 임포트 방식.
 
 ## 7. 마일스톤

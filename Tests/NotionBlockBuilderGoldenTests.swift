@@ -1,6 +1,6 @@
 import Testing
 import Foundation
-@testable import clipnote
+@testable import stepkeeper
 
 struct NotionBlockBuilderGoldenTests {
     @Test(arguments: ["generic-mixed", "generic-links-only", "recipe-mixed"])

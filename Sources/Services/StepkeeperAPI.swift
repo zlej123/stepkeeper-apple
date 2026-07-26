@@ -1,6 +1,6 @@
 import Foundation
 
-enum ClipnoteAPIError: Error, Equatable, LocalizedError {
+enum StepkeeperAPIError: Error, Equatable, LocalizedError {
     case missingKey            // 401
     case badRequest(String)    // 422
     case rateLimited           // 429
@@ -29,7 +29,7 @@ struct AnalyzeResult: Sendable {
     var rawAnalysis: Data
 }
 
-final class ClipnoteAPI: Sendable {
+final class StepkeeperAPI: Sendable {
     private let baseURL: URL
     private let session: URLSession
 
@@ -57,25 +57,25 @@ final class ClipnoteAPI: Sendable {
         do {
             (data, response) = try await session.data(for: request)
         } catch {
-            throw ClipnoteAPIError.network(String(describing: error))
+            throw StepkeeperAPIError.network(String(describing: error))
         }
         guard let http = response as? HTTPURLResponse else {
-            throw ClipnoteAPIError.invalidResponse
+            throw StepkeeperAPIError.invalidResponse
         }
         switch http.statusCode {
         case 200: break
-        case 401: throw ClipnoteAPIError.missingKey
-        case 422: throw ClipnoteAPIError.badRequest(Self.detail(from: data))
-        case 429: throw ClipnoteAPIError.rateLimited
-        case 502: throw ClipnoteAPIError.modelFailure(Self.detail(from: data))
-        default: throw ClipnoteAPIError.server(http.statusCode, Self.detail(from: data))
+        case 401: throw StepkeeperAPIError.missingKey
+        case 422: throw StepkeeperAPIError.badRequest(Self.detail(from: data))
+        case 429: throw StepkeeperAPIError.rateLimited
+        case 502: throw StepkeeperAPIError.modelFailure(Self.detail(from: data))
+        default: throw StepkeeperAPIError.server(http.statusCode, Self.detail(from: data))
         }
 
         guard let envelope = try? JSONDecoder().decode(AnalyzeEnvelope.self, from: data),
               let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let rawAnalysisObject = object["analysis"],
               let rawAnalysis = try? JSONSerialization.data(withJSONObject: rawAnalysisObject)
-        else { throw ClipnoteAPIError.invalidResponse }
+        else { throw StepkeeperAPIError.invalidResponse }
         return AnalyzeResult(videoId: envelope.videoId,
                              analysis: envelope.analysis, rawAnalysis: rawAnalysis)
     }
@@ -105,13 +105,13 @@ final class ClipnoteAPI: Sendable {
         do {
             (data, response) = try await session.data(for: request)
         } catch {
-            throw ClipnoteAPIError.network(String(describing: error))
+            throw StepkeeperAPIError.network(String(describing: error))
         }
         guard let http = response as? HTTPURLResponse else {
-            throw ClipnoteAPIError.invalidResponse
+            throw StepkeeperAPIError.invalidResponse
         }
         guard (200...299).contains(http.statusCode) else {
-            throw ClipnoteAPIError.server(http.statusCode, Self.detail(from: data))
+            throw StepkeeperAPIError.server(http.statusCode, Self.detail(from: data))
         }
     }
 

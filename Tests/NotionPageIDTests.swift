@@ -1,5 +1,5 @@
 import Testing
-@testable import clipnote
+@testable import stepkeeper
 
 struct NotionPageIDTests {
     @Test func normalizesURLDashedAndRawInputs() {

@@ -1,4 +1,4 @@
-# clipnote-apple v1 설계
+# stepkeeper-apple v1 설계
 
 2026-07-17 브레인스토밍에서 승인된 설계. 제품·아키텍처 전제는 [apple-brief.md](../apple-brief.md)를 따르며,
 이 문서는 앱 레벨 설계(모듈·플로우·에러 처리·테스트·마일스톤)를 확정한다.
@@ -30,8 +30,8 @@
 |------|------|------|
 | 빌드 순서 | M0 캡처 스파이크 → 코어 플로우 → 캡처 UI → 공유 확장 → 폴리시 | 최대 리스크(WebKit 캡처)를 최우선 제거 |
 | 문서 조립 | 로컬 Swift (`MarkdownBuilder`) | 확장과 패리티, 분석 후 오프라인 동작, 브리프 허용. 출력 원본은 `skill-core/profiles/*/template.md`이며 골든 테스트로 고정 |
-| 분석 경로 | clipnote-server 경유만 | 브리프 결정. 확장의 직접 Gemini 모드는 v1 비범위 |
-| 기존 스캐폴드 | 유지 | XcodeGen, iOS 17/macOS 14, Swift 6, 단일 멀티플랫폼 타깃, `com.clipnote.app` |
+| 분석 경로 | stepkeeper-server 경유만 | 브리프 결정. 확장의 직접 Gemini 모드는 v1 비범위 |
+| 기존 스캐폴드 | 유지 | XcodeGen, iOS 17/macOS 14, Swift 6, 단일 멀티플랫폼 타깃, `com.stepkeeper.app` |
 
 ## 4. 아키텍처
 
@@ -39,14 +39,14 @@
 
 ```
 App/
-  ClipnoteApp.swift        @main. 공유 확장이 남긴 URL 픽업(scenePhase), 라우팅
+  StepkeeperApp.swift        @main. 공유 확장이 남긴 URL 픽업(scenePhase), 라우팅
   AppModel.swift           @Observable 세션 상태(진행 단계, 현재 분석/캡처/문서)
 Models/
   Analysis.swift           Analysis·Step·VisualGuide·Material Codable (시간은 Int 초)
   CandidateTimes.swift     before/center/after 계산 (capture.py·content.js 포팅)
   Picks.swift              guide_id → slot(before|center|after) | none
 Services/
-  ClipnoteAPI.swift        POST /v1/analyze. 상태코드→ClipnoteError 매핑
+  StepkeeperAPI.swift        POST /v1/analyze. 상태코드→StepkeeperError 매핑
   KeychainStore.swift      Gemini 키 저장/로드/삭제 (Security 프레임워크)
   SettingsStore.swift      언어·서버URL·링크모드 (@AppStorage)
   MarkdownBuilder.swift    template.md와 동일 출력 (generic/recipe)
@@ -121,13 +121,13 @@ URL 진입(붙여넣기/공유 확장)
   선택 이미지 있으면 `![{phrase}](vg-N.jpg)` (상대 경로),
   없고 timestamp 있으면 `▶ [영상 M:SS에서 직접 확인](https://youtu.be/<vid>?t=<sec>)`,
   timestamp가 null이면 가이드 텍스트만.
-- 푸터: `*출처: [{title}](https://youtu.be/<vid>) — clipnote로 생성*`
+- 푸터: `*출처: [{title}](https://youtu.be/<vid>) — stepkeeper로 생성*`
 - 정확한 출력은 코어 `render.py` 결과와의 **골든 테스트**로 고정한다(7절). 세부 표현이 이 문서와
   충돌하면 골든(코어 출력)이 우선.
 
 ### 4.6 저장과 내보내기
 
-- 저장 위치: `Documents/clipnote/<videoId>-<yyyyMMdd-HHmmss>/` — `document.md`, `vg-N.jpg`…,
+- 저장 위치: `Documents/stepkeeper/<videoId>-<yyyyMMdd-HHmmss>/` — `document.md`, `vg-N.jpg`…,
   `meta.json`(제목·생성일·프로파일·언어·videoId), `analysis.json`+`picks.json`(재열람 렌더용 원본).
 - DocumentView는 마크다운 파서 없이 **모델(analysis+picks+이미지)에서 네이티브 SwiftUI로 렌더**한다.
   `document.md`는 내보내기 산출물이며 화면 렌더 경로가 아니다.
@@ -139,16 +139,16 @@ URL 진입(붙여넣기/공유 확장)
 
 ### 4.7 공유 확장 (M3, iOS)
 
-- 별도 타깃 `ClipnoteShare`. `NSExtensionActivationSupportsWebURLWithMaxCount = 1`.
-- 동작: URL 추출 → App Group(`group.com.clipnote.shared`) UserDefaults에
-  `{url, receivedAt}` 저장 → "clipnote를 열면 분석이 시작됩니다" 안내 후 완료.
+- 별도 타깃 `StepkeeperShare`. `NSExtensionActivationSupportsWebURLWithMaxCount = 1`.
+- 동작: URL 추출 → App Group(`group.com.stepkeeper.shared`) UserDefaults에
+  `{url, receivedAt}` 저장 → "stepkeeper를 열면 분석이 시작됩니다" 안내 후 완료.
   (확장에서 본체 앱 직접 실행은 비공개 API라 하지 않는다)
 - 본체: scenePhase active 시 App Group 확인 → 미소비 URL 있으면 플로우 자동 시작.
 - macOS 공유 확장은 v1 비범위(붙여넣기 진입 사용).
 
 ### 4.8 설정과 보안
 
-- Gemini 키: Keychain(`kSecClassGenericPassword`, service=`clipnote.gemini-key`,
+- Gemini 키: Keychain(`kSecClassGenericPassword`, service=`stepkeeper.gemini-key`,
   `kSecAttrAccessibleAfterFirstUnlock`). 설정 화면에 AI Studio 발급 안내 링크.
   키는 로그·에러 메시지에 절대 노출하지 않는다.
 - 서버 URL 기본값 `http://127.0.0.1:8787` (개발 기본). 설정에 "실기기에서는 Mac의 LAN IP 입력" 힌트.
@@ -187,7 +187,7 @@ URL 진입(붙여넣기/공유 확장)
 - **단위**: `CandidateTimesTests`(step 유/무, 0·duration-1 클램프, 초단편 영상),
   `VideoIDTests`(watch/youtu.be/shorts/m.), `APIErrorMappingTests`(URLProtocol 스텁으로
   401/422/429/502/네트워크), `KeychainStoreTests`(라운드트립), `DocumentStoreTests`(저장·목록).
-- **골든**: 코어 fixture(`clipnote/tests/evaluations/*.json`) 중 generic 1·recipe 1을 입력으로,
+- **골든**: 코어 fixture(`stepkeeper/tests/evaluations/*.json`) 중 generic 1·recipe 1을 입력으로,
   코어 `render.py`로 생성한 기대 마크다운과 `MarkdownBuilder` 출력을 문자 단위 대조.
   케이스: 픽 있음 / 전부 none / timestamp null 포함. 기대 파일 생성 스크립트
   `scripts/make-golden.py`(파이썬, 코어 임포트)와 재생성 방법을 리포에 문서화.
@@ -199,7 +199,7 @@ URL 진입(붙여넣기/공유 확장)
 
 - XcodeGen(`project.yml`) → `xcodegen generate`. 새 파일/타깃 추가 시 project.yml이 원본.
 - CLI 빌드(이 Mac은 xcode-select가 CLT를 가리키므로):
-  `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=iOS Simulator,name=iPhone 17 Pro' test`
+  `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=iOS Simulator,name=iPhone 17 Pro' test`
   (macOS: `-destination 'platform=macOS'`)
 - 서명: 시뮬레이터·macOS 로컬 실행은 무서명/자동. 실기기·공유 확장은 사용자가 Xcode에서 팀 지정.
 

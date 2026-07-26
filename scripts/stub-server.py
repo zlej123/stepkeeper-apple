@@ -61,5 +61,5 @@ class Handler(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8787
-    print(f"stub clipnote-server on http://127.0.0.1:{port}")
+    print(f"stub stepkeeper-server on http://127.0.0.1:{port}")
     HTTPServer(("127.0.0.1", port), Handler).serve_forever()

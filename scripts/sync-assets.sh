@@ -1,9 +1,9 @@
 #!/bin/bash
-# skill-core 자산(템플릿·프롬프트·스키마·규칙)을 앱 리소스로 복사 (원본: ../clipnote).
+# skill-core 자산(템플릿·프롬프트·스키마·규칙)을 앱 리소스로 복사 (원본: ../stepkeeper).
 # 코어 갱신 시 재실행 후 make-golden.py / make-notion-golden.py 재생성.
 set -euo pipefail
 cd "$(dirname "$0")/.."
-SRC="${CLIPNOTE_PATH:-../clipnote}/src/clipnote/skill-core"
+SRC="${STEPKEEPER_PATH:-../stepkeeper}/src/stepkeeper/skill-core"
 for p in generic recipe; do
   mkdir -p "Resources/skill-core/$p"
   cp "$SRC/profiles/$p/template.md" "Resources/skill-core/$p/template.md"

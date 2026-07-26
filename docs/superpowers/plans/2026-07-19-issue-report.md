@@ -1,10 +1,10 @@
-# clipnote v1.2 원탭 이상 신고 Implementation Plan
+# stepkeeper v1.2 원탭 이상 신고 Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 후보/문서 이상 시 🚩 원탭 신고 — URL·분석 원본·픽·사유를 서버 JSONL로 축적 (프롬프트 개선 실패 사례 수집).
 
-**Architecture:** 2레포 — clipnote-server에 `/v1/reports`(JSONL append, stateless 예외), clipnote-apple에 신고 시트+진입점 2곳+API 메서드. 스펙: `docs/superpowers/specs/2026-07-19-issue-report-design.md`.
+**Architecture:** 2레포 — stepkeeper-server에 `/v1/reports`(JSONL append, stateless 예외), stepkeeper-apple에 신고 시트+진입점 2곳+API 메서드. 스펙: `docs/superpowers/specs/2026-07-19-issue-report-design.md`.
 
 **Tech Stack:** FastAPI/pydantic Literal / SwiftUI sheet / JSONSerialization.
 
@@ -17,14 +17,14 @@
 
 ---
 
-### Task 1: 서버 — POST /v1/reports (Work from: /Users/choejunhwan/dev/clipnote-server)
+### Task 1: 서버 — POST /v1/reports (Work from: /Users/choejunhwan/dev/stepkeeper-server)
 
 **Files:**
 - Modify: `app.py`(모델+엔드포인트+독스트링 한 줄), `README.md`(API 절 + stateless 예외 기록)
 - Create: `tests/test_reports.py`
 
 **Interfaces:**
-- Produces: `POST /v1/reports` — body 스펙 2절 페이로드, 응답 `{"status": "ok"}`. 저장: `${CLIPNOTE_REPORTS:-reports}/reports.jsonl`에 `received_at`(UTC ISO8601) 붙여 append. Task 2가 호출.
+- Produces: `POST /v1/reports` — body 스펙 2절 페이로드, 응답 `{"status": "ok"}`. 저장: `${STEPKEEPER_REPORTS:-reports}/reports.jsonl`에 `received_at`(UTC ISO8601) 붙여 append. Task 2가 호출.
 
 - [ ] **Step 1: 기존 테스트 스타일 파악**
 
@@ -62,12 +62,12 @@ def make_payload(**overrides):
 class ReportsTest(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
-        os.environ["CLIPNOTE_REPORTS"] = self.tmp.name
+        os.environ["STEPKEEPER_REPORTS"] = self.tmp.name
         import app  # noqa: WPS433 — env 설정 후 임포트
         self.client = TestClient(app.app)
 
     def tearDown(self):
-        os.environ.pop("CLIPNOTE_REPORTS", None)
+        os.environ.pop("STEPKEEPER_REPORTS", None)
         self.tmp.cleanup()
 
     def test_appends_jsonl_with_received_at(self):
@@ -97,12 +97,12 @@ class ReportsTest(unittest.TestCase):
             self.client.post("/v1/reports", json=make_payload(note="x" * 2001)).status_code, 422)
 ```
 
-주의: `CLIPNOTE_REPORTS`를 요청 시점에 읽는 구현이어야 setUp의 env가 먹는다(모듈 로드 시점 고정 금지).
+주의: `STEPKEEPER_REPORTS`를 요청 시점에 읽는 구현이어야 setUp의 env가 먹는다(모듈 로드 시점 고정 금지).
 
 - [ ] **Step 3: 실패 확인**
 
 ```bash
-cd /Users/choejunhwan/dev/clipnote-server && .venv/bin/python -m unittest tests.test_reports -v 2>&1 | tail -5
+cd /Users/choejunhwan/dev/stepkeeper-server && .venv/bin/python -m unittest tests.test_reports -v 2>&1 | tail -5
 ```
 
 Expected: 404 assertion 실패(엔드포인트 없음).
@@ -132,7 +132,7 @@ class ReportRequest(BaseModel):
 def submit_report(req: ReportRequest):
     """Append the report as one JSONL line. The only stateful endpoint —
     an explicit exception to the stateless design, for the feedback loop."""
-    reports_dir = Path(os.environ.get("CLIPNOTE_REPORTS", "reports"))
+    reports_dir = Path(os.environ.get("STEPKEEPER_REPORTS", "reports"))
     reports_dir.mkdir(parents=True, exist_ok=True)
     entry = req.model_dump()
     entry["received_at"] = datetime.now(timezone.utc).isoformat()
@@ -149,7 +149,7 @@ def submit_report(req: ReportRequest):
 .venv/bin/python -m unittest discover -s tests 2>&1 | tail -3
 ```
 
-Expected: 기존+신규 전부 OK. `README.md`의 API 절에 `/v1/reports` 블록 추가(요청/응답/저장 경로) + "the only endpoint that stores anything — an explicit exception to the stateless design (`CLIPNOTE_REPORTS`, default `reports/`)" 명시. 표(Concern/Owner)에도 한 줄: `Failure reports | server /v1/reports (JSONL, opt-in one-tap)`.
+Expected: 기존+신규 전부 OK. `README.md`의 API 절에 `/v1/reports` 블록 추가(요청/응답/저장 경로) + "the only endpoint that stores anything — an explicit exception to the stateless design (`STEPKEEPER_REPORTS`, default `reports/`)" 명시. 표(Concern/Owner)에도 한 줄: `Failure reports | server /v1/reports (JSONL, opt-in one-tap)`.
 
 - [ ] **Step 6: 커밋**
 
@@ -160,15 +160,15 @@ git commit -m "reports: one-tap issue report endpoint (JSONL append, stateless e
 
 ---
 
-### Task 2: 앱 — 신고 시트 + 진입점 2곳 (Work from: /Users/choejunhwan/dev/clipnote-apple)
+### Task 2: 앱 — 신고 시트 + 진입점 2곳 (Work from: /Users/choejunhwan/dev/stepkeeper-apple)
 
 **Files:**
 - Create: `Sources/Models/IssueReport.swift`, `Sources/Views/ReportSheet.swift`
-- Modify: `Sources/Services/ClipnoteAPI.swift`(submitReport), `Sources/Views/CandidatePickerView.swift`, `Sources/Views/DocumentView.swift`, `Tests/ClipnoteAPITests.swift`(신고 테스트 추가)
+- Modify: `Sources/Services/StepkeeperAPI.swift`(submitReport), `Sources/Views/CandidatePickerView.swift`, `Sources/Views/DocumentView.swift`, `Tests/StepkeeperAPITests.swift`(신고 테스트 추가)
 
 **Interfaces:**
-- Consumes: Task 1의 `/v1/reports` 계약, `ClipnoteAPIError`(기존), `AppModel.pendingResult`/`captures`(v1 T11), `SavedDocument`(v1 T8)
-- Produces: `ReportReason`(enum, rawValue 서버 문자열), `IssueReport`, `ClipnoteAPI.submitReport(_:) async throws`, `ReportSheet(submit:)`.
+- Consumes: Task 1의 `/v1/reports` 계약, `StepkeeperAPIError`(기존), `AppModel.pendingResult`/`captures`(v1 T11), `SavedDocument`(v1 T8)
+- Produces: `ReportReason`(enum, rawValue 서버 문자열), `IssueReport`, `StepkeeperAPI.submitReport(_:) async throws`, `ReportSheet(submit:)`.
 
 - [ ] **Step 1: 모델 작성**
 
@@ -215,12 +215,12 @@ struct IssueReport: Sendable {
 
 - [ ] **Step 2: 실패하는 테스트 추가**
 
-`Tests/ClipnoteAPITests.swift`의 스위트에 테스트 추가 (기존 `makeAPI()`/`reset()` 재사용):
+`Tests/StepkeeperAPITests.swift`의 스위트에 테스트 추가 (기존 `makeAPI()`/`reset()` 재사용):
 
 ```swift
     @Test func submitReportPostsPayloadWithoutKey() async throws {
         defer { reset() }
-        ClipnoteAPIStub.shared.handler = { _ in (200, Data(#"{"status": "ok"}"#.utf8)) }
+        StepkeeperAPIStub.shared.handler = { _ in (200, Data(#"{"status": "ok"}"#.utf8)) }
         let raw = try JSONSerialization.data(withJSONObject: ["title": "t", "_model": "m"])
         let report = IssueReport(
             url: "https://m.youtube.com/watch?v=GziiD4XqCpc", videoId: "GziiD4XqCpc",
@@ -228,11 +228,11 @@ struct IssueReport: Sendable {
             rawAnalysis: raw, picks: ["vg-1": "none"], client: "apple/test")
         try await makeAPI().submitReport(report)
 
-        let request = try #require(ClipnoteAPIStub.shared.capturedRequest)
+        let request = try #require(StepkeeperAPIStub.shared.capturedRequest)
         #expect(request.url?.path == "/v1/reports")
         #expect(request.value(forHTTPHeaderField: "X-Gemini-Key") == nil)   // 키 불필요 경로
         let body = try JSONSerialization.jsonObject(
-            with: try #require(ClipnoteAPIStub.shared.capturedBody)) as! [String: Any]
+            with: try #require(StepkeeperAPIStub.shared.capturedBody)) as! [String: Any]
         #expect(body["reason"] as? String == "candidates")
         #expect((body["analysis"] as? [String: Any])?["_model"] as? String == "m")   // 원본 병합
         #expect((body["picks"] as? [String: String]) == ["vg-1": "none"])
@@ -240,14 +240,14 @@ struct IssueReport: Sendable {
 
     @Test func submitReportMapsServerFailure() async throws {
         defer { reset() }
-        ClipnoteAPIStub.shared.handler = { _ in (500, Data(#"{"detail": "disk"}"#.utf8)) }
+        StepkeeperAPIStub.shared.handler = { _ in (500, Data(#"{"detail": "disk"}"#.utf8)) }
         let report = IssueReport(
             url: "u", videoId: "v", reason: .other, note: "", profile: "generic",
             language: "ko", rawAnalysis: Data("{}".utf8), picks: [:], client: "apple/test")
         do {
             try await makeAPI().submitReport(report)
             Issue.record("should throw")
-        } catch let error as ClipnoteAPIError {
+        } catch let error as StepkeeperAPIError {
             guard case .server(500, _) = error else { Issue.record("wrong: \(error)"); return }
         }
     }
@@ -255,7 +255,7 @@ struct IssueReport: Sendable {
 
 - [ ] **Step 3: RED 확인 → submitReport 구현**
 
-RED: `cannot find 'IssueReport'` 또는 `submitReport` 없음. `Sources/Services/ClipnoteAPI.swift`의 `analyze` 아래에 추가:
+RED: `cannot find 'IssueReport'` 또는 `submitReport` 없음. `Sources/Services/StepkeeperAPI.swift`의 `analyze` 아래에 추가:
 
 ```swift
     /// 원탭 이상 신고 — X-Gemini-Key 불필요, analysis는 rawAnalysis 원본 병합
@@ -283,13 +283,13 @@ RED: `cannot find 'IssueReport'` 또는 `submitReport` 없음. `Sources/Services
         do {
             (data, response) = try await session.data(for: request)
         } catch {
-            throw ClipnoteAPIError.network(String(describing: error))
+            throw StepkeeperAPIError.network(String(describing: error))
         }
         guard let http = response as? HTTPURLResponse else {
-            throw ClipnoteAPIError.invalidResponse
+            throw StepkeeperAPIError.invalidResponse
         }
         guard (200...299).contains(http.statusCode) else {
-            throw ClipnoteAPIError.server(http.statusCode, Self.detail(from: data))
+            throw StepkeeperAPIError.server(http.statusCode, Self.detail(from: data))
         }
     }
 ```
@@ -454,7 +454,7 @@ ScrollView 마지막(.onAppear 위)에:
             profile: document.meta.profile, language: document.meta.language,
             rawAnalysis: raw, picks: document.picks, client: IssueReport.clientTag)
         do {
-            try await ClipnoteAPI(baseURL: serverURL).submitReport(report)
+            try await StepkeeperAPI(baseURL: serverURL).submitReport(report)
             return nil
         } catch {
             return (error as? LocalizedError)?.errorDescription ?? "신고 전송에 실패했습니다"
@@ -467,9 +467,9 @@ ScrollView 마지막(.onAppear 위)에:
 ```bash
 export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
 xcodegen generate
-xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=macOS' test > /tmp/rep1.log 2>&1; grep -E "Test run|TEST" /tmp/rep1.log | tail -2
-xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build > /tmp/rep2.log 2>&1; tail -1 /tmp/rep2.log
-git add Sources Tests clipnote-apple.xcodeproj
+xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=macOS' test > /tmp/rep1.log 2>&1; grep -E "Test run|TEST" /tmp/rep1.log | tail -2
+xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build > /tmp/rep2.log 2>&1; tail -1 /tmp/rep2.log
+git add Sources Tests stepkeeper-apple.xcodeproj
 git commit -m "feat: 원탭 이상 신고 — 픽커·문서 진입점 + /v1/reports 전송"
 ```
 

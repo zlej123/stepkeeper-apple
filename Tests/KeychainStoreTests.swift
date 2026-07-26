@@ -1,10 +1,15 @@
 import Testing
 import Foundation
-@testable import clipnote
+@testable import stepkeeper
 
 struct KeychainStoreTests {
-    @Test func roundTripSaveLoadOverwriteDelete() throws {
-        let store = KeychainStore(service: "clipnote.tests.\(UUID().uuidString)")
+    /// macOS 제외 이유: ad-hoc 서명 테스트 호스트가 로그인 키체인에 **매 실행 새 서비스명**으로
+    /// 항목을 만들기 때문에 항목마다 접근 승인 창이 뜬다("항상 허용"은 그 항목에만 적용되므로
+    /// 다음 실행에서 또 뜬다). 헤드리스에서는 응답할 수 없어 러너가 멈춘다.
+    /// iOS 시뮬레이터는 프롬프트 없이 실제 키체인 왕복을 검증하므로 커버리지는 유지된다.
+    @Test(.enabled(if: !ProcessInfo.processInfo.isMacOS))
+    func roundTripSaveLoadOverwriteDelete() throws {
+        let store = KeychainStore(service: "stepkeeper.tests.\(UUID().uuidString)")
         defer { try? store.delete() }
 
         #expect(try store.load() == nil)
@@ -15,5 +20,16 @@ struct KeychainStoreTests {
         try store.delete()
         #expect(try store.load() == nil)
         try store.delete()                      // 없는 항목 삭제도 에러 아님
+    }
+}
+
+extension ProcessInfo {
+    /// 컴파일 타임 #if 대신 런타임 판정 — @Test 트레이트 조건에 쓰려면 표현식이어야 한다.
+    var isMacOS: Bool {
+        #if os(macOS)
+        true
+        #else
+        false
+        #endif
     }
 }

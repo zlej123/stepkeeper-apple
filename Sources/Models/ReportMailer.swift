@@ -16,7 +16,7 @@ enum ReportMailer {
     private static let bodyLimit = 1800
 
     static func subject(for report: IssueReport) -> String {
-        "[clipnote] 신고: \(report.reason.label) (\(report.videoId))"
+        "[stepkeeper] 신고: \(report.reason.label) (\(report.videoId))"
     }
 
     static func body(for report: IssueReport) -> String {
@@ -31,7 +31,7 @@ enum ReportMailer {
             "메모:",
             report.note.isEmpty ? "(없음)" : report.note,
             "",
-            "— 이 메일은 clipnote 앱의 이상 신고 버튼으로 작성됐습니다.",
+            "— 이 메일은 stepkeeper 앱의 이상 신고 버튼으로 작성됐습니다.",
             "분석 결과 전문은 용량 때문에 포함하지 않았습니다. 위 영상 주소로 재현할 수 있습니다.",
         ]
         return String(lines.joined(separator: "\n").prefix(bodyLimit))

@@ -55,7 +55,7 @@ struct HomeView: View {
                 }
             }
         }
-        .navigationTitle("clipnote")
+        .navigationTitle("stepkeeper")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button { showSettings = true } label: { Image(systemName: "gearshape") }

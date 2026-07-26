@@ -1,12 +1,12 @@
-name: clipnote-apple
+name: stepkeeper-apple
 options:
-  bundleIdPrefix: com.clipnote
+  bundleIdPrefix: com.stepkeeper
   deploymentTarget:
     iOS: "17.0"
     macOS: "14.0"
   createIntermediateGroups: true
 targets:
-  Clipnote:
+  Stepkeeper:
     type: application
     supportedDestinations: [iOS, macOS]
     sources:
@@ -17,7 +17,7 @@ targets:
     info:
       path: Sources/Info.plist
       properties:
-        CFBundleDisplayName: clipnote
+        CFBundleDisplayName: stepkeeper
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: true
         UILaunchScreen: {}
@@ -26,23 +26,23 @@ targets:
         NSAppTransportSecurity:
           NSAllowsLocalNetworking: true
     dependencies:
-      - target: ClipnoteShare
+      - target: StepkeeperShare
         platformFilter: iOS
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.clipnote.app
-        PRODUCT_NAME: clipnote
+        PRODUCT_BUNDLE_IDENTIFIER: com.stepkeeper.app
+        PRODUCT_NAME: stepkeeper
         CURRENT_PROJECT_VERSION: 1
         MARKETING_VERSION: 0.1.0
         SWIFT_VERSION: "6.0"
         TARGETED_DEVICE_FAMILY: "1,2"
-        "CODE_SIGN_ENTITLEMENTS[sdk=iphone*]": Sources/Clipnote-iOS.entitlements
-        "CODE_SIGN_ENTITLEMENTS[sdk=macosx*]": Sources/Clipnote-macOS.entitlements
+        "CODE_SIGN_ENTITLEMENTS[sdk=iphone*]": Sources/Stepkeeper-iOS.entitlements
+        "CODE_SIGN_ENTITLEMENTS[sdk=macosx*]": Sources/Stepkeeper-macOS.entitlements
         # 개발팀 미설정 환경(CI/스파이크)에서 로컬 실행 가능하도록 ad-hoc 서명 사용.
         CODE_SIGN_IDENTITY: "-"
         CODE_SIGN_STYLE: Manual
         CODE_SIGNING_REQUIRED: NO
-  ClipnoteTests:
+  StepkeeperTests:
     type: bundle.unit-test
     supportedDestinations: [iOS, macOS]
     sources:
@@ -53,20 +53,20 @@ targets:
         type: folder
         buildPhase: resources
     dependencies:
-      - target: Clipnote
+      - target: Stepkeeper
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.clipnote.tests
+        PRODUCT_BUNDLE_IDENTIFIER: com.stepkeeper.tests
         SWIFT_VERSION: "6.0"
         GENERATE_INFOPLIST_FILE: YES
         BUNDLE_LOADER: $(TEST_HOST)
-        "TEST_HOST[sdk=macosx*]": $(BUILT_PRODUCTS_DIR)/clipnote.app/Contents/MacOS/clipnote
-        "TEST_HOST[sdk=iphonesimulator*]": $(BUILT_PRODUCTS_DIR)/clipnote.app/clipnote
+        "TEST_HOST[sdk=macosx*]": $(BUILT_PRODUCTS_DIR)/stepkeeper.app/Contents/MacOS/stepkeeper
+        "TEST_HOST[sdk=iphonesimulator*]": $(BUILT_PRODUCTS_DIR)/stepkeeper.app/stepkeeper
         # 개발팀 미설정 환경(CI/스파이크)에서 로컬 실행 가능하도록 ad-hoc 서명 사용 (테스트 번들도 동일 서명 문제를 겪을 수 있음).
         CODE_SIGN_IDENTITY: "-"
         CODE_SIGN_STYLE: Manual
         CODE_SIGNING_REQUIRED: NO
-  ClipnoteShare:
+  StepkeeperShare:
     type: app-extension
     platform: iOS
     deploymentTarget: "17.0"
@@ -76,7 +76,7 @@ targets:
     info:
       path: ShareExtension/Info.plist
       properties:
-        CFBundleDisplayName: clipnote
+        CFBundleDisplayName: stepkeeper
         NSExtension:
           NSExtensionPointIdentifier: com.apple.share-services
           NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ShareViewController
@@ -85,17 +85,17 @@ targets:
               NSExtensionActivationSupportsWebURLWithMaxCount: 1
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.clipnote.app.share
+        PRODUCT_BUNDLE_IDENTIFIER: com.stepkeeper.app.share
         SWIFT_VERSION: "6.0"
-        CODE_SIGN_ENTITLEMENTS: ShareExtension/ClipnoteShare.entitlements
+        CODE_SIGN_ENTITLEMENTS: ShareExtension/StepkeeperShare.entitlements
 schemes:
-  Clipnote:
+  Stepkeeper:
     build:
       targets:
-        Clipnote: all
+        Stepkeeper: all
     run:
       config: Debug
     test:
       config: Debug
       targets:
-        - ClipnoteTests
+        - StepkeeperTests

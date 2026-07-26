@@ -76,7 +76,7 @@ class StubURLProtocolBase: URLProtocol {
     }
 }
 
-final class ClipnoteAPIStub: StubURLProtocolBase {
+final class StepkeeperAPIStub: StubURLProtocolBase {
     nonisolated(unsafe) static let shared = StubStorage()
     override class var storage: StubStorage { shared }
 }

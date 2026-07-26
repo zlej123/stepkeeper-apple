@@ -4,19 +4,19 @@ set -euo pipefail
 export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
 cd "$(dirname "$0")/.."
 SIM="iPhone 17 Pro"
-BUNDLE=com.clipnote.app
+BUNDLE=com.stepkeeper.app
 
-xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote \
+xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper \
   -destination "platform=iOS Simulator,name=$SIM" -derivedDataPath build build | tail -2
 xcrun simctl boot "$SIM" 2>/dev/null || true
 # 이전 실행의 잔여 result.json이 새 실행 판정을 가짜로 통과시키지 않도록 데이터 초기화.
 xcrun simctl uninstall "$SIM" $BUNDLE 2>/dev/null || true
-xcrun simctl install "$SIM" build/Build/Products/Debug-iphonesimulator/clipnote.app
+xcrun simctl install "$SIM" build/Build/Products/Debug-iphonesimulator/stepkeeper.app
 xcrun simctl terminate "$SIM" $BUNDLE 2>/dev/null || true
-SIMCTL_CHILD_CLIPNOTE_SPIKE=1 xcrun simctl launch "$SIM" $BUNDLE
+SIMCTL_CHILD_STEPKEEPER_SPIKE=1 xcrun simctl launch "$SIM" $BUNDLE
 
 # 스파이크 하네스는 홈 화면에서 진입해야 하므로 UI 없이는 자동 진입이 안 된다 →
-# 앱 시작 시 CLIPNOTE_SPIKE=1이면 스파이크 뷰를 루트로 띄우는 분기가 ClipnoteApp에 필요(Step 8).
+# 앱 시작 시 STEPKEEPER_SPIKE=1이면 스파이크 뷰를 루트로 띄우는 분기가 StepkeeperApp에 필요(Step 8).
 CONTAINER=$(xcrun simctl get_app_container "$SIM" $BUNDLE data)
 RESULT="$CONTAINER/Documents/spike/result.json"
 echo "waiting for $RESULT"
