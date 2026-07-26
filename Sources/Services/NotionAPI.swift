@@ -3,7 +3,7 @@ import Foundation
 enum NotionAPIError: Error, Equatable, LocalizedError {
     case invalidToken        // 401
     case parentNotFound      // 404
-    case rateLimited         // 429
+    case rateLimited(after: Double)  // 429 — Retry-After(초), 헤더 없으면 기본값
     case api(Int, String)    // 기타 — Notion 에러 body의 message
     case network(String)
 
@@ -11,7 +11,7 @@ enum NotionAPIError: Error, Equatable, LocalizedError {
         switch self {
         case .invalidToken: "Notion 토큰이 유효하지 않습니다 — 설정을 확인하세요"
         case .parentNotFound: "부모 페이지를 찾을 수 없습니다 — 페이지 ID와 통합 연결(페이지 ··· → 연결)을 확인하세요"
-        case .rateLimited: "Notion 요청 한도 도달 — 잠시 후 다시 시도해 주세요"
+        case .rateLimited: "Notion 요청 한도 도달 — 잠시 후 다시 시도해 주세요"   // 자동 재시도 소진 후
         case .api(let code, let message): "Notion 오류 (HTTP \(code)) — \(message)"
         case .network: "Notion에 연결할 수 없습니다 — 네트워크를 확인하세요"
         }
@@ -22,17 +22,45 @@ enum NotionAPIError: Error, Equatable, LocalizedError {
 /// 토큰은 Authorization 헤더 세팅 외 어디에도 쓰지 않는다.
 final class NotionAPI: Sendable {
     static let version = "2022-06-28"   // 코어와 동일 고정
+    /// 429 재시도 횟수(최초 시도 제외). Notion 공식 한도는 초당 평균 3요청 — 이미지 다수 문서에서
+    /// 짧게 튀는 429는 Retry-After만큼 기다리면 대부분 해소된다.
+    static let maxRetries = 3
+    /// Retry-After 헤더가 없거나 해석 불가일 때의 대기(초)와 상한 — 무한 대기 방지.
+    static let defaultRetryDelay = 1.0
+    static let maxRetryDelay = 30.0
     private static let base = URL(string: "https://api.notion.com/v1")!
     private let token: String
     private let session: URLSession
+    private let retries: Int
+    private let sleeper: @Sendable (Double) async -> Void
 
-    init(token: String, session: URLSession = .shared) {
+    init(token: String, session: URLSession = .shared,
+         retries: Int = NotionAPI.maxRetries,
+         sleeper: @escaping @Sendable (Double) async -> Void = { seconds in
+             try? await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
+         }) {
         self.token = token
         self.session = session
+        self.retries = retries
+        self.sleeper = sleeper
     }
 
+    /// 429는 Retry-After(초)만큼 기다렸다가 재시도한다. 재시도 소진 시 .rateLimited를 던진다.
     private func request(path: String, jsonBody: [String: Any]? = nil,
                          rawBody: (data: Data, contentType: String)? = nil)
+        async throws -> [String: Any] {
+        for attempt in 0... {
+            do {
+                return try await send(path: path, jsonBody: jsonBody, rawBody: rawBody)
+            } catch NotionAPIError.rateLimited(let retryAfter) where attempt < retries {
+                await sleeper(retryAfter)
+            }
+        }
+        throw NotionAPIError.rateLimited(after: Self.defaultRetryDelay)   // 도달 불가(for 0...는 무한)
+    }
+
+    private func send(path: String, jsonBody: [String: Any]? = nil,
+                      rawBody: (data: Data, contentType: String)? = nil)
         async throws -> [String: Any] {
         var request = URLRequest(url: Self.base.appending(path: path))
         request.httpMethod = "POST"
@@ -61,10 +89,18 @@ final class NotionAPI: Sendable {
         case 200...299: break
         case 401: throw NotionAPIError.invalidToken
         case 404: throw NotionAPIError.parentNotFound
-        case 429: throw NotionAPIError.rateLimited
+        case 429: throw NotionAPIError.rateLimited(after: Self.retryDelay(from: http))
         default: throw NotionAPIError.api(http.statusCode, Self.message(from: data))
         }
         return (try? JSONSerialization.jsonObject(with: data) as? [String: Any]) ?? [:]
+    }
+
+    /// Retry-After(정수 초)를 [0, maxRetryDelay]로 클램프. 없거나 해석 불가면 기본값.
+    static func retryDelay(from response: HTTPURLResponse) -> Double {
+        guard let raw = response.value(forHTTPHeaderField: "Retry-After"),
+              let seconds = Double(raw.trimmingCharacters(in: .whitespaces)), seconds.isFinite
+        else { return defaultRetryDelay }
+        return min(max(seconds, 0), maxRetryDelay)
     }
 
     private static func message(from data: Data) -> String {

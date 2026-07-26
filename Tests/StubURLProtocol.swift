@@ -7,6 +7,7 @@ final class StubStorage: @unchecked Sendable {
     private var _networkError: (any Error)?
     private var _capturedRequest: URLRequest?
     private var _capturedBody: Data?
+    private var _responseHeaders: [String: String] = [:]
 
     var handler: (@Sendable (URLRequest) -> (Int, Data))? {
         get { lock.withLock { _handler } }
@@ -24,6 +25,11 @@ final class StubStorage: @unchecked Sendable {
         get { lock.withLock { _capturedBody } }
         set { lock.withLock { _capturedBody = newValue } }
     }
+    /// Content-Type 외 추가 응답 헤더 (Retry-After 등)
+    var responseHeaders: [String: String] {
+        get { lock.withLock { _responseHeaders } }
+        set { lock.withLock { _responseHeaders = newValue } }
+    }
 
     func reset() {
         lock.withLock {
@@ -31,6 +37,7 @@ final class StubStorage: @unchecked Sendable {
             _networkError = nil
             _capturedRequest = nil
             _capturedBody = nil
+            _responseHeaders = [:]
         }
     }
 }
@@ -61,7 +68,8 @@ class StubURLProtocolBase: URLProtocol {
         let (status, data) = handler(request)
         let response = HTTPURLResponse(
             url: request.url!, statusCode: status, httpVersion: nil,
-            headerFields: ["Content-Type": "application/json"])!
+            headerFields: ["Content-Type": "application/json"]
+                .merging(storage.responseHeaders) { _, extra in extra })!
         client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
         client?.urlProtocol(self, didLoad: data)
         client?.urlProtocolDidFinishLoading(self)

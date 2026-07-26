@@ -52,21 +52,27 @@ struct DocumentView: View {
         #endif
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
+                // 공유만 노출하고 나머지는 오버플로 메뉴로 — 아이폰 좁은 툴바에서 4버튼이 밀집했다
                 ShareLink(items: shareItems) { Label("공유", systemImage: "square.and.arrow.up") }
-                Button { pickingFolder = true } label: {
-                    Label("폴더로 저장", systemImage: "folder")
-                }
-                Button {
-                    exportToNotion()
+                Menu {
+                    Button { pickingFolder = true } label: {
+                        Label("폴더로 저장", systemImage: "folder")
+                    }
+                    Button {
+                        exportToNotion()
+                    } label: {
+                        Label("Notion으로 보내기", systemImage: "arrow.up.doc")
+                    }
+                    .disabled(exportingNotion)
+                    Divider()
+                    Button {
+                        // 수집기가 없어도 시트를 연다 — 보내기 시 메일 앱으로 폴백
+                        reporting = true
+                    } label: {
+                        Label("문서가 이상해요", systemImage: "flag")
+                    }
                 } label: {
-                    Label("Notion으로 보내기", systemImage: "arrow.up.doc")
-                }
-                .disabled(exportingNotion)
-                Button {
-                    // 수집기가 없어도 시트를 연다 — 보내기 시 메일 앱으로 폴백
-                    reporting = true
-                } label: {
-                    Label("문서가 이상해요", systemImage: "flag")
+                    Label("더 보기", systemImage: "ellipsis.circle")
                 }
             }
         }

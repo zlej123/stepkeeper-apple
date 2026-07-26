@@ -64,7 +64,18 @@ struct CandidatePickerView: View {
     }
 
     @ViewBuilder private func candidateCell(guideId: String, candidate: CaptureCandidate) -> some View {
-        if let jpeg = candidate.jpeg {
+        if candidate.jpeg == nil {
+            // 슬롯 단위 실패는 자리표시로 남긴다 — 셀이 그냥 사라지면 후보가 몇 개였는지 알 수 없다
+            VStack(spacing: 4) {
+                Image(systemName: "exclamationmark.triangle")
+                    .frame(maxWidth: .infinity, minHeight: 64)
+                    .background(Color.secondary.opacity(0.08))
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                Text("\(MarkdownBuilder.hms(candidate.time)) 캡처 실패")
+                    .font(.caption2)
+            }
+            .foregroundStyle(.secondary)
+        } else if let jpeg = candidate.jpeg {
             Button {
                 picks[guideId] = candidate.slot
             } label: {

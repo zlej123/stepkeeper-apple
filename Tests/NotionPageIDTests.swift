@@ -22,6 +22,10 @@ struct NotionPageIDTests {
         #expect(NotionPageID.normalize("그냥 텍스트") == nil)
         #expect(NotionPageID.normalize("12345") == nil)                    // 너무 짧음
         #expect(NotionPageID.normalize("0123456789abcdef0123456789abcdeg") == nil)  // g는 hex 아님
+        // 33자 이상 hex 덩어리는 어느 32자를 뜻하는지 알 수 없으므로 통째로 거부한다
+        // (앞 경계가 없으면 한 글자 밀린 32자를 잘라내 조용히 틀린 ID를 만들었다)
+        #expect(NotionPageID.normalize("00123456789abcdef0123456789abcdef") == nil)
+        #expect(NotionPageID.normalize("0123456789abcdef0123456789abcdef0") == nil)
     }
     @Test func urlWithQueryPicksPageIDNotViewID() {
         // URL 끝 쿼리(v=뷰ID)가 아니라 경로의 페이지 ID를 잡아야 한다 — 경로가 앞이므로 첫 매치 사용 검증

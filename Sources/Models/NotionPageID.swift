@@ -5,11 +5,16 @@ import Foundation
 enum NotionPageID {
     static func normalize(_ input: String) -> String? {
         let trimmed = input.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let dashed = trimmed.firstMatch(
+            of: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/) {
+            return String(dashed.output).replacingOccurrences(of: "-", with: "").lowercased()
+        }
+        // 32hex는 앞뒤 모두 hex 경계를 요구한다 — 앞 경계가 없으면 33자 이상 hex 덩어리에서
+        // 한 글자 밀린 32자를 잘라내 조용히 엉뚱한 ID를 만든다.
+        // (Swift Regex는 lookbehind 미지원 → 앞 문자를 소비하고 캡처 그룹만 취한다)
         guard let match = trimmed.firstMatch(
-            of: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}|[0-9a-fA-F]{32}(?![0-9a-fA-F])/)
+            of: /(?:^|[^0-9a-fA-F])([0-9a-fA-F]{32})(?![0-9a-fA-F])/)
         else { return nil }
-        return String(match.output)
-            .replacingOccurrences(of: "-", with: "")
-            .lowercased()
+        return String(match.output.1).lowercased()
     }
 }
