@@ -75,7 +75,7 @@ struct GeminiAPITests {
                 language: "ko", duration: 10, geminiKey: "k")
         }
         GeminiAPIStub.shared.handler = { _ in (500, Data("{}".utf8)) }
-        await #expect(throws: StepkeeperAPIError.modelFailure("Gemini 오류 (HTTP 500)")) {
+        await #expect(throws: StepkeeperAPIError.modelFailure("Gemini error (HTTP 500)")) {
             _ = try await self.makeAPI().analyze(
                 videoURL: "https://youtu.be/4ioPBiTWm3M", profile: "generic",
                 language: "ko", duration: 10, geminiKey: "k")

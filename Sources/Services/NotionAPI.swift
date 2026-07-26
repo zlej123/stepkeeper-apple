@@ -9,11 +9,11 @@ enum NotionAPIError: Error, Equatable, LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .invalidToken: "Notion 토큰이 유효하지 않습니다 — 설정을 확인하세요"
-        case .parentNotFound: "부모 페이지를 찾을 수 없습니다 — 페이지 ID와 통합 연결(페이지 ··· → 연결)을 확인하세요"
-        case .rateLimited: "Notion 요청 한도 도달 — 잠시 후 다시 시도해 주세요"   // 자동 재시도 소진 후
-        case .api(let code, let message): "Notion 오류 (HTTP \(code)) — \(message)"
-        case .network: "Notion에 연결할 수 없습니다 — 네트워크를 확인하세요"
+        case .invalidToken: String(localized: "The Notion token isn't valid — check Settings")
+        case .parentNotFound: String(localized: "Parent page not found — check the page ID and that your integration is connected (page ··· → Connections)")
+        case .rateLimited: String(localized: "Notion rate limit reached — try again in a moment")   // 자동 재시도 소진 후
+        case .api(let code, let message): String(localized: "Notion error") + " (HTTP \(code)) — \(message)"
+        case .network: String(localized: "Couldn't reach Notion — check your network")
         }
     }
 }

@@ -15,20 +15,20 @@ struct HomeView: View {
                     Button {
                         showSettings = true
                     } label: {
-                        Label("먼저 설정에서 Gemini API 키를 입력하세요", systemImage: "key.fill")
+                        Label("Add your Gemini API key in Settings first", systemImage: "key.fill")
                             .symbolEffect(.pulse, options: .repeating)
                     }
                     .foregroundStyle(.orange)
                     .listRowBackground(KeyNudgeBackground())
                 }
             }
-            Section("새 문서") {
-                TextField("유튜브 URL", text: $urlText)
+            Section("New document") {
+                TextField("YouTube URL", text: $urlText)
                     .autocorrectionDisabled()
                 HStack {
-                    Button("붙여넣기") { if let s = Pasteboard.string { urlText = s } }
+                    Button("Paste") { if let s = Pasteboard.string { urlText = s } }
                     Spacer()
-                    Button("문서 만들기") {
+                    Button("Make document") {
                         flowActive = true
                         Task { await model.start(urlString: urlText) }
                     }
@@ -36,9 +36,9 @@ struct HomeView: View {
                     .disabled(YouTubeURL.videoID(from: urlText) == nil)
                 }
             }
-            Section("최근 문서") {
+            Section("Recent") {
                 if documents.isEmpty {
-                    Text("아직 만든 문서가 없습니다").foregroundStyle(.secondary)
+                    Text("No documents yet").foregroundStyle(.secondary)
                 }
                 ForEach(documents) { meta in
                     NavigationLink(value: meta.id) {
@@ -67,7 +67,7 @@ struct HomeView: View {
             if let doc = model.document(id: id) {
                 DocumentView(document: doc)
             } else {
-                Text("문서를 열 수 없습니다")
+                Text("Couldn't open that document")
             }
         }
         .onAppear(perform: refresh)

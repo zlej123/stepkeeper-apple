@@ -20,11 +20,12 @@ struct ReportMailerTests {
         let items = Dictionary(uniqueKeysWithValues:
             (components.queryItems ?? []).map { ($0.name, $0.value ?? "") })
         #expect(items["subject"]?.contains("GziiD4XqCpc") == true)
-        #expect(items["subject"]?.contains("후보 장면 부적합") == true)   // 사유 라벨
+        // 사유 라벨은 시스템 언어를 따르므로 로케일 독립적으로 확인한다
+        #expect(items["subject"]?.contains(ReportReason.candidates.label) == true)
         let body = try #require(items["body"])
         #expect(body.contains("https://m.youtube.com/watch?v=GziiD4XqCpc"))  // 재현 핵심
         #expect(body.contains("후보가 전부 인트로 화면"))                     // 메모
-        #expect(body.contains("1개"))                                        // 선택 장면 수(none 제외)
+        #expect(body.contains("1 / 2"))                                      // 선택 장면 수(none 제외)/전체
     }
 
     @Test func longNoteIsTruncatedToStayWithinMailtoLimits() {
@@ -33,6 +34,7 @@ struct ReportMailerTests {
     }
 
     @Test func emptyNoteRendersPlaceholder() {
-        #expect(ReportMailer.body(for: makeReport(note: "")).contains("(없음)"))
+        #expect(ReportMailer.body(for: makeReport(note: ""))
+            .contains(String(localized: "(none)")))
     }
 }

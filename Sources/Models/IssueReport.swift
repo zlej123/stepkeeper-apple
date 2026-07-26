@@ -10,10 +10,10 @@ enum ReportReason: String, CaseIterable, Identifiable, Sendable {
     var id: String { rawValue }
     var label: String {
         switch self {
-        case .candidates: "후보 장면 부적합"
-        case .guideText: "가이드 문구 이상"
-        case .steps: "단계 누락·오류"
-        case .other: "기타"
+        case .candidates: String(localized: "The candidate frames don't fit")
+        case .guideText: String(localized: "The guide text is wrong")
+        case .steps: String(localized: "Steps are missing or wrong")
+        case .other: String(localized: "Something else")
         }
     }
 }

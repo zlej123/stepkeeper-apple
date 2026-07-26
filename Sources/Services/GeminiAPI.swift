@@ -40,7 +40,7 @@ final class GeminiAPI: Sendable {
         let text = try asset("schema", ext: "json", subdirectory: "skill-core/\(profile)")
         guard var schema = try JSONSerialization.jsonObject(with: Data(text.utf8))
             as? [String: Any] else {
-            throw AssetMissing(name: "skill-core/\(profile)/schema.json (파싱 실패)")
+            throw AssetMissing(name: "skill-core/\(profile)/schema.json (parse failed)")
         }
         schema.removeValue(forKey: "$schema")
         schema.removeValue(forKey: "$comment")
@@ -85,7 +85,7 @@ final class GeminiAPI: Sendable {
         }
         if http.statusCode == 429 { throw StepkeeperAPIError.rateLimited }
         guard (200...299).contains(http.statusCode) else {
-            throw StepkeeperAPIError.modelFailure("Gemini 오류 (HTTP \(http.statusCode))")
+            throw StepkeeperAPIError.modelFailure("Gemini error (HTTP \(http.statusCode))")
         }
         guard let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let candidates = object["candidates"] as? [[String: Any]],

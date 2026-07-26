@@ -85,11 +85,11 @@ final class AppModel {
         pendingResult = nil
         currentURLString = urlString   // 키 가드보다 앞 — 진입 전 실패도 retry로 복구 가능 (Important 3)
         guard let videoId = YouTubeURL.videoID(from: urlString) else {
-            stage = .failed("유튜브 URL이 아닙니다 — watch/youtu.be/shorts 링크를 붙여넣어 주세요")
+            stage = .failed(String(localized: "That's not a YouTube URL — paste a watch/youtu.be/shorts link"))
             return
         }
         guard let key = try? keychain.load(), !key.isEmpty else {
-            stage = .failed("설정에서 Gemini API 키를 입력하세요")
+            stage = .failed(String(localized: "Add your Gemini API key in Settings"))
             return
         }
         currentVideoId = videoId
@@ -106,7 +106,7 @@ final class AppModel {
         } catch {
             guard gen == generation else { return }
             stage = .failed((error as? PlayerError)?.errorDescription
-                            ?? "플레이어 로드에 실패했습니다 — 다시 시도해 주세요")
+                            ?? String(localized: "The player didn't load — try again"))
         }
     }
 
@@ -118,7 +118,7 @@ final class AppModel {
     /// 분석 → (Task 11 전까지는 항상) 링크 문서 저장
     func performAnalysis(videoId: String, duration: Int) async {
         guard let key = try? keychain.load(), !key.isEmpty else {
-            stage = .failed("설정에서 Gemini API 키를 입력하세요")
+            stage = .failed(String(localized: "Add your Gemini API key in Settings"))
             return
         }
         let serverURLString = (defaults.string(forKey: Settings.serverURLKey) ?? "")
@@ -136,7 +136,7 @@ final class AppModel {
                     duration: duration, geminiKey: key)
             } else {
                 guard let serverURL = URL(string: serverURLString) else {
-                    stage = .failed("서버 URL이 올바르지 않습니다 — 설정을 확인하세요")
+                    stage = .failed(String(localized: "That server URL isn't valid — check Settings"))
                     return
                 }
                 result = try await makeAPI(serverURL).analyze(
@@ -152,7 +152,7 @@ final class AppModel {
         } catch {
             guard gen == generation else { return }
             stage = .failed((error as? LocalizedError)?.errorDescription
-                            ?? "분석에 실패했습니다 — 다시 시도해 주세요")
+                            ?? String(localized: "Analysis failed — try again"))
         }
     }
 
@@ -171,7 +171,7 @@ final class AppModel {
                 picks: picks, images: images, markdown: markdown)
             stage = .done(meta)
         } catch {
-            stage = .failed("문서 저장에 실패했습니다 — \(error.localizedDescription)")
+            stage = .failed(String(localized: "Couldn't save the document") + " — \(error.localizedDescription)")
         }
     }
 
@@ -237,7 +237,7 @@ final class AppModel {
     /// 픽커 화면의 원탭 신고 — pendingResult 기반. 성공 nil, 실패 시 사용자 메시지 반환.
     func submitIssueReport(reason: ReportReason, note: String,
                            picks: [String: String]) async -> String? {
-        guard let result = pendingResult else { return "신고할 분석 정보가 없습니다" }
+        guard let result = pendingResult else { return String(localized: "Nothing to report yet") }
         let report = IssueReport(
             url: "https://m.youtube.com/watch?v=\(result.videoId)",
             videoId: result.videoId, reason: reason, note: note,
@@ -248,13 +248,13 @@ final class AppModel {
         // 수집기가 없으면 메일 앱으로 폴백 — 배포 전에도 신고 경로가 살아 있게
         guard let serverURL = ReportCollector.resolveURL(defaults: defaults) else {
             return ReportMailer.compose(report) ? nil
-                : "메일 앱을 열지 못했습니다 — 신고 내용을 클립보드에 복사했습니다"
+                : String(localized: "Couldn't open your mail app — the report was copied to the clipboard")
         }
         do {
             try await makeAPI(serverURL).submitReport(report)
             return nil
         } catch {
-            return (error as? LocalizedError)?.errorDescription ?? "신고 전송에 실패했습니다"
+            return (error as? LocalizedError)?.errorDescription ?? String(localized: "Couldn't send the report")
         }
     }
 

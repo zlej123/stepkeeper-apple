@@ -10,12 +10,12 @@ struct CandidatePickerView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
-                Text("가이드별로 의미가 가장 잘 보이는 장면을 고르세요")
+                Text("Pick the frame that shows what each phrase means")
                     .font(.callout).foregroundStyle(.secondary)
                 ForEach(model.captures) { capture in
                     guideCard(capture)
                 }
-                Button("문서 만들기") {
+                Button("Make document") {
                     Task { await model.finishPicking(picks: picks) }
                 }
                 .buttonStyle(.borderedProminent)
@@ -25,7 +25,7 @@ struct CandidatePickerView: View {
                     reportNotice = nil
                     reporting = true
                 } label: {
-                    Label("후보가 이상해요", systemImage: "flag")
+                    Label("These frames look wrong", systemImage: "flag")
                 }
                 .font(.callout)
                 .frame(maxWidth: .infinity)
@@ -49,7 +49,7 @@ struct CandidatePickerView: View {
             Text("\(capture.guide.id) · \(capture.guide.phrase)").font(.headline)
             Text(capture.guide.guideText).font(.caption).foregroundStyle(.secondary)
             if capture.failed {
-                Label("캡처 실패 — 링크로 대체됩니다", systemImage: "link")
+                Label("Capture failed — a link will be used instead", systemImage: "link")
                     .font(.callout).foregroundStyle(.orange)
             } else {
                 // 적응형 그리드(아이폰 2열) — 가로 4분할 대비 썸네일 약 2배 (UX 피드백 반영)
@@ -71,7 +71,7 @@ struct CandidatePickerView: View {
                     .frame(maxWidth: .infinity, minHeight: 64)
                     .background(Color.secondary.opacity(0.08))
                     .clipShape(RoundedRectangle(cornerRadius: 6))
-                Text("\(MarkdownBuilder.hms(candidate.time)) 캡처 실패")
+                Text("\(MarkdownBuilder.hms(candidate.time)) capture failed")
                     .font(.caption2)
             }
             .foregroundStyle(.secondary)
@@ -91,7 +91,7 @@ struct CandidatePickerView: View {
             }
             .buttonStyle(.plain)
             .contextMenu {
-                Button("이 장면 선택") { picks[guideId] = candidate.slot }
+                Button("Pick this frame") { picks[guideId] = candidate.slot }
             } preview: {
                 // 길게 누르면 원본 크기 확대 미리보기 (비-resizable Image = 고유 크기 기준)
                 #if os(macOS)
@@ -108,7 +108,7 @@ struct CandidatePickerView: View {
             picks[guideId] = "none"
         } label: {
             VStack {
-                Text("부적합\n링크 사용").font(.caption).multilineTextAlignment(.center)
+                Text("Doesn't fit\nuse a link").font(.caption).multilineTextAlignment(.center)
             }
             .frame(maxWidth: .infinity, minHeight: 64)
             .overlay(RoundedRectangle(cornerRadius: 6).stroke(

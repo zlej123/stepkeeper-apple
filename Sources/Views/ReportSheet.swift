@@ -13,17 +13,17 @@ struct ReportSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                Picker("사유", selection: $reason) {
+                Picker("Reason", selection: $reason) {
                     ForEach(ReportReason.allCases) { reason in
                         Text(reason.label).tag(reason)
                     }
                 }
-                Section("메모 (선택)") {
+                Section("Note (optional)") {
                     TextEditor(text: $note).frame(minHeight: 80)
                 }
                 Section {
                     if done {
-                        Label("신고 완료 — 개선에 사용할게요!", systemImage: "checkmark.circle.fill")
+                        Label("Sent — thanks, this helps.", systemImage: "checkmark.circle.fill")
                             .foregroundStyle(.green)
                     } else {
                         Button {
@@ -39,7 +39,7 @@ struct ReportSheet: View {
                                 }
                             }
                         } label: {
-                            if sending { ProgressView() } else { Text("보내기") }
+                            if sending { ProgressView() } else { Text("Send") }
                         }
                         .disabled(sending)
                     }
@@ -50,14 +50,14 @@ struct ReportSheet: View {
                 } footer: {
                     // 수집기 설정 여부에 따라 실제 동작이 달라지므로 고지 문구도 그에 맞춘다
                     Text(ReportCollector.resolveURL() == nil
-                         ? "메일 앱이 열리고, 영상 주소와 사유·메모가 미리 채워집니다. 보내기 전에 내용을 확인할 수 있습니다."
-                         : "영상 주소와 분석 결과, 선택 내역이 개발자 서버로 전송됩니다.")
+                         ? "Your mail app opens with the video URL, reason, and note filled in. You can review it before sending."
+                         : "The video URL, the analysis, and your picks are sent to the developer's server.")
                 }
             }
             .formStyle(.grouped)
-            .navigationTitle("이상 신고")
+            .navigationTitle("Report an issue")
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button("취소") { dismiss() } }
+                ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
             }
         }
         #if os(macOS)

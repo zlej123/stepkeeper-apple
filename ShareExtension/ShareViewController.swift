@@ -10,7 +10,7 @@ final class ShareViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
-        label.text = "확인 중…"
+        label.text = String(localized: "Checking…")
         label.font = .preferredFont(forTextStyle: .headline)
         label.textAlignment = .center
         label.numberOfLines = 0
@@ -31,7 +31,7 @@ final class ShareViewController: UIViewController {
         guard let provider = providers.first(where: {
             $0.hasItemConformingToTypeIdentifier(UTType.url.identifier)
         }) else {
-            finish("URL을 찾지 못했습니다")
+            finish(String(localized: "No URL found"))
             return
         }
         let groupID = self.groupID
@@ -41,11 +41,11 @@ final class ShareViewController: UIViewController {
             DispatchQueue.main.async {
                 guard let self else { return }   // 해제됐으면 시스템이 확장을 정리한다 — 빈 suiteName 쓰기 방지 (리뷰 반영)
                 guard YouTubeURL.videoID(from: urlString) != nil else {
-                    self.finish("유튜브 영상 링크가 아닙니다")
+                    self.finish(String(localized: "That isn't a YouTube video link"))
                     return
                 }
                 UserDefaults(suiteName: groupID)?.set(urlString, forKey: urlKey)
-                self.finish("저장됐습니다.\nstepkeeper를 열면 분석이 시작됩니다.")
+                self.finish(String(localized: "Saved.\nOpen stepkeeper to start the analysis."))
             }
         }
     }

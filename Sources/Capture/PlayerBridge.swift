@@ -4,11 +4,11 @@ enum PlayerError: Error, LocalizedError, Equatable {
     case loadFailed(String), metadataTimeout, seekTimeout(Int), captureFailed(String), emptyFrame
     var errorDescription: String? {
         switch self {
-        case .loadFailed(let m): return "플레이어 로드 실패: \(m)"
-        case .metadataTimeout: return "영상 정보를 가져오지 못했습니다"
-        case .seekTimeout(let t): return "장면 이동 시간 초과 (\(t)s)"
-        case .captureFailed(let m): return "캡처 실패: \(m)"
-        case .emptyFrame: return "빈 프레임"
+        case .loadFailed(let m): return String(localized: "The player failed to load") + ": \(m)"
+        case .metadataTimeout: return String(localized: "Couldn't read the video's details")
+        case .seekTimeout(let t): return String(localized: "Timed out seeking to the frame") + " (\(t)s)"
+        case .captureFailed(let m): return String(localized: "Capture failed") + ": \(m)"
+        case .emptyFrame: return String(localized: "Empty frame")
         }
     }
 }
@@ -66,7 +66,7 @@ final class PlayerBridge: NSObject, ObservableObject {
                 try? await Task.sleep(for: .seconds(timeout))
                 guard !resumed else { return }
                 resumed = true
-                cont.resume(throwing: PlayerError.captureFailed("JS 응답 시간 초과 (\(Int(timeout))s)"))
+                cont.resume(throwing: PlayerError.captureFailed("JS response timed out (\(Int(timeout))s)"))
             }
         }
     }
@@ -134,7 +134,7 @@ final class PlayerBridge: NSObject, ObservableObject {
         do {
             _ = try await callJS("return await window.__stepkeeper.captureBegin();", timeout: 8)
         } catch {
-            throw PlayerError.captureFailed("세션 시작 실패: \(error)")
+            throw PlayerError.captureFailed("Couldn't start the capture session: \(error)")
         }
     }
 

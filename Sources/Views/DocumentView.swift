@@ -10,6 +10,8 @@ struct DocumentView: View {
 
     private var analysis: Analysis { document.analysis }
     private var isRecipe: Bool { document.meta.profile == "recipe" }
+    /// 본문 라벨은 문서를 만든 언어를 따른다 (툴바·안내 문구는 시스템 언어)
+    private var docStrings: DocumentStrings { .forLanguage(document.meta.language) }
 
     var body: some View {
         ScrollView {
@@ -17,27 +19,26 @@ struct DocumentView: View {
                 Text("\(isRecipe ? "🍳" : "📋") \(analysis.title)").font(.title2.bold())
                 Text(analysis.summary).foregroundStyle(.secondary)
                 if !isRecipe, let category = analysis.category, !category.isEmpty {
-                    Text("**분류:** \(category)")
+                    Text("**\(docStrings.category):** \(category)")
                 }
-                Text(isRecipe
-                     ? "■ 준비 재료\(analysis.servings.map { " (\($0))" } ?? "")"
-                     : "■ 준비물").font(.headline)
+                Text("■ " + docStrings.needsTitle(isRecipe: isRecipe,
+                                                  servings: analysis.servings)).font(.headline)
                 ForEach(analysis.materials, id: \.name) { material in
                     Text("• \(material.name) \(material.amount)")
                 }
-                Text(isRecipe ? "■ 조리 순서" : "■ 순서").font(.headline)
+                Text("■ " + docStrings.stepsTitle(isRecipe: isRecipe)).font(.headline)
                 ForEach(analysis.steps, id: \.id) { step in
                     stepSection(step)
                 }
                 Divider()
-                Link("출처: \(analysis.title) — stepkeeper로 생성",
+                Link(docStrings.source(analysis.title),
                      destination: URL(string: "https://youtu.be/\(document.meta.videoId)")!)
                     .font(.footnote)
                 if exportingNotion {
-                    ProgressView("Notion 업로드 중…")
+                    ProgressView("Uploading to Notion…")
                 }
                 if let notionPageURL {
-                    Link("Notion에서 열기", destination: notionPageURL)
+                    Link("Open in Notion", destination: notionPageURL)
                         .font(.callout)
                 }
                 if let exportMessage {
@@ -53,15 +54,15 @@ struct DocumentView: View {
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
                 // 공유만 노출하고 나머지는 오버플로 메뉴로 — 아이폰 좁은 툴바에서 4버튼이 밀집했다
-                ShareLink(items: shareItems) { Label("공유", systemImage: "square.and.arrow.up") }
+                ShareLink(items: shareItems) { Label("Share", systemImage: "square.and.arrow.up") }
                 Menu {
                     Button { pickingFolder = true } label: {
-                        Label("폴더로 저장", systemImage: "folder")
+                        Label("Save to a folder", systemImage: "folder")
                     }
                     Button {
                         exportToNotion()
                     } label: {
-                        Label("Notion으로 보내기", systemImage: "arrow.up.doc")
+                        Label("Send to Notion", systemImage: "arrow.up.doc")
                     }
                     .disabled(exportingNotion)
                     Divider()
@@ -69,10 +70,10 @@ struct DocumentView: View {
                         // 수집기가 없어도 시트를 연다 — 보내기 시 메일 앱으로 폴백
                         reporting = true
                     } label: {
-                        Label("문서가 이상해요", systemImage: "flag")
+                        Label("This document looks wrong", systemImage: "flag")
                     }
                 } label: {
-                    Label("더 보기", systemImage: "ellipsis.circle")
+                    Label("More", systemImage: "ellipsis.circle")
                 }
             }
         }
@@ -80,11 +81,11 @@ struct DocumentView: View {
             if case .success(let directory) = result {
                 let folder = document.folder
                 let id = document.meta.id
-                exportMessage = "폴더로 저장 중…"
+                exportMessage = String(localized: "Saving to the folder…")
                 Task {
                     exportMessage = await ExportHelper.copyFolder(
                         from: folder, to: directory, name: id)
-                        ?? "저장 완료: \(directory.lastPathComponent)/\(id)"
+                        ?? String(localized: "Saved to") + " \(directory.lastPathComponent)/\(id)"
                 }
             }
         }
@@ -108,7 +109,7 @@ struct DocumentView: View {
 
     @ViewBuilder private func guideRow(_ guide: VisualGuide) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("💡 *'\(guide.phrase)' 기준:* \(guide.guideText)")
+            Text("💡 *\(docStrings.guidePrefix(guide.phrase))* \(guide.guideText)")
                 .font(.callout)
             let imageURL = document.folder.appendingPathComponent("\(guide.id).jpg")
             if let pick = document.picks[guide.id], pick != "none",
@@ -117,7 +118,7 @@ struct DocumentView: View {
             } else {
                 // md(코어 패리티)와 정렬: timestamp가 없어도 영상 링크는 항상 제공한다 (리뷰 반영)
                 let ts = guide.bestVisualTimestamp
-                Link(ts.map { "▶ 영상 \(MarkdownBuilder.hms($0))에서 직접 확인" } ?? "▶ 영상에서 직접 확인",
+                Link(docStrings.seeAt(ts.map { MarkdownBuilder.hms($0) }),
                      destination: URL(string: ts.map { "https://youtu.be/\(document.meta.videoId)?t=\($0)" }
                                       ?? "https://youtu.be/\(document.meta.videoId)")!)
                     .font(.callout)
@@ -139,11 +140,11 @@ struct DocumentView: View {
         guard let token = try? KeychainStore.notionToken.load(), !token.isEmpty,
               let parent = NotionPageID.normalize(
                 UserDefaults.standard.string(forKey: Settings.notionParentPageKey) ?? "") else {
-            exportMessage = "설정에서 Notion 토큰과 부모 페이지를 입력하세요"
+            exportMessage = String(localized: "Add your Notion token and parent page in Settings")
             return
         }
         guard NotionExportTracker.begin(document.meta.id) else {
-            exportMessage = "이 문서는 Notion 업로드가 진행 중입니다"
+            exportMessage = String(localized: "This document is already uploading to Notion")
             return
         }
         exportingNotion = true
@@ -154,10 +155,10 @@ struct DocumentView: View {
             do {
                 let url = try await exporter.export(document: target)
                 notionPageURL = url
-                exportMessage = "Notion 업로드 완료"
+                exportMessage = String(localized: "Uploaded to Notion")
             } catch {
                 exportMessage = (error as? LocalizedError)?.errorDescription
-                    ?? "Notion 내보내기에 실패했습니다"
+                    ?? String(localized: "Notion export failed")
             }
             exportingNotion = false
         }
@@ -166,7 +167,7 @@ struct DocumentView: View {
     private func submitReport(reason: ReportReason, note: String) async -> String? {
         guard let raw = try? Data(contentsOf:
             document.folder.appendingPathComponent("analysis.json")) else {
-            return "분석 원본을 읽지 못했습니다"
+            return String(localized: "Couldn't read the original analysis")
         }
         let report = IssueReport(
             url: "https://m.youtube.com/watch?v=\(document.meta.videoId)",
@@ -176,13 +177,13 @@ struct DocumentView: View {
         // 수집기가 없으면 메일 앱으로 폴백
         guard let serverURL = ReportCollector.resolveURL() else {
             return ReportMailer.compose(report) ? nil
-                : "메일 앱을 열지 못했습니다 — 신고 내용을 클립보드에 복사했습니다"
+                : String(localized: "Couldn't open your mail app — the report was copied to the clipboard")
         }
         do {
             try await StepkeeperAPI(baseURL: serverURL).submitReport(report)
             return nil
         } catch {
-            return (error as? LocalizedError)?.errorDescription ?? "신고 전송에 실패했습니다"
+            return (error as? LocalizedError)?.errorDescription ?? String(localized: "Couldn't send the report")
         }
     }
 }

@@ -11,13 +11,13 @@ enum StepkeeperAPIError: Error, Equatable, LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .missingKey: "설정에서 Gemini API 키를 입력하세요"
-        case .badRequest(let detail): "URL 또는 요청 값 문제 — \(detail)"
-        case .rateLimited: "Gemini 무료 한도 도달 — 잠시 후 다시 시도해 주세요"
-        case .modelFailure(let detail): "분석에 실패했습니다 — 다시 시도해 주세요 (\(detail))"
-        case .server(let code, let detail): "서버 오류 (HTTP \(code)) — \(detail)"
-        case .network: "서버에 연결할 수 없습니다 — 서버 URL을 확인하세요"
-        case .invalidResponse: "서버 응답을 해석하지 못했습니다"
+        case .missingKey: String(localized: "Add your Gemini API key in Settings")
+        case .badRequest(let detail): String(localized: "Problem with the URL or request") + " — \(detail)"
+        case .rateLimited: String(localized: "Gemini free-tier limit reached — try again in a moment")
+        case .modelFailure(let detail): String(localized: "Analysis failed — try again") + " (\(detail))"
+        case .server(let code, let detail): String(localized: "Server error") + " (HTTP \(code)) — \(detail)"
+        case .network: String(localized: "Couldn't reach the server — check the server URL")
+        case .invalidResponse: String(localized: "Couldn't read the server's response")
         }
     }
 }

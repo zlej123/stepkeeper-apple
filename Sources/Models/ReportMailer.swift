@@ -15,24 +15,25 @@ enum ReportMailer {
     /// 클라이언트별 실질 한도를 고려한 본문 상한
     private static let bodyLimit = 1800
 
+    // 사용자가 보내기 전에 읽는 초안이므로 사용자 언어로 쓴다 (라벨은 시스템 언어, 값은 그대로)
     static func subject(for report: IssueReport) -> String {
-        "[stepkeeper] 신고: \(report.reason.label) (\(report.videoId))"
+        "[stepkeeper] " + String(localized: "Report") + ": \(report.reason.label) (\(report.videoId))"
     }
 
     static func body(for report: IssueReport) -> String {
         let picked = report.picks.filter { $0.value != "none" }.count
         let lines = [
-            "사유: \(report.reason.label)",
-            "영상: \(report.url)",
-            "프로파일/언어: \(report.profile) / \(report.language)",
-            "선택한 장면: \(picked)개 (전체 가이드 \(report.picks.count)개)",
+            String(localized: "Reason") + ": \(report.reason.label)",
+            String(localized: "Video") + ": \(report.url)",
+            String(localized: "Profile/language") + ": \(report.profile) / \(report.language)",
+            String(localized: "Frames picked") + ": \(picked) / \(report.picks.count)",
             "client: \(report.client)",
             "",
-            "메모:",
-            report.note.isEmpty ? "(없음)" : report.note,
+            String(localized: "Note") + ":",
+            report.note.isEmpty ? String(localized: "(none)") : report.note,
             "",
-            "— 이 메일은 stepkeeper 앱의 이상 신고 버튼으로 작성됐습니다.",
-            "분석 결과 전문은 용량 때문에 포함하지 않았습니다. 위 영상 주소로 재현할 수 있습니다.",
+            String(localized: "— Written by the report button in the stepkeeper app."),
+            String(localized: "The full analysis isn't attached (size limits) — the video URL above reproduces it."),
         ]
         return String(lines.joined(separator: "\n").prefix(bodyLimit))
     }

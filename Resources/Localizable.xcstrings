@@ -1,0 +1,1326 @@
+{
+  "sourceLanguage": "en",
+  "version": "1.0",
+  "strings": {
+    "(none)": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "(없음)"
+          }
+        }
+      }
+    },
+    "1. Go to aistudio.google.com/apikey with your Google account": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1. 구글 계정으로 aistudio.google.com/apikey 접속"
+          }
+        }
+      }
+    },
+    "2. Click \\": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2. \\"
+          }
+        }
+      }
+    },
+    "3. Copy the key (it starts with AIza)": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3. 생성된 키 복사 (AIza로 시작)"
+          }
+        }
+      }
+    },
+    "4. Paste it above and tap Save key — free, no card needed": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "4. 위 칸에 붙여넣고 '키 저장' — 무료, 카드 등록 불필요"
+          }
+        }
+      }
+    },
+    "Add your Gemini API key in Settings": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정에서 Gemini API 키를 입력하세요"
+          }
+        }
+      }
+    },
+    "Add your Gemini API key in Settings first": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "먼저 설정에서 Gemini API 키를 입력하세요"
+          }
+        }
+      }
+    },
+    "Add your Notion token and parent page in Settings": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정에서 Notion 토큰과 부모 페이지를 입력하세요"
+          }
+        }
+      }
+    },
+    "Analysis": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "분석"
+          }
+        }
+      }
+    },
+    "Analysis failed — try again": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "분석에 실패했습니다 — 다시 시도해 주세요"
+          }
+        }
+      }
+    },
+    "Analyzing the video… (\\(MarkdownBuilder.hms(duration)), \\(model.profile))": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "영상 분석 중… (\\(MarkdownBuilder.hms(duration)), \\(model.profile))"
+          }
+        }
+      }
+    },
+    "Building the document…": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "문서 생성 중…"
+          }
+        }
+      }
+    },
+    "Cancel": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "취소"
+          }
+        }
+      }
+    },
+    "Capture failed": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "캡처 실패"
+          }
+        }
+      }
+    },
+    "Capture failed — a link will be used instead": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "캡처 실패 — 링크로 대체됩니다"
+          }
+        }
+      }
+    },
+    "Capturing frames… \\(current)/\\(total)": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "장면 캡처 중… \\(current)/\\(total)"
+          }
+        }
+      }
+    },
+    "Checking…": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "확인 중…"
+          }
+        }
+      }
+    },
+    "Cooking": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "요리"
+          }
+        }
+      }
+    },
+    "Couldn't open that document": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "문서를 열 수 없습니다"
+          }
+        }
+      }
+    },
+    "Couldn't open your mail app — the report was copied to the clipboard": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메일 앱을 열지 못했습니다 — 신고 내용을 클립보드에 복사했습니다"
+          }
+        }
+      }
+    },
+    "Couldn't reach Notion — check your network": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notion에 연결할 수 없습니다 — 네트워크를 확인하세요"
+          }
+        }
+      }
+    },
+    "Couldn't reach the server — check the server URL": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "서버에 연결할 수 없습니다 — 서버 URL을 확인하세요"
+          }
+        }
+      }
+    },
+    "Couldn't read the original analysis": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "분석 원본을 읽지 못했습니다"
+          }
+        }
+      }
+    },
+    "Couldn't read the server's response": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "서버 응답을 해석하지 못했습니다"
+          }
+        }
+      }
+    },
+    "Couldn't read the video's details": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "영상 정보를 가져오지 못했습니다"
+          }
+        }
+      }
+    },
+    "Couldn't save the document": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "문서 저장에 실패했습니다"
+          }
+        }
+      }
+    },
+    "Couldn't save — try again": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "저장 실패 — 다시 시도해 주세요"
+          }
+        }
+      }
+    },
+    "Couldn't send the report": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "신고 전송에 실패했습니다"
+          }
+        }
+      }
+    },
+    "Create an integration": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "통합(integration) 만들기"
+          }
+        }
+      }
+    },
+    "Create an integration, then add it to the target page under ··· → Connections. Uploads fail until you do.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "통합을 만들고, 대상 페이지의 ··· 메뉴 → 연결에서 그 통합을 추가해야 업로드할 수 있습니다."
+          }
+        }
+      }
+    },
+    "Document language": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "문서 언어"
+          }
+        }
+      }
+    },
+    "Doesn't fit\\nuse a link": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "부적합\\n링크 사용"
+          }
+        }
+      }
+    },
+    "Done": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "완료"
+          }
+        }
+      }
+    },
+    "Empty frame": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "빈 프레임"
+          }
+        }
+      }
+    },
+    "Frames picked": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "선택한 장면"
+          }
+        }
+      }
+    },
+    "Gemini API key": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gemini API 키"
+          }
+        }
+      }
+    },
+    "Gemini free-tier limit reached — try again in a moment": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gemini 무료 한도 도달 — 잠시 후 다시 시도해 주세요"
+          }
+        }
+      }
+    },
+    "General": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "일반"
+          }
+        }
+      }
+    },
+    "Get a free key at AI Studio": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI Studio에서 무료 키 발급"
+          }
+        }
+      }
+    },
+    "Get a free key at AI Studio (no card)": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI Studio에서 무료 키 발급 (카드 불필요)"
+          }
+        }
+      }
+    },
+    "How to get a key": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "키 발급 방법 보기"
+          }
+        }
+      }
+    },
+    "Issue reports (optional)": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이상 신고 (선택)"
+          }
+        }
+      }
+    },
+    "Key from AI Studio": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI Studio에서 발급한 키"
+          }
+        }
+      }
+    },
+    "Leave empty to call Gemini directly, with no server (the default). To use a dev server, enter its URL — on a real device that's your Mac's LAN IP (e.g. http://192.168.0.10:8787).": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "비워두면 서버 없이 Gemini를 직접 호출합니다(기본). 개발용 서버를 쓰려면 URL 입력 — 실기기에서는 Mac의 LAN IP (예: http://192.168.0.10:8787)"
+          }
+        }
+      }
+    },
+    "Leave empty to send to the analysis server. Release builds ship with a default collector.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "비워두면 분석 서버로 보냅니다. 일반 배포판에는 기본 수집기가 내장됩니다."
+          }
+        }
+      }
+    },
+    "Length \\(MarkdownBuilder.hms(duration))": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "길이 \\(MarkdownBuilder.hms(duration))"
+          }
+        }
+      }
+    },
+    "Link mode": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "링크 모드"
+          }
+        }
+      }
+    },
+    "Link mode: no frame capture — every guide becomes a YouTube timestamp link.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "링크 모드: 화면 캡처 없이 모든 가이드를 유튜브 타임스탬프 링크로 넣습니다."
+          }
+        }
+      }
+    },
+    "Loading the player…": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "플레이어 로드 중…"
+          }
+        }
+      }
+    },
+    "Make document": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "문서 만들기"
+          }
+        }
+      }
+    },
+    "More": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "더 보기"
+          }
+        }
+      }
+    },
+    "New document": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새 문서"
+          }
+        }
+      }
+    },
+    "No URL found": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "URL을 찾지 못했습니다"
+          }
+        }
+      }
+    },
+    "No documents yet": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "아직 만든 문서가 없습니다"
+          }
+        }
+      }
+    },
+    "Note": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모"
+          }
+        }
+      }
+    },
+    "Note (optional)": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모 (선택)"
+          }
+        }
+      }
+    },
+    "Nothing to report yet": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "신고할 분석 정보가 없습니다"
+          }
+        }
+      }
+    },
+    "Notion error": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notion 오류"
+          }
+        }
+      }
+    },
+    "Notion export": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notion 내보내기"
+          }
+        }
+      }
+    },
+    "Notion export failed": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notion 내보내기에 실패했습니다"
+          }
+        }
+      }
+    },
+    "Notion integration token": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notion 통합 토큰"
+          }
+        }
+      }
+    },
+    "Notion rate limit reached — try again in a moment": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notion 요청 한도 도달 — 잠시 후 다시 시도해 주세요"
+          }
+        }
+      }
+    },
+    "Open document": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "문서 보기"
+          }
+        }
+      }
+    },
+    "Open in Notion": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notion에서 열기"
+          }
+        }
+      }
+    },
+    "Parent page (paste a URL or ID)": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "부모 페이지 (URL 또는 ID 붙여넣기)"
+          }
+        }
+      }
+    },
+    "Parent page not found — check the page ID and that your integration is connected (page ··· → Connections)": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "부모 페이지를 찾을 수 없습니다 — 페이지 ID와 통합 연결(페이지 ··· → 연결)을 확인하세요"
+          }
+        }
+      }
+    },
+    "Paste": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "붙여넣기"
+          }
+        }
+      }
+    },
+    "Pick the frame that shows what each phrase means": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가이드별로 의미가 가장 잘 보이는 장면을 고르세요"
+          }
+        }
+      }
+    },
+    "Pick this frame": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 장면 선택"
+          }
+        }
+      }
+    },
+    "Problem with the URL or request": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "URL 또는 요청 값 문제"
+          }
+        }
+      }
+    },
+    "Profile": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "프로파일"
+          }
+        }
+      }
+    },
+    "Profile/language": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "프로파일/언어"
+          }
+        }
+      }
+    },
+    "Reason": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "사유"
+          }
+        }
+      }
+    },
+    "Recent": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "최근 문서"
+          }
+        }
+      }
+    },
+    "Report": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "신고"
+          }
+        }
+      }
+    },
+    "Report an issue": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이상 신고"
+          }
+        }
+      }
+    },
+    "Report collector URL": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "신고 수집 서버 URL"
+          }
+        }
+      }
+    },
+    "Save key": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "키 저장"
+          }
+        }
+      }
+    },
+    "Save to a folder": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "폴더로 저장"
+          }
+        }
+      }
+    },
+    "Save token": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "토큰 저장"
+          }
+        }
+      }
+    },
+    "Saved": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "저장됨"
+          }
+        }
+      }
+    },
+    "Saved to": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "저장 완료:"
+          }
+        }
+      }
+    },
+    "Saved.\nOpen stepkeeper to start the analysis.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "저장됐습니다.\nstepkeeper를 열면 분석이 시작됩니다."
+          }
+        }
+      }
+    },
+    "Saving to the folder…": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "폴더로 저장 중…"
+          }
+        }
+      }
+    },
+    "Send": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "보내기"
+          }
+        }
+      }
+    },
+    "Send to Notion": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notion으로 보내기"
+          }
+        }
+      }
+    },
+    "Sent — thanks, this helps.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "신고 완료 — 개선에 사용할게요!"
+          }
+        }
+      }
+    },
+    "Server URL": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "서버 URL"
+          }
+        }
+      }
+    },
+    "Server error": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "서버 오류"
+          }
+        }
+      }
+    },
+    "Settings": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정"
+          }
+        }
+      }
+    },
+    "Share": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "공유"
+          }
+        }
+      }
+    },
+    "Something else": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기타"
+          }
+        }
+      }
+    },
+    "Start analysis": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "분석 시작"
+          }
+        }
+      }
+    },
+    "Steps are missing or wrong": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "단계 누락·오류"
+          }
+        }
+      }
+    },
+    "That isn't a YouTube video link": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "유튜브 영상 링크가 아닙니다"
+          }
+        }
+      }
+    },
+    "That server URL isn't valid — check Settings": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "서버 URL이 올바르지 않습니다 — 설정을 확인하세요"
+          }
+        }
+      }
+    },
+    "That's not a YouTube URL — paste a watch/youtu.be/shorts link": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "유튜브 URL이 아닙니다 — watch/youtu.be/shorts 링크를 붙여넣어 주세요"
+          }
+        }
+      }
+    },
+    "The Notion token isn't valid — check Settings": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notion 토큰이 유효하지 않습니다 — 설정을 확인하세요"
+          }
+        }
+      }
+    },
+    "The candidate frames don't fit": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "후보 장면 부적합"
+          }
+        }
+      }
+    },
+    "The full analysis isn't attached (size limits) — the video URL above reproduces it.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "분석 결과 전문은 용량 때문에 포함하지 않았습니다. 위 영상 주소로 재현할 수 있습니다."
+          }
+        }
+      }
+    },
+    "The guide text is wrong": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가이드 문구 이상"
+          }
+        }
+      }
+    },
+    "The key stays in this device's Keychain and is only used for analysis requests.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "키는 이 기기의 Keychain에만 저장되고 분석 요청에만 사용됩니다."
+          }
+        }
+      }
+    },
+    "The player didn't load — try again": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "플레이어 로드에 실패했습니다 — 다시 시도해 주세요"
+          }
+        }
+      }
+    },
+    "The player failed to load": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "플레이어 로드 실패"
+          }
+        }
+      }
+    },
+    "The video URL, the analysis, and your picks are sent to the developer's server.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "영상 주소와 분석 결과, 선택 내역이 개발자 서버로 전송됩니다."
+          }
+        }
+      }
+    },
+    "These frames look wrong": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "후보가 이상해요"
+          }
+        }
+      }
+    },
+    "This document is already uploading to Notion": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 문서는 Notion 업로드가 진행 중입니다"
+          }
+        }
+      }
+    },
+    "This document looks wrong": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "문서가 이상해요"
+          }
+        }
+      }
+    },
+    "Timed out seeking to the frame": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "장면 이동 시간 초과"
+          }
+        }
+      }
+    },
+    "Try again": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다시 시도"
+          }
+        }
+      }
+    },
+    "Uploaded to Notion": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notion 업로드 완료"
+          }
+        }
+      }
+    },
+    "Uploading to Notion…": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notion 업로드 중…"
+          }
+        }
+      }
+    },
+    "Video": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "영상"
+          }
+        }
+      }
+    },
+    "Waiting": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "대기 중"
+          }
+        }
+      }
+    },
+    "YouTube URL": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "유튜브 URL"
+          }
+        }
+      }
+    },
+    "Your mail app opens with the video URL, reason, and note filled in. You can review it before sending.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메일 앱이 열리고, 영상 주소와 사유·메모가 미리 채워집니다. 보내기 전에 내용을 확인할 수 있습니다."
+          }
+        }
+      }
+    },
+    "\\(MarkdownBuilder.hms(candidate.time)) capture failed": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\\(MarkdownBuilder.hms(candidate.time)) 캡처 실패"
+          }
+        }
+      }
+    },
+    "stepkeeper server (optional)": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "stepkeeper 서버 (선택)"
+          }
+        }
+      }
+    },
+    "— Written by the report button in the stepkeeper app.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "— 이 메일은 stepkeeper 앱의 이상 신고 버튼으로 작성됐습니다."
+          }
+        }
+      }
+    },
+    "← one minute, no card": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "← 여기를 눌러 1분 발급"
+          }
+        }
+      }
+    }
+  }
+}
