@@ -19,7 +19,7 @@
         {
           "type": "text",
           "text": {
-            "content": "YouTube 원본",
+            "content": "Watch on YouTube",
             "link": {
               "url": "https://youtu.be/4ioPBiTWm3M"
             }
@@ -35,7 +35,7 @@
         {
           "type": "text",
           "text": {
-            "content": "준비 재료"
+            "content": "Ingredients"
           }
         }
       ]
@@ -74,7 +74,7 @@
         {
           "type": "text",
           "text": {
-            "content": "순서"
+            "content": "Steps"
           }
         }
       ]
@@ -100,7 +100,7 @@
         {
           "type": "text",
           "text": {
-            "content": "💡 '한입 크기' 기준: 3~4cm 큐브 크기."
+            "content": "💡 What '한입 크기' looks like: 3~4cm 큐브 크기."
           }
         }
       ]
@@ -113,7 +113,7 @@
         {
           "type": "text",
           "text": {
-            "content": "▶ 영상 0:15에서 직접 확인",
+            "content": "▶ See it in the video at 0:15",
             "link": {
               "url": "https://youtu.be/4ioPBiTWm3M?t=15"
             }
@@ -142,7 +142,7 @@
         {
           "type": "text",
           "text": {
-            "content": "💡 '자작해짐' 기준: 바닥에 국물이 거의 없고 양념이 코팅된 상태."
+            "content": "💡 What '자작해짐' looks like: 바닥에 국물이 거의 없고 양념이 코팅된 상태."
           }
         }
       ]

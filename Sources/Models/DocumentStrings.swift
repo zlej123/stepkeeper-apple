@@ -8,20 +8,21 @@ struct DocumentStrings: Sendable {
     var materials: String            // 범용 프로파일의 준비물 절 제목
     var steps: String                // 순서 절 제목
     var category: String             // 분류 라벨
+    var sourceLink: String           // Notion·PDF 상단의 원본 영상 링크 문구
     var guidePrefix: @Sendable (String) -> String   // 가이드 문구 접두사
     var seeAt: @Sendable (String?) -> String        // 타임스탬프 링크 문구 (nil = 시각 불명)
     var source: @Sendable (String) -> String        // 출처 줄
 
     static let english = DocumentStrings(
         ingredients: "Ingredients", materials: "What you need",
-        steps: "Steps", category: "Category",
+        steps: "Steps", category: "Category", sourceLink: "Watch on YouTube",
         guidePrefix: { phrase in "What '\(phrase)' looks like:" },
         seeAt: { time in time.map { "▶ See it in the video at \($0)" } ?? "▶ See it in the video" },
         source: { title in "From \(title) — kept with stepkeeper" })
 
     static let korean = DocumentStrings(
         ingredients: "준비 재료", materials: "준비물",
-        steps: "순서", category: "분류",
+        steps: "순서", category: "분류", sourceLink: "YouTube 원본",
         guidePrefix: { phrase in "'\(phrase)' 기준:" },
         seeAt: { time in time.map { "▶ 영상 \($0)에서 직접 확인" } ?? "▶ 영상에서 직접 확인" },
         source: { title in "출처: \(title) — stepkeeper로 생성" })
