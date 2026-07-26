@@ -1,0 +1,59 @@
+{
+  "title": "돼지고기 김치볶음",
+  "summary": "간단한 김치볶음 레시피.",
+  "category": "요리",
+  "servings": "2인분",
+  "materials": [
+    {
+      "name": "돼지고기",
+      "amount": "300g"
+    },
+    {
+      "name": "김치",
+      "amount": "1/2포기"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "summary": "고기 볶기",
+      "detail": "달군 팬에 고기를 볶는다.",
+      "t_start": 10,
+      "t_end": 45
+    },
+    {
+      "id": 2,
+      "summary": "김치 넣고 졸이기",
+      "detail": "김치를 넣고 자작해질 때까지 졸인다.",
+      "t_start": 46,
+      "t_end": 90
+    }
+  ],
+  "visual_guides": [
+    {
+      "id": "vg-1",
+      "step_id": 1,
+      "source_phrase": "한입 크기",
+      "phrase": "한입 크기",
+      "type": "size",
+      "what_to_show": "썰어둔 고기 크기",
+      "best_visual_timestamp": 15,
+      "guide_text": "3~4cm 큐브 크기.",
+      "importance": 0.9
+    },
+    {
+      "id": "vg-2",
+      "step_id": 2,
+      "source_phrase": "자작해질 때까지",
+      "phrase": "자작해짐",
+      "type": "state",
+      "what_to_show": "국물이 줄어든 상태",
+      "best_visual_timestamp": 80,
+      "guide_text": "바닥에 국물이 거의 없고 양념이 코팅된 상태.",
+      "importance": 0.8
+    }
+  ],
+  "_duration": 120,
+  "_profile": "recipe",
+  "_output_language": "en"
+}

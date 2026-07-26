@@ -18,7 +18,9 @@ golden_root = ROOT / "Tests" / "Fixtures" / "golden"
 for case_dir in sorted(p for p in golden_root.iterdir() if p.is_dir()):
     analysis = json.loads((case_dir / "analysis.json").read_text(encoding="utf-8"))
     case = json.loads((case_dir / "case.json").read_text(encoding="utf-8"))
-    template = core_render.load_template(analysis["_profile"])
+    # 언어별 템플릿 규칙을 앱과 동일하게 적용 (_output_language → template.<lang>.md)
+    template = core_render.load_template(
+        analysis["_profile"], analysis.get("_output_language") or "")
     body = template.split("\n---\n", 1)[1] if "\n---\n" in template else template
     with tempfile.TemporaryDirectory() as tmp:
         context = core_render.build_context(

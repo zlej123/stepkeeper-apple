@@ -17,9 +17,31 @@ struct KeychainStore: Sendable {
         (legacy: KeychainStore(service: "clipnote.notion-token"), current: notionToken),
     ]
 
+    private static let migrationDoneKey = "stepkeeper.keychain-migrated"
+
     /// 구 서비스명에 값이 있고 새 이름이 비어 있으면 옮긴다. 실패해도 앱 동작을 막지 않는다
     /// (사용자는 설정에서 다시 입력할 수 있고, 구 항목은 지우지 않으므로 데이터 손실도 없다).
-    static func migrateLegacyItems() {
+    ///
+    /// **딱 한 번만** 시도한다. macOS에서 다른 앱(구 번들 ID)이 만든 항목을 읽으면 키체인 접근
+    /// 승인창이 뜨는데, 매 실행 시도하면 거부한 사용자에게 창이 계속 뜬다.
+    /// 테스트 실행 중에는 아예 건너뛴다 — 테스트 호스트도 앱을 띄우므로 헤드리스 러너가 승인창에서 멈춘다.
+    static func migrateLegacyItems(defaults: UserDefaults = .standard) {
+        guard !isRunningTests, !defaults.bool(forKey: migrationDoneKey) else { return }
+        defaults.set(true, forKey: migrationDoneKey)
+        migrateLegacyItemsNow()
+    }
+
+    /// XCTest·Swift Testing 양쪽에서 참 — 테스트 번들이 주입되면 이 환경변수/심볼이 생긴다.
+    static var isRunningTests: Bool {
+        let environment = ProcessInfo.processInfo.environment
+        return environment["XCTestConfigurationFilePath"] != nil
+            || environment["XCTestBundlePath"] != nil
+            || environment["XCTestSessionIdentifier"] != nil
+            || NSClassFromString("XCTestCase") != nil
+    }
+
+    /// 이전 로직 본체 (1회 가드 없이 — 테스트에서 직접 호출)
+    static func migrateLegacyItemsNow() {
         for pair in legacyPairs {
             guard let value = try? pair.legacy.load(), !value.isEmpty,
                   (try? pair.current.load()) ?? nil == nil else { continue }

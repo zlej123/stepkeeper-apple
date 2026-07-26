@@ -33,3 +33,15 @@ extension ProcessInfo {
         #endif
     }
 }
+
+struct KeychainMigrationGuardTests {
+    /// 테스트 실행 중에는 절대 실제 키체인을 건드리지 않는다 — macOS 테스트 러너가
+    /// 구 항목 접근 승인창에서 멈추던 원인이었다.
+    @Test func skipsMigrationUnderTests() {
+        #expect(KeychainStore.isRunningTests)
+        let defaults = UserDefaults(suiteName: "stepkeeper.tests.\(UUID().uuidString)")!
+        KeychainStore.migrateLegacyItems(defaults: defaults)
+        // 테스트 감지로 조기 반환하므로 "이미 이전함" 플래그조차 남지 않는다
+        #expect(defaults.bool(forKey: "stepkeeper.keychain-migrated") == false)
+    }
+}

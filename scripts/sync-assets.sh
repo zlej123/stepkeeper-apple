@@ -7,6 +7,7 @@ SRC="${STEPKEEPER_PATH:-../stepkeeper}/src/stepkeeper/skill-core"
 for p in generic recipe; do
   mkdir -p "Resources/skill-core/$p"
   cp "$SRC/profiles/$p/template.md" "Resources/skill-core/$p/template.md"
+  cp "$SRC/profiles/$p/template.ko.md" "Resources/skill-core/$p/template.ko.md"
   cp "$SRC/profiles/$p/prompt.md"   "Resources/skill-core/$p/prompt.md"
   cp "$SRC/profiles/$p/schema.json" "Resources/skill-core/$p/schema.json"
 done

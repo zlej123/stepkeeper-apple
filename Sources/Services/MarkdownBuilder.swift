@@ -3,10 +3,16 @@ import Foundation
 enum Templates {
     struct NotFound: Error { let profile: String }
 
-    static func load(profile: String) throws -> String {
+    /// 코어 render.py::load_template과 동일 규칙 — template.<language>.md가 있으면 우선,
+    /// 없으면 template.md(영어 기본). 문서 뼈대(라벨·출처 줄)가 출력 언어를 따라간다.
+    static func load(profile: String, language: String = "") throws -> String {
+        let directory = "skill-core/\(profile)"
+        if !language.isEmpty, let localized = Bundle.main.url(
+            forResource: "template.\(language)", withExtension: "md", subdirectory: directory) {
+            return try String(contentsOf: localized, encoding: .utf8)
+        }
         guard let url = Bundle.main.url(
-            forResource: "template", withExtension: "md",
-            subdirectory: "skill-core/\(profile)") else {
+            forResource: "template", withExtension: "md", subdirectory: directory) else {
             throw NotFound(profile: profile)
         }
         return try String(contentsOf: url, encoding: .utf8)
@@ -92,6 +98,7 @@ enum MarkdownBuilder {
     static func markdown(videoId: String, analysis: Analysis,
                          imageRefs: [String: String]) throws -> String {
         try markdown(videoId: videoId, analysis: analysis, imageRefs: imageRefs,
-                     template: Templates.load(profile: analysis.profile ?? "generic"))
+                     template: Templates.load(profile: analysis.profile ?? "generic",
+                                              language: analysis.outputLanguage ?? ""))
     }
 }

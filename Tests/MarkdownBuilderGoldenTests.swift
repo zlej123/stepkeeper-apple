@@ -19,7 +19,8 @@ struct MarkdownBuilderGoldenTests {
         #expect(MarkdownBuilder.hms(3700) == "61:40")   // 시간 단위 없음 — 코어와 동일
     }
 
-    @Test(arguments: ["generic-mixed", "generic-links-only", "recipe-mixed"])
+    // recipe-en: _output_language에 따라 템플릿(문서 뼈대)이 바뀌는지 코어 출력과 대조
+    @Test(arguments: ["generic-mixed", "generic-links-only", "recipe-mixed", "recipe-en"])
     func matchesCoreRenderOutput(caseName: String) throws {
         let sub = "Fixtures/golden/\(caseName)"
         let analysis = try JSONDecoder().decode(
