@@ -20,8 +20,12 @@
     export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
     xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote \
       -destination 'platform=iOS Simulator,name=iPhone 17 Pro' test
-    # macOS destination은 ad-hoc 서명 탓에 키체인 승인 프롬프트로 테스트 러너가 멈출 수 있다 →
-    # 테스트는 iOS 시뮬레이터, macOS는 `build`로만 확인
+    xcodebuild -project clipnote-apple.xcodeproj -scheme Clipnote \
+      -destination 'platform=macOS' test
+    # macOS는 ad-hoc 서명이라 KeychainStore 테스트에서 키체인 접근 승인 프롬프트가 뜰 수 있다.
+    # 헤드리스(CI·원격)에서는 이 프롬프트에 응답할 수 없어 러너가 멈추므로, 그 환경에서는
+    # `test` 대신 `build`만 돌리고 테스트는 iOS 시뮬레이터로 확인한다.
+    # 로컬에서 한 번 "항상 허용"을 누르면 이후 macOS `test`도 그대로 통과한다.
 
     # E2E (스텁 서버 — Gemini 키 불필요)
     ./scripts/e2e-m1.sh              # 링크 모드

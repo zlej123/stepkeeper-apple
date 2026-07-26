@@ -1,4 +1,5 @@
 import Foundation
+import os
 
 struct DocumentMeta: Codable, Sendable, Equatable, Identifiable {
     var id: String        // 폴더명: <videoId>-<yyyyMMdd-HHmmss>[-n]
@@ -19,6 +20,7 @@ struct SavedDocument: Sendable {
 
 /// 스펙 4.6: Documents/clipnote/<id>/ 아래 document.md + vg-N.jpg + meta.json + analysis.json + picks.json
 final class DocumentStore: Sendable {
+    private static let log = Logger(subsystem: "clipnote", category: "DocumentStore")
     private let root: URL
 
     init(root: URL) { self.root = root }
@@ -68,9 +70,18 @@ final class DocumentStore: Sendable {
         let folders = try FileManager.default.contentsOfDirectory(
             at: root, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles])
         return folders.compactMap { folder -> DocumentMeta? in
-            guard let data = try? Data(contentsOf: folder.appendingPathComponent("meta.json")),
-                  let meta = try? decoder.decode(DocumentMeta.self, from: data) else { return nil }
-            return meta
+            // fail-soft: 깨진 폴더 하나가 목록 전체를 막지 않는다. 다만 무음으로 지우지는 않는다 —
+            // "저장했는데 목록에 없다"는 증상이 로그 없이는 추적 불가였다.
+            guard let data = try? Data(contentsOf: folder.appendingPathComponent("meta.json")) else {
+                Self.log.notice("meta.json 없음/읽기 실패 — 건너뜀: \(folder.lastPathComponent, privacy: .public)")
+                return nil
+            }
+            do {
+                return try decoder.decode(DocumentMeta.self, from: data)
+            } catch {
+                Self.log.error("meta.json 디코드 실패 — 건너뜀: \(folder.lastPathComponent, privacy: .public) (\(String(describing: error), privacy: .public))")
+                return nil
+            }
         }
         .sorted { ($0.createdAt, $0.id) > ($1.createdAt, $1.id) }
     }

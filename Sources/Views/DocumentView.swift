@@ -78,9 +78,14 @@ struct DocumentView: View {
         }
         .fileImporter(isPresented: $pickingFolder, allowedContentTypes: [.folder]) { result in
             if case .success(let directory) = result {
-                exportMessage = ExportHelper.copyFolder(
-                    from: document.folder, to: directory, name: document.meta.id)
-                    ?? "저장 완료: \(directory.lastPathComponent)/\(document.meta.id)"
+                let folder = document.folder
+                let id = document.meta.id
+                exportMessage = "폴더로 저장 중…"
+                Task {
+                    exportMessage = await ExportHelper.copyFolder(
+                        from: folder, to: directory, name: id)
+                        ?? "저장 완료: \(directory.lastPathComponent)/\(id)"
+                }
             }
         }
         .sheet(isPresented: $reporting) {

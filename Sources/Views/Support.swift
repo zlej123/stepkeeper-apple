@@ -45,8 +45,16 @@ struct JPEGImage: View {
 }
 
 enum ExportHelper {
+    /// 폴더 복사는 이미지가 포함돼 수백 KB~수 MB — 메인 스레드에서 동기로 하면 UI가 멈춘다.
+    /// 호출부는 await로 결과 메시지를 받는다.
+    static func copyFolder(from source: URL, to directory: URL, name: String) async -> String? {
+        await Task.detached(priority: .userInitiated) {
+            copyFolderSync(from: source, to: directory, name: name)
+        }.value
+    }
+
     /// 문서 폴더를 사용자가 고른 디렉토리 아래 <name>/으로 복사. 성공 시 nil, 실패 시 메시지.
-    static func copyFolder(from source: URL, to directory: URL, name: String) -> String? {
+    static func copyFolderSync(from source: URL, to directory: URL, name: String) -> String? {
         let accessing = directory.startAccessingSecurityScopedResource()
         defer { if accessing { directory.stopAccessingSecurityScopedResource() } }
         do {

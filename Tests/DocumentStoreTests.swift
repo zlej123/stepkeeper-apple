@@ -16,6 +16,48 @@ struct DocumentStoreTests {
         return (envelope.analysis, raw)
     }
 
+    /// 폴더 내보내기는 비동기로 바뀌었다 — 결과 메시지 계약(성공 nil / 실패 문자열)과 실제 복사 검증
+    @Test func exportCopiesFolderAndReportsFailure() async throws {
+        let (store, root) = try makeStore()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let (analysis, raw) = try sampleAnalysis()
+        let meta = try store.save(videoId: "exp0000000A", title: "내보내기", analysis: analysis,
+                                  rawAnalysis: raw, picks: ["vg-1": "center"],
+                                  images: ["vg-1.jpg": Data([0xFF, 0xD8])], markdown: "# 문서")
+        let destination = root.appendingPathComponent("out", isDirectory: true)
+        try FileManager.default.createDirectory(at: destination, withIntermediateDirectories: true)
+
+        #expect(await ExportHelper.copyFolder(from: store.folderURL(id: meta.id),
+                                              to: destination, name: meta.id) == nil)
+        let copied = destination.appendingPathComponent(meta.id)
+        #expect(FileManager.default.fileExists(atPath: copied.appendingPathComponent("document.md").path))
+        #expect(FileManager.default.fileExists(atPath: copied.appendingPathComponent("vg-1.jpg").path))
+        // 같은 이름으로 다시 내보내면 덮어쓴다 (기존 폴더 제거 후 복사)
+        #expect(await ExportHelper.copyFolder(from: store.folderURL(id: meta.id),
+                                              to: destination, name: meta.id) == nil)
+
+        let missing = root.appendingPathComponent("없는폴더", isDirectory: true)
+        let message = await ExportHelper.copyFolder(from: missing, to: destination, name: "x")
+        #expect(message?.hasPrefix("저장 실패:") == true)
+    }
+
+    @Test func listSkipsBrokenFoldersButKeepsGoodOnes() throws {
+        let (store, root) = try makeStore()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let (analysis, raw) = try sampleAnalysis()
+        let good = try store.save(videoId: "ok00000000A", title: "정상", analysis: analysis,
+                                  rawAnalysis: raw, picks: [:], images: [:], markdown: "#")
+        // meta.json이 없는 폴더와 깨진 JSON 폴더 — 둘 다 목록을 막지 않아야 한다
+        let empty = root.appendingPathComponent("no-meta")
+        try FileManager.default.createDirectory(at: empty, withIntermediateDirectories: true)
+        let corrupt = root.appendingPathComponent("bad-meta")
+        try FileManager.default.createDirectory(at: corrupt, withIntermediateDirectories: true)
+        try Data("{ not json".utf8).write(to: corrupt.appendingPathComponent("meta.json"))
+
+        let listed = try store.list()
+        #expect(listed.map(\.id) == [good.id])
+    }
+
     @Test func saveWritesAllFilesAndListLoadsBack() throws {
         let (store, root) = try makeStore()
         defer { try? FileManager.default.removeItem(at: root) }

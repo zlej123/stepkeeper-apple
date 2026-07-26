@@ -22,7 +22,16 @@ struct KeychainStore: Sendable {
             query[kSecValueData as String] = data
             query[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlock
             let addStatus = SecItemAdd(query as CFDictionary, nil)
-            guard addStatus == errSecSuccess else { throw UnexpectedStatus(status: addStatus) }
+            // 두 호출자가 동시에 notFound를 보고 둘 다 add하면 패자가 duplicate를 받는다 —
+            // 항목은 이미 존재하므로 update로 마무리한다 (upsert 의미 유지).
+            if addStatus == errSecDuplicateItem {
+                let retry = SecItemUpdate(
+                    baseQuery as CFDictionary,
+                    [kSecValueData as String: data] as CFDictionary)
+                guard retry == errSecSuccess else { throw UnexpectedStatus(status: retry) }
+            } else if addStatus != errSecSuccess {
+                throw UnexpectedStatus(status: addStatus)
+            }
         } else if status != errSecSuccess {
             throw UnexpectedStatus(status: status)
         }
