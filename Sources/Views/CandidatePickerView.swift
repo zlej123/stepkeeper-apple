@@ -12,6 +12,15 @@ struct CandidatePickerView: View {
             VStack(alignment: .leading, spacing: 18) {
                 Text("Pick the frame that shows what each phrase means")
                     .font(.callout).foregroundStyle(.secondary)
+                if !model.autoPicks.isEmpty {
+                    Label("AI pre-selected a frame for each guide — change any you disagree with",
+                          systemImage: "sparkles")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+                if let notice = model.autoPickNotice {
+                    Label(notice, systemImage: "exclamationmark.triangle")
+                        .font(.caption).foregroundStyle(.orange)
+                }
                 ForEach(model.captures) { capture in
                     guideCard(capture)
                 }
@@ -41,13 +50,18 @@ struct CandidatePickerView: View {
                 await model.submitIssueReport(reason: reason, note: note, picks: picks)
             }
         }
-        .onAppear { if picks.isEmpty { picks = model.defaultPicks() } }
+        .onAppear { if picks.isEmpty { picks = model.suggestedPicks() } }
     }
 
     @ViewBuilder private func guideCard(_ capture: GuideCapture) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("\(capture.guide.id) · \(capture.guide.phrase)").font(.headline)
             Text(capture.guide.guideText).font(.caption).foregroundStyle(.secondary)
+            // AI가 왜 그 장면을 골랐는지 — 사용자가 판단을 뒤집을 근거가 된다
+            if let pick = model.autoPicks[capture.guide.id], !pick.reason.isEmpty {
+                Label(pick.reason, systemImage: "sparkles")
+                    .font(.caption2).foregroundStyle(.secondary)
+            }
             if capture.failed {
                 Label("Capture failed — a link will be used instead", systemImage: "link")
                     .font(.callout).foregroundStyle(.orange)

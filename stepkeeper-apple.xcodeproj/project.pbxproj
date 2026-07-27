@@ -27,6 +27,7 @@
 		33D047D03BAC3F573DC6D6FC /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = C9BA709AE50104DDB496AC6D /* Localizable.xcstrings */; };
 		38CA8F5AC00718AD613F492A /* NotionExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3CF19FDB60656E36A386694 /* NotionExporter.swift */; };
 		3ACBD033C0009E4B9F597E24 /* YouTubeURLTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42DFF963157C085DB5F7136A /* YouTubeURLTests.swift */; };
+		3F28E18D60884831BE4EBFB3 /* InMemorySecretStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C362075D3C2400A6EF6B206 /* InMemorySecretStore.swift */; };
 		4A1EE9768EE7650780FF5EC7 /* NotionBlockBuilderGoldenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A1EAE3A63003BDC34F704CC /* NotionBlockBuilderGoldenTests.swift */; };
 		4F2720A90673B43425F705F9 /* StepkeeperAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E7720FB24474D972873C317 /* StepkeeperAPI.swift */; };
 		5258B0D4BBBA4C5A6F343D27 /* StepkeeperShare.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 667C0BC5F36664877E6F0F5B /* StepkeeperShare.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -47,6 +48,7 @@
 		95CE20ADC099D44DFD4C0D55 /* CandidateTimesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B8B859D31A89338C1160FA6 /* CandidateTimesTests.swift */; };
 		9A7E3C9FCD588E846707D6AD /* CaptureScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8926B8326C3620BA2E647141 /* CaptureScript.swift */; };
 		9DCC251B45BD01E82C921658 /* GeminiAPITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62F35820A920CD9C97A15FCF /* GeminiAPITests.swift */; };
+		A1E246034EBF6355DDF1324B /* AutoPickTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE91325408912B4B2F01A703 /* AutoPickTests.swift */; };
 		A4C3DB252A9109A738171B6A /* DocumentStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95989667A5FC7BB3E1BB7375 /* DocumentStrings.swift */; };
 		A9A725F580BD3191B5F96539 /* CandidateTimes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C21DC15027E98D2A42AC7C8 /* CandidateTimes.swift */; };
 		ACFD43A7C5726AA8CD3880CE /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF357FC95EAD2C230EBE72E0 /* ShareViewController.swift */; };
@@ -143,6 +145,7 @@
 		807BB0AEF8AD1FF32BCC2074 /* NotionExportTrackerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotionExportTrackerTests.swift; sourceTree = "<group>"; };
 		8926B8326C3620BA2E647141 /* CaptureScript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureScript.swift; sourceTree = "<group>"; };
 		8C21DC15027E98D2A42AC7C8 /* CandidateTimes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CandidateTimes.swift; sourceTree = "<group>"; };
+		8C362075D3C2400A6EF6B206 /* InMemorySecretStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InMemorySecretStore.swift; sourceTree = "<group>"; };
 		911755C1A3BCE41DF1B26B54 /* SettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTests.swift; sourceTree = "<group>"; };
 		955154E341020D9B802060BA /* KeychainStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainStore.swift; sourceTree = "<group>"; };
 		95517DFEBEA8843CF94A0FA7 /* NotionExporterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotionExporterTests.swift; sourceTree = "<group>"; };
@@ -172,6 +175,7 @@
 		E6F43BF6949EE77C73281E99 /* ReportCollectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportCollectorTests.swift; sourceTree = "<group>"; };
 		E92692E3FF8EC93F17D49554 /* AppModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModelTests.swift; sourceTree = "<group>"; };
 		EDAA6D72819D02465D725555 /* AnalyzeFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyzeFlowView.swift; sourceTree = "<group>"; };
+		EE91325408912B4B2F01A703 /* AutoPickTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoPickTests.swift; sourceTree = "<group>"; };
 		F11303A8752935DA2B8AC3E1 /* ShareInbox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareInbox.swift; sourceTree = "<group>"; };
 		F3CF19FDB60656E36A386694 /* NotionExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotionExporter.swift; sourceTree = "<group>"; };
 		F6527B560F54FBE18CE63DAC /* ReportSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportSheet.swift; sourceTree = "<group>"; };
@@ -284,11 +288,13 @@
 				D97BBCDFE5CFC2659C207A81 /* AnalysisNormalizerTests.swift */,
 				CD993B8DB24D209F32D87D37 /* AnalysisTests.swift */,
 				E92692E3FF8EC93F17D49554 /* AppModelTests.swift */,
+				EE91325408912B4B2F01A703 /* AutoPickTests.swift */,
 				4B8B859D31A89338C1160FA6 /* CandidateTimesTests.swift */,
 				D23BA6EB779A3A1854FEFF8B /* CapturePipelineTests.swift */,
 				26EF788F06EF70CF3842BA6A /* DocumentStoreTests.swift */,
 				6C9C1EA323A82268AF16EC3F /* Fixtures */,
 				62F35820A920CD9C97A15FCF /* GeminiAPITests.swift */,
+				8C362075D3C2400A6EF6B206 /* InMemorySecretStore.swift */,
 				E4E80BFBA0BCAEB6BFE6D6DC /* KeychainStoreTests.swift */,
 				534117045C9DE995A7AC826E /* LocalizationTests.swift */,
 				4253072F2B84ADB7503D5BF5 /* MarkdownBuilderGoldenTests.swift */,
@@ -469,10 +475,12 @@
 				C368C989E88D5D1DDDDA689A /* AnalysisNormalizerTests.swift in Sources */,
 				2A54B02687EE4D2400337D20 /* AnalysisTests.swift in Sources */,
 				DB28619C9E07B66189E82087 /* AppModelTests.swift in Sources */,
+				A1E246034EBF6355DDF1324B /* AutoPickTests.swift in Sources */,
 				95CE20ADC099D44DFD4C0D55 /* CandidateTimesTests.swift in Sources */,
 				C18030AEAB8FF91E12F938DD /* CapturePipelineTests.swift in Sources */,
 				132C12680634C466AC8ED74A /* DocumentStoreTests.swift in Sources */,
 				9DCC251B45BD01E82C921658 /* GeminiAPITests.swift in Sources */,
+				3F28E18D60884831BE4EBFB3 /* InMemorySecretStore.swift in Sources */,
 				E044F4B41BAAD7152ACA3CAD /* KeychainStoreTests.swift in Sources */,
 				1DE9CF2A0620A1312E792E05 /* LocalizationTests.swift in Sources */,
 				DBB240A8EF783874991A2D55 /* MarkdownBuilderGoldenTests.swift in Sources */,
