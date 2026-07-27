@@ -8,6 +8,9 @@ enum Settings {
     static let notionParentPageKey = "notionParentPage"
     static let reportServerURLKey = "reportServerURL"
     static let autoPickKey = "autoPick"
+    /// AI 자동 선택 계측 — 기기 로컬 카운터 두 개뿐 (전송 없음)
+    static let autoPickOfferedKey = "autoPick.offered"
+    static let autoPickChangedKey = "autoPick.changed"
 
     /// v1.3: 빈 값 = 서버 없이 Gemini 직접 호출(일반 사용자 기본). 개발 서버는 URL 입력.
     static let defaultServerURL = ""

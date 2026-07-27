@@ -57,6 +57,72 @@
         }
       }
     },
+    "AI is picking the frames…": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI가 장면을 고르는 중…"
+          }
+        }
+      }
+    },
+    "AI pick failed — pick manually": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI 선택에 실패했습니다 — 직접 골라 주세요"
+          }
+        }
+      }
+    },
+    "AI pick needs a Gemini API key — pick manually": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI 선택에는 Gemini API 키가 필요합니다 — 직접 골라 주세요"
+          }
+        }
+      }
+    },
+    "AI picks the frame": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI가 장면 선택"
+          }
+        }
+      }
+    },
+    "AI picks the frame: Gemini looks at the three candidates and pre-selects one. You still see the picker and can change it.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI가 장면 선택: Gemini가 후보 3장을 보고 하나를 미리 선택합니다. 선택 화면은 그대로 뜨고 바꿀 수 있습니다."
+          }
+        }
+      }
+    },
+    "AI pre-selected a frame for each guide — change any you disagree with": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI가 가이드마다 장면을 미리 선택했습니다 — 다르면 바꾸세요"
+          }
+        }
+      }
+    },
     "Add your Gemini API key in Settings": {
       "extractionState": "manual",
       "localizations": {
@@ -849,6 +915,17 @@
         }
       }
     },
+    "Reset AI pick stats": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI 선택 통계 초기화"
+          }
+        }
+      }
+    },
     "Save key": {
       "extractionState": "manual",
       "localizations": {
@@ -1252,6 +1329,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "대기 중"
+          }
+        }
+      }
+    },
+    "You kept %lld of %lld AI picks": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI 선택 %2$lld개 중 %1$lld개를 그대로 뒀습니다"
           }
         }
       }

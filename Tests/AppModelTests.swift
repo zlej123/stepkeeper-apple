@@ -203,3 +203,52 @@ struct AutoPickFlowTests {
         #expect(model.suggestedPicks() == ["vg-1": "center"])
     }
 }
+
+@Suite(.serialized)
+@MainActor
+struct AutoPickStatsTests {
+    private func makeModel() -> (AppModel, UserDefaults) {
+        let suite = "stepkeeper.tests.autopickstats"
+        let defaults = UserDefaults(suiteName: suite)!
+        defaults.removePersistentDomain(forName: suite)
+        Settings.registerDefaults(defaults)
+        let model = AppModel(keychain: InMemorySecretStore("k"),
+                             documentStore: DocumentStore(root: FileManager.default
+                                 .temporaryDirectory.appendingPathComponent(UUID().uuidString)),
+                             defaults: defaults)
+        return (model, defaults)
+    }
+
+    @Test func countsKeptAndChangedPicksLocally() {
+        let (model, defaults) = makeModel()
+        model.autoPicks = ["vg-1": .init(slot: "after", reason: "r"),
+                           "vg-2": .init(slot: "center", reason: "r"),
+                           "vg-3": .init(slot: "none", reason: "r")]
+        // vg-1 유지, vg-2 변경, vg-3 변경
+        model.recordAutoPickAgreement(finalPicks: ["vg-1": "after", "vg-2": "before", "vg-3": "center"])
+        #expect(defaults.integer(forKey: Settings.autoPickOfferedKey) == 3)
+        #expect(defaults.integer(forKey: Settings.autoPickChangedKey) == 2)
+
+        // 누적된다
+        model.autoPicks = ["vg-9": .init(slot: "center", reason: "")]
+        model.recordAutoPickAgreement(finalPicks: ["vg-9": "center"])
+        #expect(defaults.integer(forKey: Settings.autoPickOfferedKey) == 4)
+        #expect(defaults.integer(forKey: Settings.autoPickChangedKey) == 2)
+    }
+
+    @Test func countsNothingWhenAutoPickWasNotUsed() {
+        let (model, defaults) = makeModel()
+        model.autoPicks = [:]
+        model.recordAutoPickAgreement(finalPicks: ["vg-1": "center"])
+        #expect(defaults.integer(forKey: Settings.autoPickOfferedKey) == 0)
+    }
+
+    @Test func ignoresGuidesTheUserNeverSaw() {
+        let (model, defaults) = makeModel()
+        model.autoPicks = ["vg-1": .init(slot: "after", reason: ""),
+                           "vg-2": .init(slot: "center", reason: "")]
+        model.recordAutoPickAgreement(finalPicks: ["vg-1": "after"])   // vg-2는 픽커에 없었다
+        #expect(defaults.integer(forKey: Settings.autoPickOfferedKey) == 1)
+        #expect(defaults.integer(forKey: Settings.autoPickChangedKey) == 0)
+    }
+}

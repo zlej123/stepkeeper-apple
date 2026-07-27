@@ -56,3 +56,15 @@ struct LocalizationTests {
         #expect(DocumentStrings.korean.seeAt("1:23") == "▶ 영상 1:23에서 직접 확인")
     }
 }
+
+struct AutoPickStringsTests {
+    /// 보간이 들어간 문구는 키가 형식 지정자로 바뀐다 — 카탈로그 키와 어긋나면 영어로 새어나온다.
+    @Test func interpolatedStatLineIsTranslated() throws {
+        let path = try #require(Bundle.main.path(forResource: "ko", ofType: "lproj"))
+        let korean = try #require(Bundle(path: path))
+        let format = korean.localizedString(
+            forKey: "You kept %lld of %lld AI picks", value: nil, table: nil)
+        #expect(format != "You kept %lld of %lld AI picks")     // 번역이 실제로 있다
+        #expect(String(format: format, 3, 5) == "AI 선택 5개 중 3개를 그대로 뒀습니다")
+    }
+}

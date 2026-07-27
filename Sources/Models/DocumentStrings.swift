@@ -50,8 +50,7 @@ struct DocumentStrings: Sendable {
         return "\(base) (\(servings))"
     }
 
-    /// 요리 프로파일의 순서 절 제목은 코어 한국어 템플릿에서만 다르다("조리 순서")
-    /// 요리 프로파일의 순서 절 제목은 코어의 한국어·일본어 템플릿에서만 다르다
+    /// 요리 프로파일의 순서 절 제목은 코어의 한국어("조리 순서")·일본어("作り方") 템플릿에서만 다르다
     func stepsTitle(isRecipe: Bool) -> String {
         guard isRecipe else { return steps }
         if self == .korean { return "조리 순서" }

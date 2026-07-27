@@ -33,6 +33,7 @@
 20. [ ] Turn "AI picks the frame" on → after capture, the picker opens with the AI's choice pre-selected and a one-line reason per guide
 21. [ ] Turn it off → the picker opens on center as before, with no reasons
 22. [ ] With the toggle on but no key saved → a notice explains it, and picking continues manually
+23. [ ] After a few documents with the toggle on, Settings shows "You kept N of M AI picks"; "Reset AI pick stats" clears it. The number never leaves the device
 
 ## Reproducing 429 (free-tier limit)
 - Run three or more analyses in quick succession → confirm the "try again in a moment" notice

@@ -282,9 +282,29 @@ final class AppModel {
             }
             images["\(capture.guide.id).jpg"] = jpeg
         }
+        recordAutoPickAgreement(finalPicks: picks)
         await buildDocument(result: result, picks: picks, images: images)
         captures = []
         pendingResult = nil
+    }
+
+    /// AI 선택을 사용자가 몇 번이나 바꿨는지만 **기기에** 센다. 어디로도 보내지 않고,
+    /// 슬롯 이름(before/center/after/none)만 비교한다 — 영상 내용은 담기지 않는다.
+    ///
+    /// 한계(설정 화면에도 적어둔다): 자동 선택이 미리 체크돼 있으므로, 사용자가 확인 없이
+    /// 그대로 넘긴 경우도 "유지"로 세어진다. 즉 유지 비율은 실제보다 높게 나온다 —
+    /// "쓸 만한가"의 대략적 신호로만 읽어야 하는 수치다.
+    func recordAutoPickAgreement(finalPicks: [String: String]) {
+        guard !autoPicks.isEmpty else { return }
+        var offered = defaults.integer(forKey: Settings.autoPickOfferedKey)
+        var changed = defaults.integer(forKey: Settings.autoPickChangedKey)
+        for (guideId, pick) in autoPicks {
+            guard let final = finalPicks[guideId] else { continue }
+            offered += 1
+            if final != pick.slot { changed += 1 }
+        }
+        defaults.set(offered, forKey: Settings.autoPickOfferedKey)
+        defaults.set(changed, forKey: Settings.autoPickChangedKey)
     }
 
     /// 픽커 화면의 원탭 신고 — pendingResult 기반. 성공 nil, 실패 시 사용자 메시지 반환.

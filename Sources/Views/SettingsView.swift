@@ -5,6 +5,8 @@ struct SettingsView: View {
     @AppStorage(Settings.languageKey) private var language = Settings.defaultLanguage
     @AppStorage(Settings.linkModeKey) private var linkMode = false
     @AppStorage(Settings.autoPickKey) private var autoPick = Settings.defaultAutoPick
+    @AppStorage(Settings.autoPickOfferedKey) private var autoPickOffered = 0
+    @AppStorage(Settings.autoPickChangedKey) private var autoPickChanged = 0
     @AppStorage(Settings.reportServerURLKey) private var reportServerURL = ""
     @State private var geminiKey = ""
     @State private var keySavedAt: Date?
@@ -80,6 +82,16 @@ struct SettingsView: View {
                     Toggle("AI picks the frame", isOn: $autoPick)
                     Text("AI picks the frame: Gemini looks at the three candidates and pre-selects one. You still see the picker and can change it.")
                         .font(.caption).foregroundStyle(.secondary)
+                    if autoPickOffered > 0 {
+                        // 이 기능이 쓸 만한지 판단할 최소 신호. 기기에만 남고 전송되지 않는다.
+                        Text("You kept \(autoPickOffered - autoPickChanged) of \(autoPickOffered) AI picks")
+                            .font(.caption).foregroundStyle(.secondary)
+                        Button("Reset AI pick stats") {
+                            autoPickOffered = 0
+                            autoPickChanged = 0
+                        }
+                        .font(.caption)
+                    }
                     Toggle("Link mode", isOn: $linkMode)
                     Text("Link mode: no frame capture — every guide becomes a YouTube timestamp link.")
                         .font(.caption).foregroundStyle(.secondary)
