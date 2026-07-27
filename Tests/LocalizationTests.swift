@@ -30,8 +30,12 @@ struct LocalizationTests {
         #expect(korean.source("영상") == "출처: 영상 — stepkeeper로 생성")
         #expect(english.steps == "Steps")
         #expect(english.guidePrefix("bite-sized") == "What 'bite-sized' looks like:")
+        let japanese = DocumentStrings.forLanguage("ja")
+        #expect(japanese.steps == "手順")
+        #expect(japanese.guidePrefix("一口大") == "「一口大」とは:")
+        #expect(japanese.stepsTitle(isRecipe: true) == "作り方")   // 코어 recipe/template.ja.md
         // 번역본이 없는 언어는 코어 load_template과 같이 영어로 (한국어로 새지 않는다)
-        #expect(DocumentStrings.forLanguage("ja").steps == "Steps")
+        #expect(DocumentStrings.forLanguage("de").steps == "Steps")
         #expect(DocumentStrings.forLanguage("").steps == "Steps")
     }
 

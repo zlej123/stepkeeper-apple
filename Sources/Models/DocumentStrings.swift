@@ -27,9 +27,20 @@ struct DocumentStrings: Sendable {
         seeAt: { time in time.map { "▶ 영상 \($0)에서 직접 확인" } ?? "▶ 영상에서 직접 확인" },
         source: { title in "출처: \(title) — stepkeeper로 생성" })
 
+    static let japanese = DocumentStrings(
+        ingredients: "材料", materials: "用意するもの",
+        steps: "手順", category: "カテゴリ", sourceLink: "YouTube で見る",
+        guidePrefix: { phrase in "「\(phrase)」とは:" },
+        seeAt: { time in time.map { "▶ 動画の \($0) で確認" } ?? "▶ 動画で確認" },
+        source: { title in "出典: \(title) — stepkeeper で作成" })
+
     /// 번역본이 없는 언어는 영어 (코어 load_template의 폴백과 동일)
     static func forLanguage(_ language: String) -> DocumentStrings {
-        language == "ko" ? korean : english
+        switch language {
+        case "ko": korean
+        case "ja": japanese
+        default: english
+        }
     }
 
     /// 요리 프로파일은 "Ingredients", 그 외는 "What you need"
@@ -40,8 +51,12 @@ struct DocumentStrings: Sendable {
     }
 
     /// 요리 프로파일의 순서 절 제목은 코어 한국어 템플릿에서만 다르다("조리 순서")
+    /// 요리 프로파일의 순서 절 제목은 코어의 한국어·일본어 템플릿에서만 다르다
     func stepsTitle(isRecipe: Bool) -> String {
-        isRecipe && self == .korean ? "조리 순서" : steps
+        guard isRecipe else { return steps }
+        if self == .korean { return "조리 순서" }
+        if self == .japanese { return "作り方" }
+        return steps
     }
 }
 
