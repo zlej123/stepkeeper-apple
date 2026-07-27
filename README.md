@@ -1,45 +1,67 @@
 # stepkeeper-apple
 
-영상을 문서로, 레시피로, 사용매뉴얼로.
-유튜브 how-to 영상을 단계별 문서로 만들고, "한입 크기" 같은 애매한 표현마다
-실제 프레임(사용자가 선택)이나 타임스탬프 링크를 첨부하는 SwiftUI 앱 (iOS/iPadOS/macOS).
-완성된 문서는 공유시트·폴더 저장 외에 Notion 페이지로도 직접 내보낼 수 있다(사용자 통합 토큰).
+The video gets deleted. The steps stay yours.
 
-[stepkeeper](https://github.com/zlej123/stepkeeper) 생태계의 Apple 클라이언트 —
-분석은 기본적으로 앱이 Gemini를 직접 호출(BYOK)하며, [stepkeeper-server](https://github.com/zlej123/stepkeeper-server)는 선택(개발·프롬프트 반복·신고 수집기 호스팅),
-캡처는 앱의 WKWebView(영상 다운로드 없음), 문서 조립은 로컬(skill-core 템플릿 + 코어 렌더러 포팅).
+A SwiftUI app (iOS/iPadOS/macOS) that turns a YouTube how-to video into a follow-along document.
+Where the narration only says something vague — *"cut it bite-sized"*, *"sear until golden brown"* —
+the document carries the actual frame that shows it (you pick which one), or a timestamp link.
+Finished documents go out through the share sheet, into a folder, or straight into a Notion page
+(with your own integration token).
 
-## 개발
+The Apple client of the [stepkeeper](https://github.com/zlej123/stepkeeper) ecosystem: analysis calls
+Gemini directly from the app (BYOK) by default, [stepkeeper-server](https://github.com/zlej123/stepkeeper-server)
+is optional (development, prompt iteration, hosting the report collector), frames are captured in the
+app's own WKWebView (nothing is downloaded from YouTube), and the document is assembled locally
+(skill-core templates + a Swift port of the core renderer, pinned to it by golden tests).
 
-요구: Xcode 26+, XcodeGen(`brew install xcodegen`), Python 3.10+(스크립트)
+## Languages
+
+Two independent axes, deliberately:
+
+- **App UI** follows the **system language** (`Resources/Localizable.xcstrings`, English source + Korean).
+- **Document body** follows the **language the document was made in** (`DocumentStrings`), matching the
+  core's `template.<lang>.md`. A Korean document opened on an English device stays Korean.
+
+Languages without a translation fall back to English, never to Korean.
+
+## Development
+
+Requires: Xcode 26+, XcodeGen (`brew install xcodegen`), Python 3.10+ (for the scripts)
 
     xcodegen generate                # project.yml → xcodeproj
     open stepkeeper-apple.xcodeproj
 
-    # 테스트 (CLI, xcode-select가 CLT면 DEVELOPER_DIR 지정)
+    # Tests (CLI; set DEVELOPER_DIR if xcode-select points at the Command Line Tools)
     export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
     xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper \
       -destination 'platform=iOS Simulator,name=iPhone 17 Pro' test
     xcodebuild -project stepkeeper-apple.xcodeproj -scheme Stepkeeper \
       -destination 'platform=macOS' test
-    # macOS는 ad-hoc 서명이라 KeychainStore 테스트에서 키체인 접근 승인 프롬프트가 뜰 수 있다.
-    # 헤드리스(CI·원격)에서는 이 프롬프트에 응답할 수 없어 러너가 멈추므로, 그 환경에서는
-    # `test` 대신 `build`만 돌리고 테스트는 iOS 시뮬레이터로 확인한다.
-    # 로컬에서 한 번 "항상 허용"을 누르면 이후 macOS `test`도 그대로 통과한다.
 
-    # E2E (스텁 서버 — Gemini 키 불필요)
-    ./scripts/e2e-m1.sh              # 링크 모드
-    ./scripts/e2e-m2.sh              # 실제 유튜브 캡처
+    # E2E (stub server — no Gemini key needed)
+    ./scripts/e2e-m1.sh              # link mode
+    ./scripts/e2e-m2.sh              # real YouTube capture
 
-## 스크립트
-- `scripts/stub-server.py` — /v1/analyze 스텁 (fixture 응답)
-- `scripts/sync-assets.sh` — ../stepkeeper skill-core 자산(템플릿·프롬프트·스키마·규칙) 재복사 (직접 Gemini 모드가 프롬프트/스키마를 사용; 갱신 시 골든 재생성)
-- `scripts/make-golden.py` — 코어 render.py로 골든 기대 출력 재생성
-- `scripts/make-notion-golden.py` — 코어 build_notion_blocks로 Notion 블록 골든 재생성
-- `scripts/spike-verify.sh` — M0 캡처 검증
+Tests never touch the real Keychain: production items are inert under test, and the model takes an
+injected `SecretStoring` (see `Tests/InMemorySecretStore.swift`). This matters on macOS — the app is
+ad-hoc signed, the signature changes every build, and reading an item a previous build created pops a
+Keychain approval dialog that a headless runner can never answer.
 
-## 문서
-- 설계 스펙: `docs/superpowers/specs/` (v1 · Notion 내보내기 · 온보딩 · 원탭 신고 · 서버리스)
-- 캡처 스파이크 기록: `docs/spike-capture.md`
-- 수동 테스트: `docs/TESTING.md`
-- 신고 수집기 배포: `../stepkeeper-server/docs/deploy.md`
+## Scripts
+
+- `scripts/stub-server.py` — `/v1/analyze` stub that replies from a fixture
+- `scripts/sync-assets.sh` — re-copy skill-core assets (templates, prompts, schemas, rules) from
+  `../stepkeeper`; the direct-Gemini path uses the prompt and schema, so regenerate goldens after
+- `scripts/make-golden.py` — regenerate markdown goldens with the core's `render.py`
+- `scripts/make-notion-golden.py` — regenerate Notion block goldens with the core's `build_notion_blocks`
+- `scripts/spike-verify.sh` — capture stability check on the simulator (the M0 spike). It launches the
+  app with `STEPKEEPER_SPIKE=1`, which roots a DEBUG-only `SpikeCaptureView` harness. Re-run it when
+  Xcode, iOS, or YouTube's player changes — it is the only way to re-measure capture timing and
+  frame-to-frame variance, so the harness stays in the tree on purpose
+
+## Docs
+
+- Design specs: `docs/superpowers/specs/` (v1 · Notion export · onboarding · one-tap reports · serverless)
+- Capture spike write-up: `docs/spike-capture.md`
+- Manual test checklist: `docs/TESTING.md`
+- Deploying the report collector: `../stepkeeper-server/docs/deploy.md`

@@ -1,28 +1,38 @@
-# stepkeeper-apple 수동 테스트 가이드
+# stepkeeper-apple manual test guide
 
-## 준비
-- 서버는 선택 사항 — 기본은 직접 모드(키만). 개발·회귀용 스텁/실서버는 기존 명령.
-- 로컬 서버(개발·회귀용): `cd ../stepkeeper-server && python app.py` (실분석) 또는 `python3 scripts/stub-server.py` (스텁)
-- 실분석에는 본인 Gemini 키 필요 (AI Studio 무료 발급) — 앱 설정에 입력
-- 개발·회귀용 서버를 쓰려면 설정에서 서버 URL을 입력 — 시뮬레이터는 127.0.0.1:8787, 실기기는 Mac LAN IP
+## Setup
+- A server is optional — the default is direct mode (key only). The stub/real server is for development and regression runs.
+- Local server (development/regression): `cd ../stepkeeper-server && python app.py` (real analysis) or `python3 scripts/stub-server.py` (stub)
+- Real analysis needs your own Gemini key (free from AI Studio) — enter it in the app's settings
+- To use a development server, enter its URL in settings — `127.0.0.1:8787` on the simulator, your Mac's LAN IP on a device
 
-## 체크리스트
-1. [ ] 설정: 키 저장 → 앱 재시작 후에도 유지 (Keychain)
-2. [ ] 홈: 유튜브 URL 붙여넣기 → "문서 만들기" 활성화 (잘못된 URL이면 비활성)
-3. [ ] 분석: 플레이어 표시 → 제목/길이 표시 → 프로파일 자동 감지(요리 영상이면 "요리") → 분석 시작
-4. [ ] 후보 선택: 가이드마다 3장 + 부적합, center 기본 선택, 선택 변경 가능
-5. [ ] 문서: 선택 이미지 표시, 부적합/실패 가이드는 ▶ 타임스탬프 링크
-6. [ ] 내보내기: 공유시트에 md+jpg / "폴더로 저장" 후 Obsidian 등에서 열기
-7. [ ] 링크 모드 ON: 캡처 없이 링크만으로 문서 생성
-8. [ ] 공유 확장(iOS): Safari/유튜브 앱 공유 → stepkeeper → 앱 열면 자동 시작
-9. [ ] 공유 확장(iOS) 콜드 스타트: stepkeeper를 **완전 종료한 상태**에서 공유 → 앱을 새로 열기 → 공유된 URL로 자동 시작 확인
-10. [ ] 오류: 키 없이 시작(401 안내), 서버 끄고 시작(연결 안내), 잘못된 URL
-11. [ ] macOS: 위 1~7 동일 동작
-12. [ ] 연속 분석: 문서 완성 직후 다른 영상 URL로 재분석 → 두 번째 영상의 제목·길이가 정확히 표시 (이전 영상 정보가 보이면 버그)
-13. [ ] 분석·캡처 진행 중 유튜브 앱에서 다른 영상 공유 → stepkeeper 복귀 시 새 플로우로 깔끔히 전환 (이전 영상 이미지가 섞이면 버그)
-14. [ ] Notion 내보내기: notion.so/my-integrations에서 통합 생성 → 대상 페이지 ··· 메뉴 → 연결에 통합 추가 → 설정에 토큰·페이지 URL 입력 → 문서 화면 "Notion으로 보내기" → 노션에서 이미지·타임스탬프 링크 확인. 오류 케이스: 잘못된 토큰(401 안내), 연결 안 된 페이지(부모 페이지 안내)
-15. [ ] 직접 모드(기본): 설정의 서버 URL을 비운 상태에서 분석 → 로컬 서버 프로세스 없이 완주 (Gemini 키만 필요)
-16. [ ] 신고 미설정 안내: 서버·신고 URL 모두 빈 상태에서 🚩 → "신고 수집 서버가 설정되지 않았습니다" 안내(전송 없음)
+## Checklist
+1. [ ] Settings: save the key → still there after restarting the app (Keychain)
+2. [ ] Home: paste a YouTube URL → "Make document" enables (disabled for an invalid URL)
+3. [ ] Analysis: player appears → title/length shown → profile auto-detected ("Cooking" for a cooking video) → start analysis
+4. [ ] Picking: three candidates per guide plus "doesn't fit", center pre-selected, selection changeable
+5. [ ] Document: picked images render; guides set to "doesn't fit" or that failed capture show a ▶ timestamp link
+6. [ ] Export: share sheet carries md+jpg / "Save to a folder" then open in Obsidian or similar
+7. [ ] Link mode ON: document builds from links only, no capture
+8. [ ] Share extension (iOS): share from Safari/the YouTube app → stepkeeper → opening the app starts it automatically
+9. [ ] Share extension (iOS) cold start: with stepkeeper **fully quit**, share → open the app fresh → it starts with the shared URL
+10. [ ] Errors: start without a key (key notice), with the server down (connection notice), with an invalid URL
+11. [ ] macOS: 1–7 behave the same
+12. [ ] Back-to-back analyses: right after a document completes, analyze a different video → the second video's title and length are correct (showing the previous video's is a bug)
+13. [ ] Share a different video from the YouTube app **while analysis/capture is running** → returning to stepkeeper switches cleanly to the new flow (mixed-in frames from the previous video is a bug)
+14. [ ] Notion export: create an integration at notion.so/my-integrations → add it to the target page under ··· → Connections → enter the token and page URL in settings → "Send to Notion" on the document screen → check images and timestamp links in Notion. Error cases: bad token (401 notice), unconnected page (parent-page notice)
+15. [ ] Direct mode (default): with the server URL empty, analyze → completes with no local server process (only the Gemini key)
+16. [ ] Report with no collector: with both the server and report URLs empty, tap 🚩 → the sheet explains the mail fallback before sending
 
-## 429(무료 한도) 재현
-- 짧은 간격으로 분석 3회 이상 → "잠시 후 다시 시도" 안내 확인
+## Languages
+17. [ ] Set the device/simulator to English → the whole UI is English (settings, toolbar, progress, errors)
+18. [ ] Set the document language to Korean, make a document, then switch the **device** to English → the document body stays Korean (only the UI switches)
+19. [ ] Document language `ja` → the body is Japanese and the scaffolding (section titles, source line) is English, never Korean
+
+## AI frame picking (off by default)
+20. [ ] Turn "AI picks the frame" on → after capture, the picker opens with the AI's choice pre-selected and a one-line reason per guide
+21. [ ] Turn it off → the picker opens on center as before, with no reasons
+22. [ ] With the toggle on but no key saved → a notice explains it, and picking continues manually
+
+## Reproducing 429 (free-tier limit)
+- Run three or more analyses in quick succession → confirm the "try again in a moment" notice
