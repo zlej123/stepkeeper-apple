@@ -45,3 +45,15 @@ struct KeychainMigrationGuardTests {
         #expect(defaults.bool(forKey: "stepkeeper.keychain-migrated") == false)
     }
 }
+
+struct KeychainProductionItemGuardTests {
+    /// 테스트 중 운영 항목 접근은 무해하게 차단된다 — 앱 UI가 테스트 호스트에서 렌더될 때
+    /// 키체인 승인창을 띄우던 경로를 막는다. 테스트가 만든 항목은 영향받지 않는다.
+    @Test func productionItemsAreInertUnderTests() throws {
+        #expect(KeychainStore.isRunningTests)
+        try KeychainStore.geminiKey.save("must-not-be-written")
+        #expect(try KeychainStore.geminiKey.load() == nil)
+        try KeychainStore.notionToken.save("must-not-be-written")
+        #expect(try KeychainStore.notionToken.load() == nil)
+    }
+}

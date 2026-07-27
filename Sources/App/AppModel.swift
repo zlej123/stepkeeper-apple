@@ -7,6 +7,7 @@ enum FlowStage: Equatable {
     case readyToAnalyze(duration: Int, title: String)
     case analyzing(duration: Int)
     case capturing(current: Int, total: Int)   // Task 11
+    case autoPicking                            // AI가 후보를 고르는 중 (설정 켬)
     case picking                                // Task 12
     case building
     case done(DocumentMeta)
@@ -35,10 +36,14 @@ final class AppModel {
     /// E2E처럼 사람이 확인 버튼을 누르지 않는 경로에서 readyToAnalyze를 자동 통과.
     /// 공유 확장 진입은 false 유지 — 사용자가 readyToAnalyze에서 프로파일 확인 후 시작한다.
     var autoContinue = false
+    /// AI 자동 선택 결과 (가이드 id → 슬롯·근거). 픽커가 미리 선택 상태와 근거 문구로 쓴다.
+    var autoPicks: [String: GeminiAPI.AutoPick] = [:]
+    /// 자동 선택을 시도했지만 실패한 경우의 안내 (키 없음·한도·네트워크). 픽커 상단에 표시.
+    var autoPickNotice: String?
 
     let bridge = PlayerBridge()
 
-    private let keychain: KeychainStore
+    private let keychain: any SecretStoring
     private let store: DocumentStore
     private let defaults: UserDefaults
     private let makeAPI: (URL) -> StepkeeperAPI
@@ -51,7 +56,7 @@ final class AppModel {
     /// reset() 시 증가 — 취소 뒤 도착한 비동기 결과가 stage를 덮어쓰지 않게 한다
     private var generation = 0
 
-    init(keychain: KeychainStore = .geminiKey,
+    init(keychain: any SecretStoring = KeychainStore.geminiKey,
          documentStore: DocumentStore? = nil,
          defaults: UserDefaults = .standard,
          makeAPI: @escaping (URL) -> StepkeeperAPI = { StepkeeperAPI(baseURL: $0) },
@@ -205,8 +210,56 @@ final class AppModel {
         }
         await bridge.endCaptureSession()
         guard gen == generation else { return }
+        await runAutoPickIfEnabled(gen: gen)
+        guard gen == generation else { return }
         stage = .picking
-        if autoContinue { await finishPicking(picks: defaultPicks()) }
+        if autoContinue { await finishPicking(picks: suggestedPicks()) }
+    }
+
+    /// 설정이 켜져 있으면 Gemini vision으로 후보를 고른다. 실패해도 흐름은 계속되고
+    /// 픽커는 기본값(center)으로 열린다 — 자동 선택은 편의지 필수 경로가 아니다.
+    /// gen 생략 = 현재 세대 (테스트 호출 편의 — private 상태를 노출하지 않는다)
+    func runAutoPickIfEnabled(gen requested: Int? = nil) async {
+        let gen = requested ?? generation
+        autoPicks = [:]
+        autoPickNotice = nil
+        guard defaults.bool(forKey: Settings.autoPickKey) else { return }
+        guard let geminiKey = (try? keychain.load()) ?? nil, !geminiKey.isEmpty else {
+            autoPickNotice = String(localized: "AI pick needs a Gemini API key — pick manually")
+            return
+        }
+        let language = defaults.string(forKey: Settings.languageKey) ?? Settings.defaultLanguage
+        let payload = captures.compactMap { capture -> (guideId: String, phrase: String,
+                                                        whatToShow: String, guideText: String,
+                                                        candidates: [(slot: String, jpeg: Data)])? in
+            let usable = capture.candidates.compactMap { candidate in
+                candidate.jpeg.map { (slot: candidate.slot, jpeg: $0) }
+            }
+            guard usable.count == 3 else { return nil }   // 부분 실패 가이드는 사람이 고른다
+            return (capture.guide.id, capture.guide.phrase, capture.guide.whatToShow,
+                    capture.guide.guideText, usable)
+        }
+        guard !payload.isEmpty else { return }
+        stage = .autoPicking      // 픽커는 AI 응답 뒤에 연다 — 먼저 열면 기본값이 잡힌 채 시작된다
+        do {
+            let picks = try await makeGeminiAPI().autoPick(
+                captures: payload, language: language, geminiKey: geminiKey)
+            guard gen == generation else { return }
+            autoPicks = picks
+        } catch {
+            guard gen == generation else { return }
+            autoPickNotice = (error as? LocalizedError)?.errorDescription
+                ?? String(localized: "AI pick failed — pick manually")
+        }
+    }
+
+    /// 픽커가 열릴 때의 미리 선택 — AI 선택이 있으면 그것, 없으면 기본값
+    func suggestedPicks() -> [String: String] {
+        var picks = defaultPicks()
+        for (guideId, pick) in autoPicks where picks[guideId] != nil {
+            picks[guideId] = pick.slot
+        }
+        return picks
     }
 
     /// center가 살아 있으면 center, 아니면 none (확장의 기본 체크와 동일)

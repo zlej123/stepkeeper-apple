@@ -5,8 +5,7 @@ import Foundation
 @MainActor
 struct CapturePipelineTests {
     private func makeModel(root: URL) -> AppModel {
-        let keychain = KeychainStore(service: "stepkeeper.tests.capture-\(UUID().uuidString)")
-        try? keychain.save("test-key")
+        let keychain = InMemorySecretStore("test-key")
         let defaults = UserDefaults(suiteName: "stepkeeper.tests.capture")!
         defaults.removePersistentDomain(forName: "stepkeeper.tests.capture")
         Settings.registerDefaults(defaults)

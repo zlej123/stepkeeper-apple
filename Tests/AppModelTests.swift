@@ -10,8 +10,7 @@ struct AppModelTests {
         let config = URLSessionConfiguration.ephemeral
         config.protocolClasses = [AppModelStub.self]
         let session = URLSession(configuration: config)
-        let keychain = KeychainStore(service: "stepkeeper.tests.appmodel-\(UUID().uuidString)")
-        try? keychain.save("test-key")
+        let keychain = InMemorySecretStore("test-key")
         let defaults = UserDefaults(suiteName: "stepkeeper.tests.appmodel")!
         defaults.removePersistentDomain(forName: "stepkeeper.tests.appmodel")
         Settings.registerDefaults(defaults)
@@ -130,5 +129,77 @@ struct AppModelTests {
 
         #expect(model.captures.isEmpty)
         #expect(model.pendingResult == nil)
+    }
+}
+
+@Suite(.serialized)
+@MainActor
+struct AutoPickFlowTests {
+    private func makeModel(autoPick: Bool, key: String = "test-key")
+        -> (AppModel, UserDefaults) {
+        let config = URLSessionConfiguration.ephemeral
+        config.protocolClasses = [AppModelStub.self]
+        let session = URLSession(configuration: config)
+        let keychain = InMemorySecretStore(key.isEmpty ? nil : key)
+        let suite = "stepkeeper.tests.autopick"
+        let defaults = UserDefaults(suiteName: suite)!
+        defaults.removePersistentDomain(forName: suite)
+        Settings.registerDefaults(defaults)
+        defaults.set(autoPick, forKey: Settings.autoPickKey)
+        let model = AppModel(
+            keychain: keychain,
+            documentStore: DocumentStore(root: FileManager.default.temporaryDirectory
+                .appendingPathComponent("stepkeeper-autopick-\(UUID().uuidString)")),
+            defaults: defaults,
+            makeAPI: { StepkeeperAPI(baseURL: $0, session: session) },
+            makeGeminiAPI: { GeminiAPI(session: session) })
+        model.captures = [
+            GuideCapture(guide: VisualGuide(
+                id: "vg-1", stepId: 1, sourcePhrase: "until golden brown",
+                phrase: "crust", type: "color",
+                whatToShow: "deep brown crust", bestVisualTimestamp: 30,
+                guideText: "flip when browned", importance: 0.9),
+                candidates: ["before", "center", "after"].map {
+                    CaptureCandidate(slot: $0, time: 30, jpeg: Data([0xFF, 0xD8])) }),
+        ]
+        return (model, defaults)
+    }
+
+    @Test func offByDefaultLeavesPicksToTheUser() async {
+        let (model, defaults) = makeModel(autoPick: false)
+        #expect(defaults.bool(forKey: Settings.autoPickKey) == false)
+        await model.runAutoPickIfEnabled()
+        #expect(model.autoPicks.isEmpty)
+        #expect(model.autoPickNotice == nil)
+        #expect(model.suggestedPicks() == ["vg-1": "center"])   // 기본값 그대로
+    }
+
+    @Test func aiPickOverridesTheDefaultSelection() async {
+        defer { AppModelStub.shared.reset() }
+        AppModelStub.shared.handler = { _ in
+            (200, Data(#"{"candidates":[{"content":{"parts":[{"text":"{\"picks\":[{\"guide_id\":\"vg-1\",\"slot\":\"after\",\"reason\":\"crust only visible here\"}]}"}]}}]}"#.utf8))
+        }
+        let (model, _) = makeModel(autoPick: true)
+        await model.runAutoPickIfEnabled()
+        #expect(model.autoPicks["vg-1"]?.slot == "after")
+        #expect(model.suggestedPicks() == ["vg-1": "after"])
+        #expect(model.autoPickNotice == nil)
+    }
+
+    @Test func failureKeepsTheFlowOnManualPicking() async {
+        defer { AppModelStub.shared.reset() }
+        AppModelStub.shared.handler = { _ in (429, Data("{}".utf8)) }
+        let (model, _) = makeModel(autoPick: true)
+        await model.runAutoPickIfEnabled()
+        #expect(model.autoPicks.isEmpty)
+        #expect(model.autoPickNotice != nil)                    // 이유를 알려주고
+        #expect(model.suggestedPicks() == ["vg-1": "center"])   // 기본값으로 계속 진행
+    }
+
+    @Test func withoutKeyItExplainsInsteadOfFailingSilently() async {
+        let (model, _) = makeModel(autoPick: true, key: "")
+        await model.runAutoPickIfEnabled()
+        #expect(model.autoPickNotice != nil)
+        #expect(model.suggestedPicks() == ["vg-1": "center"])
     }
 }

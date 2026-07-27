@@ -4,6 +4,7 @@ struct SettingsView: View {
     @AppStorage(Settings.serverURLKey) private var serverURL = Settings.defaultServerURL
     @AppStorage(Settings.languageKey) private var language = Settings.defaultLanguage
     @AppStorage(Settings.linkModeKey) private var linkMode = false
+    @AppStorage(Settings.autoPickKey) private var autoPick = Settings.defaultAutoPick
     @AppStorage(Settings.reportServerURLKey) private var reportServerURL = ""
     @State private var geminiKey = ""
     @State private var keySavedAt: Date?
@@ -76,6 +77,9 @@ struct SettingsView: View {
                         Text("English").tag("en")
                         Text("日本語").tag("ja")
                     }
+                    Toggle("AI picks the frame", isOn: $autoPick)
+                    Text("AI picks the frame: Gemini looks at the three candidates and pre-selects one. You still see the picker and can change it.")
+                        .font(.caption).foregroundStyle(.secondary)
                     Toggle("Link mode", isOn: $linkMode)
                     Text("Link mode: no frame capture — every guide becomes a YouTube timestamp link.")
                         .font(.caption).foregroundStyle(.secondary)

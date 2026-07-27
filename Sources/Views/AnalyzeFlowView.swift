@@ -56,6 +56,8 @@ struct AnalyzeFlowView: View {
             ProgressView("Analyzing the video… (\(MarkdownBuilder.hms(duration)), \(model.profile))")
         case .capturing(let current, let total):
             ProgressView("Capturing frames… \(current)/\(total)")
+        case .autoPicking:
+            ProgressView("AI is picking the frames…")
         case .picking:
             CandidatePickerView(model: model)
         case .building:
