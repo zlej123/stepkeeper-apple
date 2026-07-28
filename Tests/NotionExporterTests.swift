@@ -87,12 +87,15 @@ struct NotionExporterTests {
         let url = try await makeExporter().export(document: document)
 
         #expect(url.absoluteString == "https://www.notion.so/page-1")
-        let pageBody = try #require(recorder.requests.first { $0.path == "/v1/pages" }?.body)
-        let payload = try JSONSerialization.jsonObject(with: pageBody) as! [String: Any]
+        // 블록은 페이지 생성 payload가 아니라 append 요청에 들어간다 (페이지 먼저 생성 순서)
+        let appendBody = try #require(
+            recorder.requests.first { $0.path.hasPrefix("/v1/blocks/") }?.body)
+        let payload = try JSONSerialization.jsonObject(with: appendBody) as! [String: Any]
         let children = payload["children"] as! [[String: Any]]
         let imageBlocks = children.filter { $0["type"] as? String == "image" }
         #expect(imageBlocks.count == 1)
-        let upload = (imageBlocks[0]["image"] as! [String: Any])["file_upload"] as! [String: Any]
+        let upload = try #require(
+            (imageBlocks.first?["image"] as? [String: Any])?["file_upload"] as? [String: Any])
         #expect(upload["id"] as? String == "fu-1")
     }
 
@@ -106,16 +109,20 @@ struct NotionExporterTests {
 
         _ = try await makeExporter().export(document: document)
 
+        // 페이지는 빈 상태로 먼저 만들고, 블록은 전부 append로 100개씩 나눠 붙인다
         let pageBody = try #require(recorder.requests.first { $0.path == "/v1/pages" }?.body)
         let pagePayload = try JSONSerialization.jsonObject(with: pageBody) as! [String: Any]
-        #expect((pagePayload["children"] as! [Any]).count == 100)
+        #expect((pagePayload["children"] as? [Any])?.isEmpty ?? true)
         let appends = recorder.requests.filter { $0.path.hasPrefix("/v1/blocks/") }
-        #expect(appends.count == 1)
-        let appendPayload = try JSONSerialization.jsonObject(with: appends[0].body!) as! [String: Any]
-        #expect((appendPayload["children"] as! [Any]).count == 85)
+        #expect(appends.count == 2)
+        let counts = try appends.map { request -> Int in
+            let payload = try JSONSerialization.jsonObject(with: request.body!) as! [String: Any]
+            return (payload["children"] as! [Any]).count
+        }
+        #expect(counts == [100, 85])
     }
 
-    @Test func uploadFailureAbortsBeforePageCreation() async throws {
+    @Test func uploadFailureLeavesAVisiblePageInsteadOfOrphans() async throws {
         defer { reset() }
         let recorder = Recorder()
         stub(recorder: recorder, uploadFails: true)
@@ -126,6 +133,25 @@ struct NotionExporterTests {
         await #expect(throws: NotionAPIError.api(500, "boom")) {
             _ = try await self.makeExporter().export(document: document)
         }
-        #expect(!recorder.requests.contains { $0.path == "/v1/pages" })
+        // 업로드가 실패해도 페이지는 이미 있다 — 사용자가 보고 지우거나 다시 시도할 수 있다.
+        // (예전 순서에서는 페이지 생성이 마지막이라, 그 단계 실패 시 올라간 이미지가
+        //  어디에도 붙지 않은 채 남았다. Notion API에는 업로드 삭제가 없다.)
+        #expect(recorder.requests.contains { $0.path == "/v1/pages" })
+    }
+
+    @Test func pageIsCreatedBeforeAnyUpload() async throws {
+        defer { reset() }
+        let recorder = Recorder()
+        stub(recorder: recorder)
+        let (document, root) = try makeDocument(
+            guideCount: 1, pickedImages: ["vg-1.jpg": Data([0xFF, 0xD8, 0x01])])
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        _ = try await makeExporter().export(document: document)
+
+        let paths = recorder.requests.map(\.path)
+        let page = try #require(paths.firstIndex(of: "/v1/pages"))
+        let upload = try #require(paths.firstIndex(of: "/v1/file_uploads"))
+        #expect(page < upload)   // 부모 페이지 문제는 업로드 0건으로 끝난다
     }
 }

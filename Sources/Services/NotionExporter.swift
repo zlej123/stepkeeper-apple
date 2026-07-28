@@ -1,7 +1,13 @@
 import Foundation
 
 /// SavedDocument → Notion 페이지 (스펙 3.3).
-/// 절차: 픽 이미지 전부 업로드(실패 시 페이지 생성 전 중단) → 블록 → 페이지 생성 → 100블록 배칭.
+/// 절차: **페이지 생성 → 픽 이미지 업로드 → 블록 100개씩 추가.**
+///
+/// 순서가 중요하다(코어 export_notion과 동일). 업로드를 먼저 하면, 가장 흔한 실패인
+/// 부모 페이지 미연결·잘못된 ID·토큰 만료가 마지막 페이지 생성 단계에서 터지면서 올라간
+/// 이미지가 전부 어디에도 붙지 않은 채 남는다 — Notion API에는 업로드를 지우는 엔드포인트가
+/// 없어 만료 전까지 되돌릴 수 없다. 페이지를 먼저 만들면 그 실패는 업로드 0건으로 끝나고,
+/// 이후 실패는 사용자 눈에 보이는 페이지로 남아 직접 지우거나 재시도할 수 있다.
 final class NotionExporter: Sendable {
     private let api: NotionAPI
     private let parentPageID: String
@@ -12,6 +18,9 @@ final class NotionExporter: Sendable {
     }
 
     func export(document: SavedDocument) async throws -> URL {
+        let page = try await api.createPage(
+            parentPageID: parentPageID, title: document.analysis.title, children: [])
+
         var uploadIds: [String: String] = [:]
         for guide in document.analysis.visualGuides {
             guard (document.picks[guide.id] ?? "none") != "none" else { continue }
@@ -25,10 +34,7 @@ final class NotionExporter: Sendable {
         let blocks = NotionBlockBuilder.blocks(
             analysis: document.analysis, videoId: document.meta.videoId,
             imageUploadIds: uploadIds)
-        let page = try await api.createPage(
-            parentPageID: parentPageID, title: document.analysis.title,
-            children: Array(blocks.prefix(100)))
-        var start = 100
+        var start = 0
         while start < blocks.count {
             try await api.appendChildren(
                 pageID: page.id, blocks: Array(blocks[start..<min(start + 100, blocks.count)]))
