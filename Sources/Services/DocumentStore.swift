@@ -8,6 +8,11 @@ struct DocumentMeta: Codable, Sendable, Equatable, Identifiable {
     var profile: String
     var language: String
     var createdAt: Date
+    /// 이 문서로 만든 Notion 페이지 (재시도 안전성 — 외부 리뷰 #9).
+    /// 페이지 **생성 직후** 기록한다: 중간 실패 후 재시도하면 이 페이지를 보관 처리하고
+    /// 새로 만들므로, 실패가 몇 번이든 살아 있는 페이지는 항상 하나다.
+    var notionPageID: String?
+    var notionPageURL: String?
 }
 
 struct SavedDocument: Sendable {
@@ -102,6 +107,12 @@ final class DocumentStore: Sendable {
             contentsOf: folder.appendingPathComponent("document.md"), encoding: .utf8)
         return SavedDocument(meta: meta, analysis: analysis, picks: picks,
                              markdown: markdown, folder: folder)
+    }
+
+    /// meta.json만 갱신 (Notion 페이지 기록 등). 문서 본문·이미지는 건드리지 않는다.
+    func updateMeta(_ meta: DocumentMeta) throws {
+        try Self.makeEncoder().encode(meta)
+            .write(to: folderURL(id: meta.id).appendingPathComponent("meta.json"))
     }
 
     func delete(id: String) throws {

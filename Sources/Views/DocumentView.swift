@@ -5,7 +5,7 @@ struct DocumentView: View {
     @State private var pickingFolder = false
     @State private var exportMessage: String?
     @State private var exportingNotion = false
-    @State private var notionPageURL: URL?
+    @State private var notionPageURL: URL?   // onAppear에서 meta의 저장값으로 초기화
     @State private var reporting = false
 
     private var analysis: Analysis { document.analysis }
@@ -46,6 +46,11 @@ struct DocumentView: View {
                 }
             }
             .padding()
+        }
+        .onAppear {
+            if notionPageURL == nil, let saved = document.meta.notionPageURL {
+                notionPageURL = URL(string: saved)
+            }
         }
         .navigationTitle(analysis.title)
         #if os(iOS)
@@ -150,10 +155,20 @@ struct DocumentView: View {
         exportingNotion = true
         let exporter = NotionExporter(api: NotionAPI(token: token), parentPageID: parent)
         let target = document
+        let store = try? DocumentStore(root: DocumentStore.defaultRoot())
         Task {
             defer { NotionExportTracker.end(target.meta.id) }
             do {
-                let url = try await exporter.export(document: target)
+                // 이전 시도의 페이지가 있으면 교체 — 재시도가 중복 페이지를 만들지 않는다.
+                // 생성 직후 meta에 기록해, 이후 단계가 실패해도 다음 재시도가 이어받는다.
+                let url = try await exporter.export(
+                    document: target, replacingPageID: target.meta.notionPageID,
+                    onPageCreated: { pageID, pageURL in
+                        var meta = target.meta
+                        meta.notionPageID = pageID
+                        meta.notionPageURL = pageURL
+                        try? store?.updateMeta(meta)
+                    })
                 notionPageURL = url
                 exportMessage = String(localized: "Uploaded to Notion")
             } catch {

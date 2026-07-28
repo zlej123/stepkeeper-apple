@@ -17,9 +17,19 @@ final class NotionExporter: Sendable {
         self.parentPageID = parentPageID
     }
 
-    func export(document: SavedDocument) async throws -> URL {
+    /// - Parameters:
+    ///   - replacingPageID: 이전 시도가 남긴 페이지 — 새 페이지 생성 전에 보관 처리한다.
+    ///     중간 실패 후 재시도해도 살아 있는 페이지는 항상 하나다 (외부 리뷰 #9).
+    ///   - onPageCreated: 생성 **직후** 호출 — 호출자는 여기서 페이지 id를 영속화해야
+    ///     이후 단계가 실패해도 다음 재시도가 이 페이지를 교체할 수 있다.
+    func export(document: SavedDocument, replacingPageID: String? = nil,
+                onPageCreated: (@Sendable (String, String?) async -> Void)? = nil) async throws -> URL {
+        if let replacingPageID {
+            try await api.archivePage(pageID: replacingPageID)
+        }
         let page = try await api.createPage(
             parentPageID: parentPageID, title: document.analysis.title, children: [])
+        await onPageCreated?(page.id, page.url)
 
         var uploadIds: [String: String] = [:]
         for guide in document.analysis.visualGuides {

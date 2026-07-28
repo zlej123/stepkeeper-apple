@@ -18,7 +18,7 @@ struct NotionExporterTests {
         }
     }
 
-    private func makeDocument(guideCount: Int, pickedImages: [String: Data]) throws
+    fileprivate func makeDocument(guideCount: Int, pickedImages: [String: Data]) throws
         -> (SavedDocument, URL) {
         let root = FileManager.default.temporaryDirectory
             .appendingPathComponent("notion-exp-\(UUID().uuidString)")
@@ -154,4 +154,77 @@ struct NotionExporterTests {
         let upload = try #require(paths.firstIndex(of: "/v1/file_uploads"))
         #expect(page < upload)   // 부모 페이지 문제는 업로드 0건으로 끝난다
     }
+}
+
+@Suite(.serialized)
+struct NotionRetryTests {
+    private func makeExporter() -> NotionExporter {
+        let config = URLSessionConfiguration.ephemeral
+        config.protocolClasses = [NotionExporterStub.self]
+        return NotionExporter(
+            api: NotionAPI(token: "t", session: URLSession(configuration: config)),
+            parentPageID: String(repeating: "0", count: 32))
+    }
+
+    /// 재시도는 이전 부분 페이지를 보관 처리한 뒤 새로 만든다 — 살아 있는 페이지는 항상 하나 (리뷰 #9)
+    @Test func retryArchivesThePreviousPageFirst() async throws {
+        defer { NotionExporterStub.shared.reset() }
+        let recorder = NotionExporterOrderRecorder()
+        NotionExporterStub.shared.handler = { request in
+            recorder.record("\(request.httpMethod ?? "?") \(request.url!.path)")
+            return (200, Data(#"{"id": "page-new", "url": "https://notion.so/new"}"#.utf8))
+        }
+        let (document, root) = try NotionExporterTests().makeDocument(guideCount: 1, pickedImages: [:])
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        _ = try await makeExporter().export(document: document, replacingPageID: "page-old")
+        let calls = recorder.calls
+        #expect(calls.first == "PATCH /v1/pages/page-old")          // 보관이 가장 먼저
+        #expect(calls.contains("POST /v1/pages"))
+        #expect(try #require(calls.firstIndex(of: "PATCH /v1/pages/page-old"))
+                < #require(calls.firstIndex(of: "POST /v1/pages")))
+    }
+
+    /// 이전 페이지가 이미 사라졌어도(404) 재시도는 계속된다 — 목적은 "살아 있는 중복 제거"다
+    @Test func archiving404IsTreatedAsSuccess() async throws {
+        defer { NotionExporterStub.shared.reset() }
+        NotionExporterStub.shared.handler = { request in
+            if request.httpMethod == "PATCH" { return (404, Data(#"{"message":"gone"}"#.utf8)) }
+            return (200, Data(#"{"id": "page-new", "url": "https://notion.so/new"}"#.utf8))
+        }
+        let (document, root) = try NotionExporterTests().makeDocument(guideCount: 1, pickedImages: [:])
+        defer { try? FileManager.default.removeItem(at: root) }
+        let url = try await makeExporter().export(document: document, replacingPageID: "page-old")
+        #expect(url.absoluteString == "https://notion.so/new")
+    }
+
+    /// 페이지 id는 생성 **직후** 콜백된다 — 이후 단계가 실패해도 다음 재시도가 이어받는다
+    @Test func pageIDIsDeliveredBeforeLaterStepsCanFail() async throws {
+        defer { NotionExporterStub.shared.reset() }
+        let recorder = NotionExporterOrderRecorder()
+        NotionExporterStub.shared.handler = { request in
+            if request.url!.path.hasPrefix("/v1/blocks/") {
+                recorder.record("append")
+                return (500, Data(#"{"message":"boom"}"#.utf8))    // 생성 뒤 단계에서 실패
+            }
+            return (200, Data(#"{"id": "page-1", "url": "https://notion.so/p1"}"#.utf8))
+        }
+        let (document, root) = try NotionExporterTests().makeDocument(guideCount: 1, pickedImages: [:])
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        await #expect(throws: NotionAPIError.self) {
+            _ = try await self.makeExporter().export(document: document) { pageID, _ in
+                recorder.record("callback:\(pageID)")
+            }
+        }
+        #expect(recorder.calls.first == "callback:page-1")          // 실패보다 먼저 전달됨
+    }
+}
+
+/// 스텁 핸들러(로딩 스레드)와 테스트 본문이 교차 접근하는 호출 순서 기록기
+final class NotionExporterOrderRecorder: @unchecked Sendable {
+    private let lock = NSLock()
+    private var _calls: [String] = []
+    var calls: [String] { lock.withLock { _calls } }
+    func record(_ value: String) { lock.withLock { _calls.append(value) } }
 }

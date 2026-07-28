@@ -46,12 +46,14 @@ final class NotionAPI: Sendable {
     }
 
     /// 429는 Retry-After(초)만큼 기다렸다가 재시도한다. 재시도 소진 시 .rateLimited를 던진다.
-    private func request(path: String, jsonBody: [String: Any]? = nil,
+    private func request(path: String, method: String = "POST",
+                         jsonBody: [String: Any]? = nil,
                          rawBody: (data: Data, contentType: String)? = nil)
         async throws -> [String: Any] {
         for attempt in 0... {
             do {
-                return try await send(path: path, jsonBody: jsonBody, rawBody: rawBody)
+                return try await send(path: path, method: method,
+                                      jsonBody: jsonBody, rawBody: rawBody)
             } catch NotionAPIError.rateLimited(let retryAfter) where attempt < retries {
                 await sleeper(retryAfter)
             }
@@ -59,11 +61,12 @@ final class NotionAPI: Sendable {
         throw NotionAPIError.rateLimited(after: Self.defaultRetryDelay)   // 도달 불가(for 0...는 무한)
     }
 
-    private func send(path: String, jsonBody: [String: Any]? = nil,
+    private func send(path: String, method: String = "POST",
+                      jsonBody: [String: Any]? = nil,
                       rawBody: (data: Data, contentType: String)? = nil)
         async throws -> [String: Any] {
         var request = URLRequest(url: Self.base.appending(path: path))
-        request.httpMethod = "POST"
+        request.httpMethod = method
         request.timeoutInterval = 120
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.setValue(Self.version, forHTTPHeaderField: "Notion-Version")
@@ -147,6 +150,17 @@ final class NotionAPI: Sendable {
             throw NotionAPIError.api(200, "page id 없음")
         }
         return (id, object["url"] as? String)
+    }
+
+    /// 페이지 보관 처리 (재시도 시 이전 부분 페이지 교체용). 이미 없어진 페이지(404)는
+    /// 성공으로 취급한다 — 목적이 "살아 있는 중복을 없애는 것"이기 때문.
+    func archivePage(pageID: String) async throws {
+        do {
+            _ = try await request(path: "/pages/\(pageID)", method: "PATCH",
+                                  jsonBody: ["archived": true])
+        } catch NotionAPIError.parentNotFound {
+            // 이미 삭제/보관됨 — 원하는 상태다
+        }
     }
 
     func appendChildren(pageID: String, blocks: [NotionBlock]) async throws {
