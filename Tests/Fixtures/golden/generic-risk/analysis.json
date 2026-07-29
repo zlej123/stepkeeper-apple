@@ -1,0 +1,58 @@
+{
+  "title": "콘센트 전기 배선 교체하기",
+  "summary": "요약 문장.",
+  "category": "생활",
+  "materials": [
+    {
+      "name": "글루건",
+      "amount": "1개"
+    },
+    {
+      "name": "펠트지",
+      "amount": "2장"
+    }
+  ],
+  "steps": [
+    {
+      "id": 1,
+      "summary": "재료 준비",
+      "detail": "재료를 책상에 올린다.",
+      "t_start": 5,
+      "t_end": 20
+    },
+    {
+      "id": 2,
+      "summary": "붙이기",
+      "detail": "글루건으로 붙인다.",
+      "t_start": 21,
+      "t_end": 55
+    }
+  ],
+  "visual_guides": [
+    {
+      "id": "vg-1",
+      "step_id": 2,
+      "source_phrase": "요만큼",
+      "phrase": "요만큼",
+      "type": "amount",
+      "what_to_show": "글루 양이 보이는 장면",
+      "best_visual_timestamp": 30,
+      "guide_text": "동전 크기만큼 짠다.",
+      "importance": 0.9
+    },
+    {
+      "id": "vg-2",
+      "step_id": 1,
+      "source_phrase": "가지런히",
+      "phrase": "가지런히",
+      "type": "position",
+      "what_to_show": "정렬 상태",
+      "best_visual_timestamp": null,
+      "guide_text": "긴 변을 맞춰 정렬.",
+      "importance": 0.6
+    }
+  ],
+  "_duration": 90,
+  "_profile": "generic",
+  "_output_language": "ko"
+}

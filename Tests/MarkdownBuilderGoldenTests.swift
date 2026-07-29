@@ -20,7 +20,8 @@ struct MarkdownBuilderGoldenTests {
     }
 
     // recipe-en: _output_language에 따라 템플릿(문서 뼈대)이 바뀌는지 코어 출력과 대조
-    @Test(arguments: ["generic-mixed", "generic-links-only", "recipe-mixed", "recipe-en"])
+    // generic-risk: 저장물 안전 고지가 코어 출력과 바이트 일치하는지
+    @Test(arguments: ["generic-mixed", "generic-links-only", "recipe-mixed", "recipe-en", "generic-risk"])
     func matchesCoreRenderOutput(caseName: String) throws {
         let sub = "Fixtures/golden/\(caseName)"
         let analysis = try JSONDecoder().decode(
