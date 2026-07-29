@@ -1,3 +1,4 @@
+import CryptoKit
 import Foundation
 
 /// 직접 Gemini 분석 (BYOK, 서버 없이) — 확장 bg.js analyzeDirect 포팅.
@@ -21,6 +22,26 @@ final class GeminiAPI: Sendable {
             throw AssetMissing(name: "\(subdirectory)/\(name).\(ext)")
         }
         return try String(contentsOf: url, encoding: .utf8)
+    }
+
+    /// 코어 analyze.asset_digest와 동일 — rules.md + prompt.md + schema.json 원본 바이트의
+    /// sha256 앞 12자. 이 분석이 어떤 프롬프트·스키마로 만들어졌는지 추적하는 근거 (리뷰 #6).
+    /// 순서·대상 파일이 코어와 다르면 digest가 갈라져 무의미해진다 — 바꿀 때 코어와 함께.
+    func assetDigest(profile: String) -> String? {
+        var hasher = SHA256()
+        guard let rules = assets.url(forResource: "rules", withExtension: "md",
+                                     subdirectory: "skill-core/engine"),
+              let rulesData = try? Data(contentsOf: rules) else { return nil }
+        hasher.update(data: rulesData)
+        for (name, ext) in [("prompt", "md"), ("schema", "json")] {
+            if let url = assets.url(forResource: name, withExtension: ext,
+                                    subdirectory: "skill-core/\(profile)"),
+               let data = try? Data(contentsOf: url) {
+                hasher.update(data: data)
+            }
+        }
+        return hasher.finalize().map { String(format: "%02x", $0) }.joined().prefix(12)
+            .lowercased()
     }
 
     /// bg.js buildPrompt와 동일 치환 (전체 치환)
@@ -97,9 +118,12 @@ final class GeminiAPI: Sendable {
         let prompt = try buildPrompt(profile: profile, duration: duration,
                                      language: language, maxGuides: maxGuides)
         let schema = try loadSchema(profile: profile)
-        let rawObject = try await generateJSON(
+        var rawObject = try await generateJSON(
             parts: [["file_data": ["file_uri": videoURL]], ["text": prompt]],
             schema: schema, geminiKey: geminiKey)
+        if let digest = assetDigest(profile: profile) {
+            rawObject["_asset_digest"] = digest    // 코어·서버와 같은 메타 (리뷰 #6)
+        }
         guard let videoId = YouTubeURL.videoID(from: videoURL) else {
             throw StepkeeperAPIError.invalidResponse
         }
