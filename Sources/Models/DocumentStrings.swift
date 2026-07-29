@@ -9,6 +9,7 @@ struct DocumentStrings: Sendable {
     var steps: String                // 순서 절 제목
     var category: String             // 분류 라벨
     var sourceLink: String           // Notion·PDF 상단의 원본 영상 링크 문구
+    var highRiskNotice: String       // 저장물 상단 안전 고지 (코어 DOC_STRINGS와 동일 문자열)
     var guidePrefix: @Sendable (String) -> String   // 가이드 문구 접두사
     var seeAt: @Sendable (String?) -> String        // 타임스탬프 링크 문구 (nil = 시각 불명)
     var source: @Sendable (String) -> String        // 출처 줄
@@ -16,6 +17,7 @@ struct DocumentStrings: Sendable {
     static let english = DocumentStrings(
         ingredients: "Ingredients", materials: "What you need",
         steps: "Steps", category: "Category", sourceLink: "Watch on YouTube",
+        highRiskNotice: "Safety-critical topic. Treat this document as reference only — do not follow it without expert guidance.",
         guidePrefix: { phrase in "What '\(phrase)' looks like:" },
         seeAt: { time in time.map { "▶ See it in the video at \($0)" } ?? "▶ See it in the video" },
         source: { title in "From \(title) — kept with stepkeeper" })
@@ -23,6 +25,7 @@ struct DocumentStrings: Sendable {
     static let korean = DocumentStrings(
         ingredients: "준비 재료", materials: "준비물",
         steps: "순서", category: "분류", sourceLink: "YouTube 원본",
+        highRiskNotice: "안전이 걸린 주제입니다. 이 문서는 참고용입니다 — 전문가 확인 없이 따라 하지 마세요.",
         guidePrefix: { phrase in "'\(phrase)' 기준:" },
         seeAt: { time in time.map { "▶ 영상 \($0)에서 직접 확인" } ?? "▶ 영상에서 직접 확인" },
         source: { title in "출처: \(title) — stepkeeper로 생성" })
@@ -30,6 +33,7 @@ struct DocumentStrings: Sendable {
     static let japanese = DocumentStrings(
         ingredients: "材料", materials: "用意するもの",
         steps: "手順", category: "カテゴリ", sourceLink: "YouTube で見る",
+        highRiskNotice: "安全に関わるテーマです。この文書は参考用です — 専門家の確認なしに実行しないでください。",
         guidePrefix: { phrase in "「\(phrase)」とは:" },
         seeAt: { time in time.map { "▶ 動画の \($0) で確認" } ?? "▶ 動画で確認" },
         source: { title in "出典: \(title) — stepkeeper で作成" })

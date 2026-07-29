@@ -68,6 +68,8 @@ enum MarkdownBuilder {
             .dict(["name": .string($0.name), "amount": .string($0.amount)])
         })
         return .dict([
+            "high_risk": .bool(!HighRiskDetector.hits(
+                in: analysis.title, analysis.category, analysis.summary).isEmpty),
             "title": .string(analysis.title),
             "summary": .string(analysis.summary),
             "video_summary": .string(analysis.summary),

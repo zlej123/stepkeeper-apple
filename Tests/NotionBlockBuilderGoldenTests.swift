@@ -4,7 +4,7 @@ import Foundation
 
 struct NotionBlockBuilderGoldenTests {
     // recipe-en: Notion 절 제목도 문서 언어를 따르는지 코어 출력과 대조
-    @Test(arguments: ["generic-mixed", "generic-links-only", "recipe-mixed", "recipe-en"])
+    @Test(arguments: ["generic-mixed", "generic-links-only", "recipe-mixed", "recipe-en", "generic-risk"])
     func matchesCoreBlocks(caseName: String) throws {
         let sub = "Fixtures/golden/\(caseName)"
         let analysis = try JSONDecoder().decode(

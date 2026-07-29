@@ -23,6 +23,13 @@ enum NotionBlockBuilder {
         let labels = DocumentStrings.forLanguage(analysis.outputLanguage ?? "")
         let isRecipe = analysis.profile == "recipe"
         var blocks: [NotionBlock] = []
+        if !HighRiskDetector.hits(in: analysis.title, analysis.category,
+                                  analysis.summary).isEmpty {
+            // 코어 파리티: 안전 고지는 저장물 자체의 최상단 callout
+            blocks.append(["type": "callout", "callout": [
+                "icon": ["type": "emoji", "emoji": "⚠️"],
+                "rich_text": rich(labels.highRiskNotice)] as [String: Any]])
+        }
         if !analysis.summary.isEmpty {
             blocks.append(["type": "paragraph",
                            "paragraph": ["rich_text": rich(analysis.summary)]])

@@ -1,0 +1,161 @@
+[
+  {
+    "type": "callout",
+    "callout": {
+      "icon": {
+        "type": "emoji",
+        "emoji": "⚠️"
+      },
+      "rich_text": [
+        {
+          "type": "text",
+          "text": {
+            "content": "안전이 걸린 주제입니다. 이 문서는 참고용입니다 — 전문가 확인 없이 따라 하지 마세요."
+          }
+        }
+      ]
+    }
+  },
+  {
+    "type": "paragraph",
+    "paragraph": {
+      "rich_text": [
+        {
+          "type": "text",
+          "text": {
+            "content": "요약 문장."
+          }
+        }
+      ]
+    }
+  },
+  {
+    "type": "paragraph",
+    "paragraph": {
+      "rich_text": [
+        {
+          "type": "text",
+          "text": {
+            "content": "YouTube 원본",
+            "link": {
+              "url": "https://youtu.be/dQw4w9WgXcQ"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "type": "heading_2",
+    "heading_2": {
+      "rich_text": [
+        {
+          "type": "text",
+          "text": {
+            "content": "준비물"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "type": "bulleted_list_item",
+    "bulleted_list_item": {
+      "rich_text": [
+        {
+          "type": "text",
+          "text": {
+            "content": "글루건 1개"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "type": "bulleted_list_item",
+    "bulleted_list_item": {
+      "rich_text": [
+        {
+          "type": "text",
+          "text": {
+            "content": "펠트지 2장"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "type": "heading_2",
+    "heading_2": {
+      "rich_text": [
+        {
+          "type": "text",
+          "text": {
+            "content": "순서"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "type": "numbered_list_item",
+    "numbered_list_item": {
+      "rich_text": [
+        {
+          "type": "text",
+          "text": {
+            "content": "재료 준비 — 재료를 책상에 올린다."
+          }
+        }
+      ]
+    }
+  },
+  {
+    "type": "quote",
+    "quote": {
+      "rich_text": [
+        {
+          "type": "text",
+          "text": {
+            "content": "💡 '가지런히' 기준: 긴 변을 맞춰 정렬."
+          }
+        }
+      ]
+    }
+  },
+  {
+    "type": "numbered_list_item",
+    "numbered_list_item": {
+      "rich_text": [
+        {
+          "type": "text",
+          "text": {
+            "content": "붙이기 — 글루건으로 붙인다."
+          }
+        }
+      ]
+    }
+  },
+  {
+    "type": "quote",
+    "quote": {
+      "rich_text": [
+        {
+          "type": "text",
+          "text": {
+            "content": "💡 '요만큼' 기준: 동전 크기만큼 짠다."
+          }
+        }
+      ]
+    }
+  },
+  {
+    "type": "image",
+    "image": {
+      "type": "file_upload",
+      "file_upload": {
+        "id": "fake-vg-1"
+      }
+    }
+  }
+]
