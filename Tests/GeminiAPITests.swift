@@ -88,3 +88,18 @@ struct GeminiAPITests {
         }
     }
 }
+
+struct AssetDigestTests {
+    /// 코어 analyze.asset_digest와 같은 알고리즘·순서(rules → prompt → schema) — 교차 검증은
+    /// 커밋 시점에 python/Swift 동일 출력(163eae0a4edd, generic)으로 확인했다.
+    /// 자산이 sync로 바뀌면 값은 함께 바뀌므로 여기서는 계약(형식·결정성·구분)만 고정한다.
+    @Test func digestIsDeterministicAndProfileSpecific() throws {
+        let api = GeminiAPI()
+        let generic = try #require(api.assetDigest(profile: "generic"))
+        #expect(generic.count == 12)
+        #expect(generic.allSatisfy { $0.isHexDigit })
+        #expect(generic == api.assetDigest(profile: "generic"))          // 결정적
+        #expect(generic != api.assetDigest(profile: "recipe"))           // 프로파일 구분
+        #expect(api.assetDigest(profile: "no-such-profile") != nil)      // rules만으로도 계산됨
+    }
+}
