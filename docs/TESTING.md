@@ -15,7 +15,8 @@
 6. [ ] Export: share sheet carries md+jpg / "Save to a folder" then open in Obsidian or similar
 7. [ ] Link mode ON: document builds from links only, no capture
 8. [ ] Share extension (iOS): share from Safari/the YouTube app → stepkeeper → opening the app starts it automatically
-9. [ ] Share extension (iOS) cold start: with stepkeeper **fully quit**, share → open the app fresh → it starts with the shared URL
+9. [ ] Share two videos **before** opening the app → the first analyzes on open, Home shows "Analyze next shared video (1 waiting)", tapping it runs the second (nothing silently lost)
+9-1. [ ] Share extension (iOS) cold start: with stepkeeper **fully quit**, share → open the app fresh → it starts with the shared URL
 10. [ ] Errors: start without a key (key notice), with the server down (connection notice), with an invalid URL
 11. [ ] macOS: 1–7 behave the same
 12. [ ] Back-to-back analyses: right after a document completes, analyze a different video → the second video's title and length are correct (showing the previous video's is a bug)

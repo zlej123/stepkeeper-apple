@@ -178,6 +178,17 @@
         }
       }
     },
+    "Analyze next shared video (%lld waiting)": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다음 공유 영상 분석 (%lld개 대기)"
+          }
+        }
+      }
+    },
     "Analyzing the video… (\\(MarkdownBuilder.hms(duration)), \\(model.profile))": {
       "extractionState": "manual",
       "localizations": {
@@ -504,6 +515,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "AI Studio에서 무료 키 발급 (카드 불필요)"
+          }
+        }
+      }
+    },
+    "Got it": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "확인했어요"
           }
         }
       }
@@ -1329,6 +1351,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Notion 업로드 중…"
+          }
+        }
+      }
+    },
+    "Used the old clipnote app? Its documents can't be read here — open them in clipnote and use \"Save to a folder\" before deleting it.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이전 clipnote 앱을 쓰셨나요? 그 문서는 여기서 읽을 수 없습니다 — 삭제 전에 clipnote에서 열어 \"폴더로 저장\"으로 내보내세요."
           }
         }
       }

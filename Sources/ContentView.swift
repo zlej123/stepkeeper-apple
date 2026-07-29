@@ -31,9 +31,7 @@ struct ContentView: View {
     }
 
     private func pickupSharedURL() {
-        guard let url = ShareInbox.pop() else { return }
-        model.autoContinue = false
-        Task { await model.start(urlString: url) }
+        model.startNextShared()
     }
 }
 
