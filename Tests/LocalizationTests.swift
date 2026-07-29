@@ -68,3 +68,15 @@ struct AutoPickStringsTests {
         #expect(String(format: format, 3, 5) == "AI 선택 5개 중 3개를 그대로 뒀습니다")
     }
 }
+
+struct HighRiskDetectorTests {
+    /// 코어 contract.py와 같은 자산(skill-core/engine/highrisk.json)이 번들에 있고,
+    /// 같은 키워드로 같은 판정을 낸다 (외부 리뷰 3차 P1-3 — 직접 Gemini 모드도 커버).
+    @Test func bundledAssetDetectsSameKeywordsAsCore() {
+        #expect(!HighRiskDetector.keywords.isEmpty)   // 자산 누락 시 감지가 조용히 꺼진다
+        #expect(HighRiskDetector.hits(in: "콘센트 전기 배선 교체하기") == ["전기 배선"])
+        #expect(!HighRiskDetector.hits(in: "Repairing the Circuit Breaker panel").isEmpty)
+        #expect(HighRiskDetector.hits(in: "돼지고기 김치볶음", "요리", "간단한 레시피").isEmpty)
+        #expect(HighRiskDetector.hits(in: nil, nil).isEmpty)
+    }
+}

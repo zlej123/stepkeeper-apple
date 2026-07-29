@@ -15,4 +15,5 @@ for p in generic recipe; do
 done
 mkdir -p "Resources/skill-core/engine"
 cp "$SRC/engine/rules.md" "Resources/skill-core/engine/rules.md"
+cp "$SRC/engine/highrisk.json" "Resources/skill-core/engine/highrisk.json"
 echo "synced skill-core assets from $SRC"
