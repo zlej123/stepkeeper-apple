@@ -16,6 +16,17 @@ struct DocumentView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 14) {
+                // 안전 고지 — 코어와 같은 자산으로 로컬 감지 (분석 경로와 무관하게 뜬다)
+                if !HighRiskDetector.hits(in: analysis.title, analysis.category,
+                                          analysis.summary).isEmpty {
+                    Label(String(localized: "This looks like a safety-critical topic (medical, electrical, gas…). Treat this document as reference only — don't follow it without expert guidance."),
+                          systemImage: "exclamationmark.triangle.fill")
+                        .font(.callout)
+                        .padding(10)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.orange.opacity(0.15))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
                 Text("\(isRecipe ? "🍳" : "📋") \(analysis.title)").font(.title2.bold())
                 Text(analysis.summary).foregroundStyle(.secondary)
                 if !isRecipe, let category = analysis.category, !category.isEmpty {

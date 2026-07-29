@@ -1267,6 +1267,28 @@
         }
       }
     },
+    "This looks like a safety-critical topic (medical, electrical, gas…). Treat this document as reference only — don't follow it without expert guidance.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "안전이 걸린 주제로 보입니다 (의료·전기·가스 등). 이 문서는 참고용입니다 — 전문가 확인 없이 따라 하지 마세요."
+          }
+        }
+      }
+    },
+    "This looks like a safety-critical topic — the document will carry a warning.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "안전이 걸린 주제로 보입니다 — 문서에 경고가 함께 표시됩니다."
+          }
+        }
+      }
+    },
     "Timed out seeking to the frame": {
       "extractionState": "manual",
       "localizations": {

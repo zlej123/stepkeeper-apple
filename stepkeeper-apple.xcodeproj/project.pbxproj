@@ -47,6 +47,7 @@
 		95643230B86C26A2E9064B47 /* SpikeCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F6E71E543535FF4CCC8F8C2 /* SpikeCaptureView.swift */; };
 		95CE20ADC099D44DFD4C0D55 /* CandidateTimesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B8B859D31A89338C1160FA6 /* CandidateTimesTests.swift */; };
 		9A7E3C9FCD588E846707D6AD /* CaptureScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8926B8326C3620BA2E647141 /* CaptureScript.swift */; };
+		9D90B348454E5AE073F28082 /* HighRiskDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FF9A2AB40532B719732DEB /* HighRiskDetector.swift */; };
 		9DCC251B45BD01E82C921658 /* GeminiAPITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62F35820A920CD9C97A15FCF /* GeminiAPITests.swift */; };
 		A1E246034EBF6355DDF1324B /* AutoPickTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE91325408912B4B2F01A703 /* AutoPickTests.swift */; };
 		A4C3DB252A9109A738171B6A /* DocumentStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95989667A5FC7BB3E1BB7375 /* DocumentStrings.swift */; };
@@ -112,6 +113,7 @@
 		0479F2FEE58FF0CF963F084A /* ReportMailer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportMailer.swift; sourceTree = "<group>"; };
 		06523BE0F06D8752EB2B004C /* Stepkeeper-iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Stepkeeper-iOS.entitlements"; sourceTree = "<group>"; };
 		112037464E0F4732F9220E59 /* NotionAPITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotionAPITests.swift; sourceTree = "<group>"; };
+		14FF9A2AB40532B719732DEB /* HighRiskDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighRiskDetector.swift; sourceTree = "<group>"; };
 		1ECFB246AD05461B5C849164 /* DocumentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentView.swift; sourceTree = "<group>"; };
 		20A5141ABD1E2B3B79C39C8A /* StepkeeperApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepkeeperApp.swift; sourceTree = "<group>"; };
 		215D9AFD05F6F04F7E2AA96E /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
@@ -332,6 +334,7 @@
 				BB3522C6B6394EC3AA370BB0 /* Analysis.swift */,
 				8C21DC15027E98D2A42AC7C8 /* CandidateTimes.swift */,
 				95989667A5FC7BB3E1BB7375 /* DocumentStrings.swift */,
+				14FF9A2AB40532B719732DEB /* HighRiskDetector.swift */,
 				285675A6E4DD04A2797EA049 /* IssueReport.swift */,
 				6517BA3DB8ABC44DC123F57C /* NotionPageID.swift */,
 				7F4A4143877EDAB04B7BD16F /* ReportCollector.swift */,
@@ -517,6 +520,7 @@
 				A4C3DB252A9109A738171B6A /* DocumentStrings.swift in Sources */,
 				03C96B842940DF6B96CB65EC /* DocumentView.swift in Sources */,
 				28CA513EFF67EC1D3B6E212B /* GeminiAPI.swift in Sources */,
+				9D90B348454E5AE073F28082 /* HighRiskDetector.swift in Sources */,
 				E65A1531655A0D2A57257199 /* HomeView.swift in Sources */,
 				0D39A357F02FFC8E49637718 /* IssueReport.swift in Sources */,
 				8B907394C7DC2661470211C2 /* KeychainStore.swift in Sources */,

@@ -49,6 +49,12 @@ struct AnalyzeFlowView: View {
                     Text("Cooking").tag("recipe")
                 }
                 .pickerStyle(.segmented)
+                if !HighRiskDetector.hits(in: title).isEmpty {
+                    // 분석 시작 전 경고 (리뷰 3차: "분석 시작 전과 저장 문서 상단에")
+                    Label(String(localized: "This looks like a safety-critical topic — the document will carry a warning."),
+                          systemImage: "exclamationmark.triangle")
+                        .font(.caption).foregroundStyle(.orange)
+                }
                 Button("Start analysis") { Task { await model.confirmAnalyze() } }
                     .buttonStyle(.borderedProminent)
             }
