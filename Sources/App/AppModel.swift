@@ -70,6 +70,16 @@ final class AppModel {
         self.makeGeminiAPI = makeGeminiAPI
     }
 
+    /// 공유 인박스에서 다음 URL을 꺼내 분석 시작. 없으면 false.
+    /// (FIFO — 여러 영상을 공유해도 하나씩, 순서대로)
+    @discardableResult
+    func startNextShared() -> Bool {
+        guard let url = ShareInbox.pop() else { return false }
+        autoContinue = false
+        Task { await start(urlString: url) }
+        return true
+    }
+
     var profile: String { profileOverride ?? detectedProfile }
     var linkMode: Bool { defaults.bool(forKey: Settings.linkModeKey) }
 

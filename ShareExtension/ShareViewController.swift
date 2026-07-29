@@ -3,8 +3,6 @@ import UniformTypeIdentifiers
 
 /// 유튜브 공유 → URL을 App Group에 저장하고 안내 후 닫힘 (스펙 4.7).
 final class ShareViewController: UIViewController {
-    private let groupID = "group.com.stepkeeper.shared"
-    private let urlKey = "pendingURL"
     private let label = UILabel()
 
     override func viewDidLoad() {
@@ -34,8 +32,6 @@ final class ShareViewController: UIViewController {
             finish(String(localized: "No URL found"))
             return
         }
-        let groupID = self.groupID
-        let urlKey = self.urlKey
         provider.loadItem(forTypeIdentifier: UTType.url.identifier) { [weak self] value, _ in
             let urlString = (value as? URL)?.absoluteString ?? (value as? String) ?? ""
             DispatchQueue.main.async {
@@ -44,7 +40,7 @@ final class ShareViewController: UIViewController {
                     self.finish(String(localized: "That isn't a YouTube video link"))
                     return
                 }
-                UserDefaults(suiteName: groupID)?.set(urlString, forKey: urlKey)
+                ShareInbox.push(urlString)   // FIFO — 여러 번 공유해도 덮어쓰지 않는다
                 self.finish(String(localized: "Saved.\nOpen stepkeeper to start the analysis."))
             }
         }

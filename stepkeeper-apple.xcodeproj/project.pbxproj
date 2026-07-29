@@ -43,6 +43,7 @@
 		8B907394C7DC2661470211C2 /* KeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 955154E341020D9B802060BA /* KeychainStore.swift */; };
 		8CA806CA08EB269B9AD6BD77 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = C9BA709AE50104DDB496AC6D /* Localizable.xcstrings */; };
 		8EB1EA9EAFD8C357B18BCA90 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A748A79726CB7FFF4089E7A /* SettingsView.swift */; };
+		90B2F2E5BF385C5059A85287 /* ShareInbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11303A8752935DA2B8AC3E1 /* ShareInbox.swift */; };
 		9118C94B5C274CF926569916 /* Analysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB3522C6B6394EC3AA370BB0 /* Analysis.swift */; };
 		95643230B86C26A2E9064B47 /* SpikeCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F6E71E543535FF4CCC8F8C2 /* SpikeCaptureView.swift */; };
 		95CE20ADC099D44DFD4C0D55 /* CandidateTimesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B8B859D31A89338C1160FA6 /* CandidateTimesTests.swift */; };
@@ -550,6 +551,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				90B2F2E5BF385C5059A85287 /* ShareInbox.swift in Sources */,
 				ACFD43A7C5726AA8CD3880CE /* ShareViewController.swift in Sources */,
 				B70B0996DE49A4C21B28A0BB /* YouTubeURL.swift in Sources */,
 			);

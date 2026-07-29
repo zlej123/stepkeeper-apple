@@ -76,6 +76,7 @@ targets:
     sources:
       - ShareExtension
       - Sources/Models/YouTubeURL.swift
+      - Sources/App/ShareInbox.swift
       - path: Resources/Localizable.xcstrings
         buildPhase: resources
     info:

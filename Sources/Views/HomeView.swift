@@ -7,6 +7,8 @@ struct HomeView: View {
     @State private var hasKey = false
     @State private var showSettings = false
     @State private var flowActive = false
+    @State private var pendingShares = 0
+    @AppStorage("legacyNoticeDismissed") private var legacyNoticeDismissed = false
 
     var body: some View {
         List {
@@ -20,6 +22,29 @@ struct HomeView: View {
                     }
                     .foregroundStyle(.orange)
                     .listRowBackground(KeyNudgeBackground())
+                }
+            }
+            if pendingShares > 0 {
+                // 공유 인박스 FIFO — 여러 영상을 공유해도 사라지지 않고 여기서 하나씩 (리뷰 3차 P2)
+                Section {
+                    Button {
+                        flowActive = true
+                        model.startNextShared()
+                        pendingShares = ShareInbox.pendingCount
+                    } label: {
+                        Label("Analyze next shared video (\(pendingShares) waiting)",
+                              systemImage: "tray.full")
+                    }
+                }
+            }
+            if !legacyNoticeDismissed {
+                Section {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Used the old clipnote app? Its documents can't be read here — open them in clipnote and use \"Save to a folder\" before deleting it.")
+                            .font(.caption).foregroundStyle(.secondary)
+                        Button("Got it") { legacyNoticeDismissed = true }
+                            .font(.caption)
+                    }
                 }
             }
             Section("New document") {
@@ -80,6 +105,7 @@ struct HomeView: View {
 
     private func refresh() {
         documents = model.documents()
+        pendingShares = ShareInbox.pendingCount
         hasKey = ((try? KeychainStore.geminiKey.load()) ?? "").isEmpty == false
     }
 }
