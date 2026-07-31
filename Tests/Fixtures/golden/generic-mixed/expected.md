@@ -19,4 +19,4 @@
    ![요만큼](vg-1.jpg)
 
 ---
-*출처: [테스트 하우투 영상](https://youtu.be/dQw4w9WgXcQ) — stepkeeper로 생성*
+*출처: [테스트 하우투 영상](https://youtu.be/dQw4w9WgXcQ) — stepkipper로 생성*

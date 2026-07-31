@@ -1,6 +1,6 @@
 import Testing
 import Foundation
-@testable import stepkeeper
+@testable import stepkipper
 
 struct NotionBlockBuilderGoldenTests {
     // recipe-en: Notion 절 제목도 문서 언어를 따르는지 코어 출력과 대조

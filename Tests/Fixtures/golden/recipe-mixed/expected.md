@@ -17,4 +17,4 @@
    ![자작해짐](vg-2.jpg)
 
 ---
-*출처: [돼지고기 김치볶음](https://youtu.be/4ioPBiTWm3M) — stepkeeper로 생성*
+*출처: [돼지고기 김치볶음](https://youtu.be/4ioPBiTWm3M) — stepkipper로 생성*

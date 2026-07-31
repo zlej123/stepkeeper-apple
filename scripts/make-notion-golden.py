@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Notion 블록 골든 생성 — 코어 build_notion_blocks로 기대 JSON을 만든다.
-사용: python3 scripts/make-notion-golden.py  (코어: STEPKEEPER_PATH, 기본 ../stepkeeper)
+사용: python3 scripts/make-notion-golden.py  (코어: STEPKIPPER_PATH, 기본 ../stepkeeper)
 이미지 업로드 id는 case.json의 image_refs 키에 fake-<guide_id>를 주입한다."""
 import json
 import os
@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-CORE = Path(os.environ.get("STEPKEEPER_PATH", ROOT.parent / "stepkeeper")).resolve()
+CORE = Path(os.environ.get("STEPKIPPER_PATH", ROOT.parent / "stepkeeper")).resolve()
 sys.path.insert(0, str(CORE / "src"))
 from stepkeeper import export as core_export  # noqa: E402
 

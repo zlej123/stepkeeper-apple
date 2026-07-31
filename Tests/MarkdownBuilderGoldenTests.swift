@@ -1,6 +1,6 @@
 import Testing
 import Foundation
-@testable import stepkeeper
+@testable import stepkipper
 
 struct MarkdownBuilderGoldenTests {
     struct GoldenCase: Codable {

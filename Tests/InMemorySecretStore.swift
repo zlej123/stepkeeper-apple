@@ -1,5 +1,5 @@
 import Foundation
-@testable import stepkeeper
+@testable import stepkipper
 
 /// 테스트 전용 비밀 저장소 — 실제 키체인을 쓰지 않는다.
 /// (macOS 테스트 호스트가 키체인에 접근하면 승인 창이 떠 헤드리스 러너가 멈춘다)

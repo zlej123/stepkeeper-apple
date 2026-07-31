@@ -92,14 +92,27 @@ final class GeminiAPI: Sendable {
         do {
             (data, response) = try await session.data(for: request)
         } catch {
-            throw StepkeeperAPIError.network(String(describing: error))
+            throw StepkipperAPIError.geminiNetwork(String(describing: error))
         }
         guard let http = response as? HTTPURLResponse else {
-            throw StepkeeperAPIError.invalidResponse
+            throw StepkipperAPIError.invalidResponse
         }
-        if http.statusCode == 429 { throw StepkeeperAPIError.rateLimited }
+        if http.statusCode == 429 { throw StepkipperAPIError.rateLimited }
+        let errorText = String(data: data, encoding: .utf8)?.lowercased() ?? ""
+        let explicitlyInvalidKey = errorText.contains("api_key_invalid")
+            || errorText.contains("api key not valid")
+            || errorText.contains("invalid api key")
+        if http.statusCode == 401
+            || (http.statusCode == 400
+                && (errorText.contains("api key") || explicitlyInvalidKey))
+            || (http.statusCode == 403 && explicitlyInvalidKey) {
+            throw StepkipperAPIError.invalidKey
+        }
+        if http.statusCode == 403 {
+            throw StepkipperAPIError.geminiPermission
+        }
         guard (200...299).contains(http.statusCode) else {
-            throw StepkeeperAPIError.modelFailure("Gemini error (HTTP \(http.statusCode))")
+            throw StepkipperAPIError.modelFailure("Gemini error (HTTP \(http.statusCode))")
         }
         guard let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let candidates = object["candidates"] as? [[String: Any]],
@@ -108,7 +121,7 @@ final class GeminiAPI: Sendable {
               let text = responseParts.first?["text"] as? String,
               let decoded = try? JSONSerialization.jsonObject(with: Data(text.utf8))
                   as? [String: Any]
-        else { throw StepkeeperAPIError.invalidResponse }
+        else { throw StepkipperAPIError.invalidResponse }
         return decoded
     }
 
@@ -125,7 +138,7 @@ final class GeminiAPI: Sendable {
             rawObject["_asset_digest"] = digest    // 코어·서버와 같은 메타 (리뷰 #6)
         }
         guard let videoId = YouTubeURL.videoID(from: videoURL) else {
-            throw StepkeeperAPIError.invalidResponse
+            throw StepkipperAPIError.invalidResponse
         }
 
         let (analysis, raw) = try AnalysisNormalizer.normalized(

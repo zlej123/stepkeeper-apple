@@ -100,7 +100,7 @@ struct SettingsView: View {
                     TextField("Server URL", text: $serverURL)
                         .textFieldStyle(.roundedBorder)
                         .autocorrectionDisabled()
-                } header: { Text("stepkeeper server (optional)") } footer: {
+                } header: { Text("stepkipper server (optional)") } footer: {
                     Text("Leave empty to call Gemini directly, with no server (the default). To use a dev server, enter its URL — on a real device that's your Mac's LAN IP (e.g. http://192.168.0.10:8787).")
                 }
                 Section {

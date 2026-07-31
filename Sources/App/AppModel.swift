@@ -1,6 +1,48 @@
 import Foundation
 import Observation
 
+enum FlowRecovery: Equatable {
+    /// 입력 자체가 복구 불가능하다. 현재 플로우를 닫고 올바른 URL로 다시 시작해야 한다.
+    case closeOnly
+    /// 같은 영상과 프로파일로 분석을 다시 실행한다.
+    case retryAnalysis
+    /// 설정을 고친 뒤 같은 영상과 프로파일로 분석을 다시 실행한다.
+    case settingsAndRetry
+    /// 분석·캡처 결과는 그대로 두고 문서 조립/저장만 다시 실행한다.
+    case retryBuild
+
+    var showsRetry: Bool {
+        switch self {
+        case .retryAnalysis, .settingsAndRetry, .retryBuild: true
+        case .closeOnly: false
+        }
+    }
+
+    var showsSettings: Bool {
+        self == .settingsAndRetry
+    }
+}
+
+struct FlowFailure: Equatable, ExpressibleByStringLiteral {
+    var message: String
+    var recovery: FlowRecovery
+
+    init(message: String, recovery: FlowRecovery) {
+        self.message = message
+        self.recovery = recovery
+    }
+
+    /// 테스트·프리뷰의 기존 `.failed("…")` 표현은 일반 재시도 오류로 호환한다.
+    init(stringLiteral value: String) {
+        self.init(message: value, recovery: .retryAnalysis)
+    }
+
+    /// 기존 테스트가 오류 문구 일부를 검사할 수 있게 String과 같은 최소 표면을 유지한다.
+    func contains(_ other: String) -> Bool {
+        message.contains(other)
+    }
+}
+
 enum FlowStage: Equatable {
     case idle
     case loadingPlayer
@@ -11,7 +53,12 @@ enum FlowStage: Equatable {
     case picking                                // Task 12
     case building
     case done(DocumentMeta)
-    case failed(String)
+    case failed(FlowFailure)
+}
+
+enum SharedStartTrigger {
+    case automatic
+    case userInitiated
 }
 
 struct CaptureCandidate: Sendable, Equatable {
@@ -26,6 +73,12 @@ struct GuideCapture: Identifiable, Sendable {
     var id: String { guide.id }
     /// 세 후보 모두 실패 → 자동 링크 폴백 대상
     var failed: Bool { candidates.allSatisfy { $0.jpeg == nil } }
+}
+
+private struct DocumentBuildPayload {
+    var result: AnalyzeResult
+    var picks: [String: String]
+    var images: [String: Data]
 }
 
 @MainActor @Observable
@@ -46,20 +99,22 @@ final class AppModel {
     private let keychain: any SecretStoring
     private let store: DocumentStore
     private let defaults: UserDefaults
-    private let makeAPI: (URL) -> StepkeeperAPI
+    private let makeAPI: (URL) -> StepkipperAPI
     private let makeGeminiAPI: () -> GeminiAPI
     private var currentVideoId: String?
     private var currentURLString: String?
     private var pendingDuration: Int?
     var captures: [GuideCapture] = []
     var pendingResult: AnalyzeResult?
+    /// 저장 실패 시 분석/캡처를 반복하지 않고 동일 결과로 build만 재시도하기 위한 payload.
+    private var pendingBuild: DocumentBuildPayload?
     /// reset() 시 증가 — 취소 뒤 도착한 비동기 결과가 stage를 덮어쓰지 않게 한다
     private var generation = 0
 
     init(keychain: any SecretStoring = KeychainStore.geminiKey,
          documentStore: DocumentStore? = nil,
          defaults: UserDefaults = .standard,
-         makeAPI: @escaping (URL) -> StepkeeperAPI = { StepkeeperAPI(baseURL: $0) },
+         makeAPI: @escaping (URL) -> StepkipperAPI = { StepkipperAPI(baseURL: $0) },
          makeGeminiAPI: @escaping () -> GeminiAPI = { GeminiAPI() }) {
         self.keychain = keychain
         self.store = documentStore
@@ -70,14 +125,40 @@ final class AppModel {
         self.makeGeminiAPI = makeGeminiAPI
     }
 
-    /// 공유 인박스에서 다음 URL을 꺼내 분석 시작. 없으면 false.
-    /// (FIFO — 여러 영상을 공유해도 하나씩, 순서대로)
+    /// 공유 인박스에서 다음 URL을 꺼내 분석 시작. 시작할 수 없거나 URL이 없으면 false.
+    ///
+    /// 자동 픽업은 idle에서만 허용한다. 앱 활성화 이벤트가 분석 중이거나 실패/완료 화면을
+    /// 조용히 다른 영상으로 바꾸면 사용자가 현재 작업의 결과를 잃었다고 느끼기 때문이다.
+    /// 사용자 탭은 idle뿐 아니라 done/failed에서도 다음 항목을 명시적으로 시작할 수 있다.
     @discardableResult
-    func startNextShared() -> Bool {
+    func startNextShared(trigger: SharedStartTrigger = .userInitiated) -> Bool {
+        guard canStartShared(trigger: trigger) else { return false }
         guard let url = ShareInbox.pop() else { return false }
         autoContinue = false
-        Task { await start(urlString: url) }
+        profileOverride = nil
+
+        // Task가 실제 start()에 진입하기 전까지도 두 번째 활성화/탭이 큐를 또 pop하지 못하게
+        // 즉시 진행 상태를 예약한다. 그 사이 취소되면 generation 가드가 예약 작업도 막는다.
+        generation += 1
+        let reservation = generation
+        stage = .loadingPlayer
+        Task { [weak self] in
+            guard let self, self.generation == reservation else { return }
+            await self.start(urlString: url)
+        }
         return true
+    }
+
+    private func canStartShared(trigger: SharedStartTrigger) -> Bool {
+        switch (trigger, stage) {
+        case (.automatic, .idle),
+             (.userInitiated, .idle),
+             (.userInitiated, .done),
+             (.userInitiated, .failed):
+            true
+        default:
+            false
+        }
     }
 
     var profile: String { profileOverride ?? detectedProfile }
@@ -93,18 +174,32 @@ final class AppModel {
     func deleteDocument(id: String) { try? store.delete(id: id) }
 
     func start(urlString: String) async {
+        await start(urlString: urlString, clearProfileOverride: true)
+    }
+
+    private func start(urlString: String, clearProfileOverride: Bool) async {
         // 재진입 무효화: 진행 중 플로우(캡처 루프 포함)를 이 시점에 stale로 만든다 (최종 리뷰 Critical 1).
         // 공유 픽업·새 URL 시작이 기존 플로우 위에 겹치는 경로를 봉인하고, retry()의 세대 미증가도 함께 해소.
         generation += 1
+        if clearProfileOverride {
+            // 프로파일 선택은 영상 단위 상태다. 이전 영상에서 사용자가 고른 override가 다음 영상의
+            // 메타데이터 자동 감지를 덮어쓰지 않도록, URL 유효성/키 검사보다 먼저 비운다.
+            profileOverride = nil
+        }
         captures = []
         pendingResult = nil
+        pendingBuild = nil
         currentURLString = urlString   // 키 가드보다 앞 — 진입 전 실패도 retry로 복구 가능 (Important 3)
         guard let videoId = YouTubeURL.videoID(from: urlString) else {
-            stage = .failed(String(localized: "That's not a YouTube URL — paste a watch/youtu.be/shorts link"))
+            stage = .failed(FlowFailure(
+                message: String(localized: "That's not a YouTube URL — paste a watch/youtu.be/shorts link"),
+                recovery: .closeOnly))
             return
         }
         guard let key = try? keychain.load(), !key.isEmpty else {
-            stage = .failed(String(localized: "Add your Gemini API key in Settings"))
+            stage = .failed(FlowFailure(
+                message: String(localized: "Add your Gemini API key in Settings"),
+                recovery: .settingsAndRetry))
             return
         }
         currentVideoId = videoId
@@ -120,8 +215,9 @@ final class AppModel {
             if autoContinue { await confirmAnalyze() }
         } catch {
             guard gen == generation else { return }
-            stage = .failed((error as? PlayerError)?.errorDescription
-                            ?? String(localized: "The player didn't load — try again"))
+            stage = .failed(Self.flowFailure(
+                for: error,
+                fallback: String(localized: "The player didn't load — try again")))
         }
     }
 
@@ -133,7 +229,9 @@ final class AppModel {
     /// 분석 → (Task 11 전까지는 항상) 링크 문서 저장
     func performAnalysis(videoId: String, duration: Int) async {
         guard let key = try? keychain.load(), !key.isEmpty else {
-            stage = .failed(String(localized: "Add your Gemini API key in Settings"))
+            stage = .failed(FlowFailure(
+                message: String(localized: "Add your Gemini API key in Settings"),
+                recovery: .settingsAndRetry))
             return
         }
         let serverURLString = (defaults.string(forKey: Settings.serverURLKey) ?? "")
@@ -150,8 +248,13 @@ final class AppModel {
                     videoURL: videoURL, profile: profile, language: language,
                     duration: duration, geminiKey: key)
             } else {
-                guard let serverURL = URL(string: serverURLString) else {
-                    stage = .failed(String(localized: "That server URL isn't valid — check Settings"))
+                guard let serverURL = URL(string: serverURLString),
+                      let scheme = serverURL.scheme?.lowercased(),
+                      ["http", "https"].contains(scheme),
+                      serverURL.host != nil else {
+                    stage = .failed(FlowFailure(
+                        message: String(localized: "That server URL isn't valid — check Settings"),
+                        recovery: .settingsAndRetry))
                     return
                 }
                 result = try await makeAPI(serverURL).analyze(
@@ -166,13 +269,15 @@ final class AppModel {
             }
         } catch {
             guard gen == generation else { return }
-            stage = .failed((error as? LocalizedError)?.errorDescription
-                            ?? String(localized: "Analysis failed — try again"))
+            stage = .failed(Self.flowFailure(
+                for: error,
+                fallback: String(localized: "Analysis failed — try again")))
         }
     }
 
     func buildDocument(result: AnalyzeResult, picks: [String: String],
                        images: [String: Data]) async {
+        pendingBuild = DocumentBuildPayload(result: result, picks: picks, images: images)
         stage = .building
         do {
             let imageRefs = Dictionary(uniqueKeysWithValues: images.keys.map { name in
@@ -184,9 +289,13 @@ final class AppModel {
                 videoId: result.videoId, title: result.analysis.title,
                 analysis: result.analysis, rawAnalysis: result.rawAnalysis,
                 picks: picks, images: images, markdown: markdown)
+            pendingBuild = nil
             stage = .done(meta)
         } catch {
-            stage = .failed(String(localized: "Couldn't save the document") + " — \(error.localizedDescription)")
+            stage = .failed(FlowFailure(
+                message: String(localized: "Couldn't save the document")
+                    + " — \(error.localizedDescription)",
+                recovery: .retryBuild))
         }
     }
 
@@ -341,9 +450,45 @@ final class AppModel {
         }
     }
 
+    static func flowFailure(for error: Error, fallback: String = "") -> FlowFailure {
+        let message = (error as? LocalizedError)?.errorDescription
+            ?? (fallback.isEmpty ? String(localized: "Analysis failed — try again") : fallback)
+        let recovery: FlowRecovery
+        switch error {
+        case StepkipperAPIError.missingKey,
+             StepkipperAPIError.invalidKey,
+             StepkipperAPIError.geminiPermission,
+             StepkipperAPIError.network:
+            recovery = .settingsAndRetry
+        case is PlayerError,
+             StepkipperAPIError.badRequest,
+             StepkipperAPIError.rateLimited,
+             StepkipperAPIError.modelFailure,
+             StepkipperAPIError.server,
+             StepkipperAPIError.geminiNetwork,
+             StepkipperAPIError.invalidResponse:
+            recovery = .retryAnalysis
+        default:
+            recovery = .retryAnalysis
+        }
+        return FlowFailure(message: message, recovery: recovery)
+    }
+
     func retry() async {
-        guard let urlString = currentURLString else { reset(); return }
-        await start(urlString: urlString)
+        guard case .failed(let failure) = stage else { return }
+        switch failure.recovery {
+        case .closeOnly:
+            return
+        case .retryBuild:
+            guard let payload = pendingBuild else { return }
+            await buildDocument(
+                result: payload.result, picks: payload.picks, images: payload.images)
+        case .retryAnalysis, .settingsAndRetry:
+            guard let urlString = currentURLString else { reset(); return }
+            // 같은 영상의 복구 동작이므로 사용자가 명시적으로 고른 프로파일은 유지한다.
+            // 새 URL과 공유 인박스 시작은 public start(urlString:) 경로에서 계속 초기화된다.
+            await start(urlString: urlString, clearProfileOverride: false)
+        }
     }
 
     func reset() {
@@ -355,5 +500,6 @@ final class AppModel {
         profileOverride = nil
         captures = []
         pendingResult = nil
+        pendingBuild = nil
     }
 }

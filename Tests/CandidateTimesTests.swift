@@ -1,5 +1,5 @@
 import Testing
-@testable import stepkeeper
+@testable import stepkipper
 
 struct CandidateTimesTests {
     private func makeStep(_ tStart: Int, _ tEnd: Int) -> Step {

@@ -15,29 +15,8 @@ struct KeychainStore: SecretStoring {
     var service: String
     var account: String = "default"
 
-    static let geminiKey = KeychainStore(service: "stepkeeper.gemini-key")
-    static let notionToken = KeychainStore(service: "stepkeeper.notion-token")
-
-    /// clipnote → stepkeeper 개명 전에 저장된 항목. 앱 시작 시 1회 이전한다.
-    /// (제거 시점: 사용자 기반이 새 이름으로 넘어간 뒤 — 그전까지 지우면 기존 사용자가 키를 다시 넣어야 한다)
-    static let legacyPairs = [
-        (legacy: KeychainStore(service: "clipnote.gemini-key"), current: geminiKey),
-        (legacy: KeychainStore(service: "clipnote.notion-token"), current: notionToken),
-    ]
-
-    private static let migrationDoneKey = "stepkeeper.keychain-migrated"
-
-    /// 구 서비스명에 값이 있고 새 이름이 비어 있으면 옮긴다. 실패해도 앱 동작을 막지 않는다
-    /// (사용자는 설정에서 다시 입력할 수 있고, 구 항목은 지우지 않으므로 데이터 손실도 없다).
-    ///
-    /// **딱 한 번만** 시도한다. macOS에서 다른 앱(구 번들 ID)이 만든 항목을 읽으면 키체인 접근
-    /// 승인창이 뜨는데, 매 실행 시도하면 거부한 사용자에게 창이 계속 뜬다.
-    /// 테스트 실행 중에는 아예 건너뛴다 — 테스트 호스트도 앱을 띄우므로 헤드리스 러너가 승인창에서 멈춘다.
-    static func migrateLegacyItems(defaults: UserDefaults = .standard) {
-        guard !isRunningTests, !defaults.bool(forKey: migrationDoneKey) else { return }
-        defaults.set(true, forKey: migrationDoneKey)
-        migrateLegacyItemsNow()
-    }
+    static let geminiKey = KeychainStore(service: "stepkipper.gemini-key")
+    static let notionToken = KeychainStore(service: "stepkipper.notion-token")
 
     /// XCTest·Swift Testing 양쪽에서 참 — 테스트 번들이 주입되면 이 환경변수/심볼이 생긴다.
     static var isRunningTests: Bool {
@@ -48,16 +27,6 @@ struct KeychainStore: SecretStoring {
             || NSClassFromString("XCTestCase") != nil
     }
 
-    /// 이전 로직 본체 (1회 가드 없이 — 테스트에서 직접 호출)
-    static func migrateLegacyItemsNow() {
-        for pair in legacyPairs {
-            guard let value = try? pair.legacy.load(), !value.isEmpty,
-                  (try? pair.current.load()) ?? nil == nil else { continue }
-            guard (try? pair.current.save(value)) != nil else { continue }
-            try? pair.legacy.delete()
-        }
-    }
-
     struct UnexpectedStatus: Error, Equatable { let status: OSStatus }
 
     /// 운영 항목(앱이 실제로 쓰는 서비스명)인가. 테스트 중에는 이 항목들에 접근하지 않는다:
@@ -66,7 +35,6 @@ struct KeychainStore: SecretStoring {
     /// 헤드리스 러너가 거기서 멈춘다. 테스트가 만든 항목(랜덤 서비스명)은 그대로 동작한다.
     private var isProductionItem: Bool {
         service == Self.geminiKey.service || service == Self.notionToken.service
-            || Self.legacyPairs.contains { $0.legacy.service == service }
     }
     private var blockedInTests: Bool { Self.isRunningTests && isProductionItem }
 

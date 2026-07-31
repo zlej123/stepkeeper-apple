@@ -99,9 +99,14 @@ struct DocumentView: View {
                 let id = document.meta.id
                 exportMessage = String(localized: "Saving to the folder…")
                 Task {
-                    exportMessage = await ExportHelper.copyFolder(
-                        from: folder, to: directory, name: id)
-                        ?? String(localized: "Saved to") + " \(directory.lastPathComponent)/\(id)"
+                    switch await ExportHelper.copyFolder(
+                        from: folder, to: directory, name: id) {
+                    case .success(let savedName):
+                        exportMessage = String(localized: "Saved to")
+                            + " \(directory.lastPathComponent)/\(savedName)"
+                    case .failure(let message):
+                        exportMessage = message
+                    }
                 }
             }
         }
@@ -206,7 +211,7 @@ struct DocumentView: View {
                 : String(localized: "Couldn't open your mail app — the report was copied to the clipboard")
         }
         do {
-            try await StepkeeperAPI(baseURL: serverURL).submitReport(report)
+            try await StepkipperAPI(baseURL: serverURL).submitReport(report)
             return nil
         } catch {
             return (error as? LocalizedError)?.errorDescription ?? String(localized: "Couldn't send the report")

@@ -1,6 +1,6 @@
 import Testing
 import Foundation
-@testable import stepkeeper
+@testable import stepkipper
 
 /// 코어 autopick.py 포팅 검증. 핵심 계약: **억지로 고르지 않는다** —
 /// 모델이 빠뜨렸거나 응답이 이상하면 "none"(링크 폴백)이지, 임의의 프레임이 아니다.
@@ -78,7 +78,7 @@ struct AutoPickTests {
     @Test func rateLimitSurfacesAsTypedError() async throws {
         defer { GeminiAPIStub.shared.reset() }
         GeminiAPIStub.shared.handler = { _ in (429, Data("{}".utf8)) }
-        await #expect(throws: StepkeeperAPIError.rateLimited) {
+        await #expect(throws: StepkipperAPIError.rateLimited) {
             _ = try await self.makeAPI().autoPick(
                 captures: [self.capture("vg-1")], language: "en", geminiKey: "k")
         }

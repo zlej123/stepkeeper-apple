@@ -21,4 +21,4 @@
    ![요만큼](vg-1.jpg)
 
 ---
-*출처: [콘센트 전기 배선 교체하기](https://youtu.be/dQw4w9WgXcQ) — stepkeeper로 생성*
+*출처: [콘센트 전기 배선 교체하기](https://youtu.be/dQw4w9WgXcQ) — stepkipper로 생성*

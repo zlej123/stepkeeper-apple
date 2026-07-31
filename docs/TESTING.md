@@ -1,4 +1,4 @@
-# stepkeeper-apple manual test guide
+# stepkipper manual test guide
 
 ## Setup
 - A server is optional — the default is direct mode (key only). The stub/real server is for development and regression runs.
@@ -14,13 +14,13 @@
 5. [ ] Document: picked images render; guides set to "doesn't fit" or that failed capture show a ▶ timestamp link
 6. [ ] Export: share sheet carries md+jpg / "Save to a folder" then open in Obsidian or similar
 7. [ ] Link mode ON: document builds from links only, no capture
-8. [ ] Share extension (iOS): share from Safari/the YouTube app → stepkeeper → opening the app starts it automatically
+8. [ ] Share extension (iOS): share from Safari/the YouTube app → stepkipper → opening the app starts it automatically
 9. [ ] Share two videos **before** opening the app → the first analyzes on open, Home shows "Analyze next shared video (1 waiting)", tapping it runs the second (nothing silently lost)
-9-1. [ ] Share extension (iOS) cold start: with stepkeeper **fully quit**, share → open the app fresh → it starts with the shared URL
+9-1. [ ] Share extension (iOS) cold start: with stepkipper **fully quit**, share → open the app fresh → it starts with the shared URL
 10. [ ] Errors: start without a key (key notice), with the server down (connection notice), with an invalid URL
 11. [ ] macOS: 1–7 behave the same
 12. [ ] Back-to-back analyses: right after a document completes, analyze a different video → the second video's title and length are correct (showing the previous video's is a bug)
-13. [ ] Share a different video from the YouTube app **while analysis/capture is running** → returning to stepkeeper switches cleanly to the new flow (mixed-in frames from the previous video is a bug)
+13. [ ] While video A is being analyzed/captured, share video B from the YouTube app → returning to stepkipper keeps A's flow unchanged and leaves B in the queue; after A finishes or is cancelled, return Home and explicitly tap "Analyze next shared video" to start B (automatic activation must never replace A, a completed result, or a visible error)
 14. [ ] Notion export: create an integration at notion.so/my-integrations → add it to the target page under ··· → Connections → enter the token and page URL in settings → "Send to Notion" on the document screen → check images and timestamp links in Notion. Error cases: bad token (401 notice), unconnected page (parent-page notice)
 15. [ ] Direct mode (default): with the server URL empty, analyze → completes with no local server process (only the Gemini key)
 16. [ ] Report with no collector: with both the server and report URLs empty, tap 🚩 → the sheet explains the mail fallback before sending

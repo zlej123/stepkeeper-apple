@@ -1,13 +1,13 @@
 import Testing
 import Foundation
-@testable import stepkeeper
+@testable import stepkipper
 
 @MainActor
 struct CapturePipelineTests {
     private func makeModel(root: URL) -> AppModel {
         let keychain = InMemorySecretStore("test-key")
-        let defaults = UserDefaults(suiteName: "stepkeeper.tests.capture")!
-        defaults.removePersistentDomain(forName: "stepkeeper.tests.capture")
+        let defaults = UserDefaults(suiteName: "stepkipper.tests.capture")!
+        defaults.removePersistentDomain(forName: "stepkipper.tests.capture")
         Settings.registerDefaults(defaults)
         return AppModel(keychain: keychain, documentStore: DocumentStore(root: root),
                         defaults: defaults)

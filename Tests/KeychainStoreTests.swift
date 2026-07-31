@@ -1,6 +1,6 @@
 import Testing
 import Foundation
-@testable import stepkeeper
+@testable import stepkipper
 
 struct KeychainStoreTests {
     /// macOS 제외 이유: ad-hoc 서명 테스트 호스트가 로그인 키체인에 **매 실행 새 서비스명**으로
@@ -9,7 +9,7 @@ struct KeychainStoreTests {
     /// iOS 시뮬레이터는 프롬프트 없이 실제 키체인 왕복을 검증하므로 커버리지는 유지된다.
     @Test(.enabled(if: !ProcessInfo.processInfo.isMacOS))
     func roundTripSaveLoadOverwriteDelete() throws {
-        let store = KeychainStore(service: "stepkeeper.tests.\(UUID().uuidString)")
+        let store = KeychainStore(service: "stepkipper.tests.\(UUID().uuidString)")
         defer { try? store.delete() }
 
         #expect(try store.load() == nil)
@@ -31,18 +31,6 @@ extension ProcessInfo {
         #else
         false
         #endif
-    }
-}
-
-struct KeychainMigrationGuardTests {
-    /// 테스트 실행 중에는 절대 실제 키체인을 건드리지 않는다 — macOS 테스트 러너가
-    /// 구 항목 접근 승인창에서 멈추던 원인이었다.
-    @Test func skipsMigrationUnderTests() {
-        #expect(KeychainStore.isRunningTests)
-        let defaults = UserDefaults(suiteName: "stepkeeper.tests.\(UUID().uuidString)")!
-        KeychainStore.migrateLegacyItems(defaults: defaults)
-        // 테스트 감지로 조기 반환하므로 "이미 이전함" 플래그조차 남지 않는다
-        #expect(defaults.bool(forKey: "stepkeeper.keychain-migrated") == false)
     }
 }
 

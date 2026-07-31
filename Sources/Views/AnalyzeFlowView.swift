@@ -3,33 +3,58 @@ import SwiftUI
 struct AnalyzeFlowView: View {
     @Bindable var model: AppModel
     @Environment(\.dismiss) private var dismiss
+    @State private var showSettings = false
 
     /// 캡처가 끝난 단계(선택·조립·완료)에선 플레이어를 숨겨 화면 전체를 내준다 (UX 피드백 반영).
     /// bridge가 WKWebView를 소유하므로 뷰 트리에서 빠져도 상태는 유지된다.
     private var showsPlayer: Bool {
         switch model.stage {
-        case .picking, .building, .done: false
+        case .picking, .building, .done, .failed: false
         default: true
         }
     }
 
-    var body: some View {
-        VStack(spacing: 14) {
-            if showsPlayer {
-                PlayerWebView(bridge: model.bridge)
-                    .frame(minHeight: 230)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-            }
-            stageView
-            Spacer()
+    private var isPicking: Bool {
+        if case .picking = model.stage { true } else { false }
+    }
+
+    private var dismissalLabel: LocalizedStringKey {
+        switch model.stage {
+        case .done, .failed: "Close"
+        default: "Cancel"
         }
-        .padding()
+    }
+
+    var body: some View {
+        Group {
+            if isPicking {
+                CandidatePickerView(model: model)
+            } else {
+                ScrollView {
+                    VStack(spacing: 14) {
+                        if showsPlayer {
+                            PlayerWebView(bridge: model.bridge)
+                                .aspectRatio(16.0 / 9.0, contentMode: .fit)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                        }
+                        stageView
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical)
+                }
+            }
+        }
+        .padding(.horizontal)
         .navigationTitle("Analysis")
+        // 시스템 back은 model.reset()을 건너뛰어 분석이 화면 밖에서 계속될 수 있다.
+        // 단일 Cancel/Close 경로로 상태와 화면 수명을 함께 끝낸다.
+        .navigationBarBackButtonHidden()
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
-                Button("Cancel") { model.reset(); dismiss() }
+                Button(dismissalLabel) { model.reset(); dismiss() }
             }
         }
+        .sheet(isPresented: $showSettings) { SettingsView() }
     }
 
     @ViewBuilder private var stageView: some View {
@@ -71,6 +96,12 @@ struct AnalyzeFlowView: View {
         case .done(let meta):
             VStack(spacing: 10) {
                 Label("Done", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
+                Text(meta.title)
+                    .font(.headline)
+                    .multilineTextAlignment(.center)
+                Text("Saved to Recent")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
                 // value 기반 링크는 이 뷰가 isPresented로 푸시된 브랜치라 루트 List의
                 // String 목적지 등록을 못 봐서 활성화되지 않는다 → 목적지 직접 지정으로 우회
                 if let document = model.document(id: meta.id) {
@@ -78,12 +109,27 @@ struct AnalyzeFlowView: View {
                         .buttonStyle(.borderedProminent)
                 }
             }
-        case .failed(let message):
+        case .failed(let failure):
             VStack(spacing: 10) {
-                Label(message, systemImage: "exclamationmark.triangle.fill")
+                Label(failure.message, systemImage: "exclamationmark.triangle.fill")
                     .foregroundStyle(.red).font(.callout)
                     .multilineTextAlignment(.center)
-                Button("Try again") { Task { await model.retry() } }
+                switch failure.recovery {
+                case .closeOnly:
+                    Button("Edit URL") {
+                        model.reset()
+                        dismiss()
+                    }
+                    .buttonStyle(.borderedProminent)
+                case .settingsAndRetry:
+                    Button("Open Settings") { showSettings = true }
+                        .buttonStyle(.borderedProminent)
+                    Button("Try again") { Task { await model.retry() } }
+                        .buttonStyle(.bordered)
+                case .retryAnalysis, .retryBuild:
+                    Button("Try again") { Task { await model.retry() } }
+                        .buttonStyle(.borderedProminent)
+                }
             }
         }
     }

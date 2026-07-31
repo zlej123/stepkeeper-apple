@@ -1,18 +1,18 @@
 import Testing
 import Foundation
-@testable import stepkeeper
+@testable import stepkipper
 
 @Suite(.serialized)
 @MainActor
 struct AppModelTests {
-    private func makeModel(root: URL, linkMode: Bool = false,
+    private func makeModel(root: URL, linkMode: Bool = false, key: String? = "test-key",
                            serverURL: String? = "http://stub.local:8787") -> AppModel {
         let config = URLSessionConfiguration.ephemeral
         config.protocolClasses = [AppModelStub.self]
         let session = URLSession(configuration: config)
-        let keychain = InMemorySecretStore("test-key")
-        let defaults = UserDefaults(suiteName: "stepkeeper.tests.appmodel")!
-        defaults.removePersistentDomain(forName: "stepkeeper.tests.appmodel")
+        let keychain = InMemorySecretStore(key)
+        let defaults = UserDefaults(suiteName: "stepkipper.tests.appmodel")!
+        defaults.removePersistentDomain(forName: "stepkipper.tests.appmodel")
         Settings.registerDefaults(defaults)
         if let serverURL {
             defaults.set(serverURL, forKey: Settings.serverURLKey)
@@ -24,7 +24,7 @@ struct AppModelTests {
             keychain: keychain,
             documentStore: DocumentStore(root: root),
             defaults: defaults,
-            makeAPI: { StepkeeperAPI(baseURL: $0, session: session) },
+            makeAPI: { StepkipperAPI(baseURL: $0, session: session) },
             makeGeminiAPI: { GeminiAPI(session: session) })
     }
 
@@ -37,7 +37,7 @@ struct AppModelTests {
 
     @Test func performAnalysisLinkModeSavesDocument() async throws {
         let root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("stepkeeper-appmodel-\(UUID().uuidString)")
+            .appendingPathComponent("stepkipper-appmodel-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: root) }
         // linkMode: true — Task 11이 캡처 분기를 추가해도 이 테스트는 링크 경로를 검증한다
         let model = makeModel(root: root, linkMode: true)
@@ -59,7 +59,7 @@ struct AppModelTests {
 
     @Test func performAnalysisMapsErrorToFailedStage() async throws {
         let root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("stepkeeper-appmodel-\(UUID().uuidString)")
+            .appendingPathComponent("stepkipper-appmodel-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: root) }
         let model = makeModel(root: root)
         AppModelStub.shared.handler = { _ in (429, Data(#"{"detail": "quota"}"#.utf8)) }
@@ -71,13 +71,14 @@ struct AppModelTests {
             Issue.record("stage=\(model.stage)"); return
         }
         #expect(message.contains("한도"))
+        #expect(message.recovery == .retryAnalysis)
     }
 
-    /// v1.3: 서버 URL이 비면 StepkeeperAPI(서버)가 아니라 GeminiAPI(직접)로 라우팅된다.
+    /// v1.3: 서버 URL이 비면 StepkipperAPI(서버)가 아니라 GeminiAPI(직접)로 라우팅된다.
     /// 핸들러 내부 #expect 금지(v1 교훈) — 요청을 캡처만 하고, 단언은 테스트 본문에서 한다.
     @Test func emptyServerURLRoutesToDirectGemini() async throws {
         let root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("stepkeeper-appmodel-\(UUID().uuidString)")
+            .appendingPathComponent("stepkipper-appmodel-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: root) }
         let model = makeModel(root: root, linkMode: true, serverURL: nil)   // 빈 URL → 직접
         let analysisText: [String: Any] = [
@@ -104,7 +105,7 @@ struct AppModelTests {
 
     @Test func startRejectsInvalidURLWithoutTouchingPlayer() async {
         let root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("stepkeeper-appmodel-\(UUID().uuidString)")
+            .appendingPathComponent("stepkipper-appmodel-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: root) }
         let model = makeModel(root: root)
         await model.start(urlString: "https://example.com/not-youtube")
@@ -112,11 +113,16 @@ struct AppModelTests {
             Issue.record("stage=\(model.stage)"); return
         }
         #expect(message.contains("유튜브"))
+        #expect(message.recovery == .closeOnly)
+
+        let failureStage = model.stage
+        await model.retry()
+        #expect(model.stage == failureStage)
     }
 
     @Test func startInvalidatesInFlightFlowState() async throws {
         let root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("stepkeeper-appmodel-\(UUID().uuidString)")
+            .appendingPathComponent("stepkipper-appmodel-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: root) }
         let model = makeModel(root: root)
         let fixture = try Bundle.fixtureData("analyze-response")
@@ -130,6 +136,113 @@ struct AppModelTests {
         #expect(model.captures.isEmpty)
         #expect(model.pendingResult == nil)
     }
+
+    @Test func startingNewURLClearsPreviousProfileOverrideBeforeOtherValidation() async {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("stepkipper-appmodel-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let model = makeModel(root: root, key: nil)
+        model.detectedProfile = "generic"
+        model.profileOverride = "recipe"
+
+        // 유효한 새 URL이지만 키가 없는 경로. 플레이어 진입 전 실패하더라도 영상 단위 선택은
+        // 이미 초기화돼야, 이후 키를 추가하고 재시도할 때 이전 영상의 선택이 새 영상에 새지 않는다.
+        await model.start(urlString: "https://youtu.be/dQw4w9WgXcQ")
+
+        #expect(model.profileOverride == nil)
+        #expect(model.profile == "generic")
+        guard case .failed = model.stage else {
+            Issue.record("stage=\(model.stage)"); return
+        }
+    }
+
+    @Test func retryPreservesProfileOverrideForTheSameVideo() async {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("stepkipper-appmodel-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let model = makeModel(root: root, key: nil)
+
+        await model.start(urlString: "https://youtu.be/dQw4w9WgXcQ")
+        model.profileOverride = "recipe"
+        await model.retry()
+
+        #expect(model.profileOverride == "recipe")
+        #expect(model.profile == "recipe")
+        guard case .failed = model.stage else {
+            Issue.record("stage=\(model.stage)"); return
+        }
+    }
+
+    @Test func configurationFailuresOfferSettingsAndRetry() async {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("stepkipper-appmodel-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let noKey = makeModel(root: root, key: nil)
+        await noKey.start(urlString: "https://youtu.be/dQw4w9WgXcQ")
+        guard case .failed(let keyFailure) = noKey.stage else {
+            Issue.record("stage=\(noKey.stage)"); return
+        }
+        #expect(keyFailure.recovery == .settingsAndRetry)
+        #expect(keyFailure.recovery.showsSettings)
+        #expect(keyFailure.recovery.showsRetry)
+
+        let badServer = makeModel(root: root, serverURL: "not a URL")
+        await badServer.performAnalysis(videoId: "dQw4w9WgXcQ", duration: 90)
+        guard case .failed(let serverFailure) = badServer.stage else {
+            Issue.record("stage=\(badServer.stage)"); return
+        }
+        #expect(serverFailure.recovery == .settingsAndRetry)
+    }
+
+    @Test func APIAndPlayerErrorsMapToTheIntendedRecovery() {
+        #expect(AppModel.flowFailure(for: StepkipperAPIError.invalidKey).recovery
+                == .settingsAndRetry)
+        #expect(AppModel.flowFailure(for: StepkipperAPIError.geminiPermission).recovery
+                == .settingsAndRetry)
+        #expect(AppModel.flowFailure(for: StepkipperAPIError.network("offline")).recovery
+                == .settingsAndRetry)
+        #expect(AppModel.flowFailure(for: StepkipperAPIError.geminiNetwork("offline")).recovery
+                == .retryAnalysis)
+        #expect(AppModel.flowFailure(for: StepkipperAPIError.rateLimited).recovery
+                == .retryAnalysis)
+        #expect(AppModel.flowFailure(for: StepkipperAPIError.modelFailure("bad output")).recovery
+                == .retryAnalysis)
+        #expect(AppModel.flowFailure(for: PlayerError.metadataTimeout).recovery
+                == .retryAnalysis)
+    }
+
+    @Test func saveFailureRetriesOnlyThePreservedBuildPayload() async throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("stepkipper-appmodel-build-retry-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: root) }
+        // root 자리에 파일을 만들어 DocumentStore의 폴더 생성을 의도적으로 실패시킨다.
+        try Data("block directory creation".utf8).write(to: root)
+        let model = makeModel(root: root, linkMode: true)
+        let fixture = try Bundle.fixtureData("analyze-response")
+        let expected = try JSONDecoder().decode(AnalyzeEnvelope.self, from: fixture)
+        AppModelStub.shared.handler = { _ in (200, fixture) }
+        defer { AppModelStub.shared.handler = nil }
+
+        await model.performAnalysis(videoId: "dQw4w9WgXcQ", duration: 90)
+
+        guard case .failed(let failure) = model.stage else {
+            Issue.record("stage=\(model.stage)"); return
+        }
+        #expect(failure.recovery == .retryBuild)
+
+        // 네트워크 재호출이라면 실패하게 바꾼 뒤 저장소만 복구한다. retry가 보존된 payload로
+        // build만 실행하면 원래 분석 결과가 그대로 저장되고 done에 도달한다.
+        AppModelStub.shared.handler = { _ in (500, Data("must not re-analyze".utf8)) }
+        try FileManager.default.removeItem(at: root)
+        await model.retry()
+
+        guard case .done(let meta) = model.stage else {
+            Issue.record("stage=\(model.stage)"); return
+        }
+        #expect(meta.videoId == "dQw4w9WgXcQ")
+        #expect(model.document(id: meta.id)?.analysis.title == expected.analysis.title)
+    }
 }
 
 @Suite(.serialized)
@@ -141,7 +254,7 @@ struct AutoPickFlowTests {
         config.protocolClasses = [AppModelStub.self]
         let session = URLSession(configuration: config)
         let keychain = InMemorySecretStore(key.isEmpty ? nil : key)
-        let suite = "stepkeeper.tests.autopick"
+        let suite = "stepkipper.tests.autopick"
         let defaults = UserDefaults(suiteName: suite)!
         defaults.removePersistentDomain(forName: suite)
         Settings.registerDefaults(defaults)
@@ -149,9 +262,9 @@ struct AutoPickFlowTests {
         let model = AppModel(
             keychain: keychain,
             documentStore: DocumentStore(root: FileManager.default.temporaryDirectory
-                .appendingPathComponent("stepkeeper-autopick-\(UUID().uuidString)")),
+                .appendingPathComponent("stepkipper-autopick-\(UUID().uuidString)")),
             defaults: defaults,
-            makeAPI: { StepkeeperAPI(baseURL: $0, session: session) },
+            makeAPI: { StepkipperAPI(baseURL: $0, session: session) },
             makeGeminiAPI: { GeminiAPI(session: session) })
         model.captures = [
             GuideCapture(guide: VisualGuide(
@@ -208,7 +321,7 @@ struct AutoPickFlowTests {
 @MainActor
 struct AutoPickStatsTests {
     private func makeModel() -> (AppModel, UserDefaults) {
-        let suite = "stepkeeper.tests.autopickstats"
+        let suite = "stepkipper.tests.autopickstats"
         let defaults = UserDefaults(suiteName: suite)!
         defaults.removePersistentDomain(forName: suite)
         Settings.registerDefaults(defaults)

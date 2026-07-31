@@ -1,13 +1,13 @@
-name: stepkeeper-apple
+name: stepkipper-apple
 options:
-  bundleIdPrefix: com.stepkeeper
+  bundleIdPrefix: com.stepkipper
   developmentLanguage: en
   deploymentTarget:
     iOS: "17.0"
     macOS: "14.0"
   createIntermediateGroups: true
 targets:
-  Stepkeeper:
+  Stepkipper:
     type: application
     supportedDestinations: [iOS, macOS]
     sources:
@@ -17,10 +17,14 @@ targets:
         buildPhase: resources
       - path: Resources/Localizable.xcstrings
         buildPhase: resources
+      - path: Resources/Assets.xcassets
+        buildPhase: resources
     info:
       path: Sources/Info.plist
       properties:
-        CFBundleDisplayName: stepkeeper
+        CFBundleDisplayName: stepkipper
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: true
         UILaunchScreen: {}
@@ -29,23 +33,24 @@ targets:
         NSAppTransportSecurity:
           NSAllowsLocalNetworking: true
     dependencies:
-      - target: StepkeeperShare
+      - target: StepkipperShare
         platformFilter: iOS
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.stepkeeper.app
-        PRODUCT_NAME: stepkeeper
+        PRODUCT_BUNDLE_IDENTIFIER: com.stepkipper.app
+        PRODUCT_NAME: stepkipper
+        PRODUCT_MODULE_NAME: stepkipper
         CURRENT_PROJECT_VERSION: 1
         MARKETING_VERSION: 0.1.0
         SWIFT_VERSION: "6.0"
         TARGETED_DEVICE_FAMILY: "1,2"
-        "CODE_SIGN_ENTITLEMENTS[sdk=iphone*]": Sources/Stepkeeper-iOS.entitlements
-        "CODE_SIGN_ENTITLEMENTS[sdk=macosx*]": Sources/Stepkeeper-macOS.entitlements
+        "CODE_SIGN_ENTITLEMENTS[sdk=iphone*]": Sources/Stepkipper-iOS.entitlements
+        "CODE_SIGN_ENTITLEMENTS[sdk=macosx*]": Sources/Stepkipper-macOS.entitlements
         # 개발팀 미설정 환경(CI/스파이크)에서 로컬 실행 가능하도록 ad-hoc 서명 사용.
         CODE_SIGN_IDENTITY: "-"
         CODE_SIGN_STYLE: Manual
         CODE_SIGNING_REQUIRED: NO
-  StepkeeperTests:
+  StepkipperTests:
     type: bundle.unit-test
     supportedDestinations: [iOS, macOS]
     sources:
@@ -56,20 +61,21 @@ targets:
         type: folder
         buildPhase: resources
     dependencies:
-      - target: Stepkeeper
+      - target: Stepkipper
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.stepkeeper.tests
+        PRODUCT_BUNDLE_IDENTIFIER: com.stepkipper.tests
         SWIFT_VERSION: "6.0"
         GENERATE_INFOPLIST_FILE: YES
         BUNDLE_LOADER: $(TEST_HOST)
-        "TEST_HOST[sdk=macosx*]": $(BUILT_PRODUCTS_DIR)/stepkeeper.app/Contents/MacOS/stepkeeper
-        "TEST_HOST[sdk=iphonesimulator*]": $(BUILT_PRODUCTS_DIR)/stepkeeper.app/stepkeeper
+        "TEST_HOST[sdk=macosx*]": $(BUILT_PRODUCTS_DIR)/stepkipper.app/Contents/MacOS/stepkipper
+        "TEST_HOST[sdk=iphoneos*]": $(BUILT_PRODUCTS_DIR)/stepkipper.app/stepkipper
+        "TEST_HOST[sdk=iphonesimulator*]": $(BUILT_PRODUCTS_DIR)/stepkipper.app/stepkipper
         # 개발팀 미설정 환경(CI/스파이크)에서 로컬 실행 가능하도록 ad-hoc 서명 사용 (테스트 번들도 동일 서명 문제를 겪을 수 있음).
         CODE_SIGN_IDENTITY: "-"
         CODE_SIGN_STYLE: Manual
         CODE_SIGNING_REQUIRED: NO
-  StepkeeperShare:
+  StepkipperShare:
     type: app-extension
     platform: iOS
     deploymentTarget: "17.0"
@@ -82,7 +88,9 @@ targets:
     info:
       path: ShareExtension/Info.plist
       properties:
-        CFBundleDisplayName: stepkeeper
+        CFBundleDisplayName: stepkipper
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         NSExtension:
           NSExtensionPointIdentifier: com.apple.share-services
           NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ShareViewController
@@ -91,17 +99,19 @@ targets:
               NSExtensionActivationSupportsWebURLWithMaxCount: 1
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.stepkeeper.app.share
+        PRODUCT_BUNDLE_IDENTIFIER: com.stepkipper.app.share
+        CURRENT_PROJECT_VERSION: 1
+        MARKETING_VERSION: 0.1.0
         SWIFT_VERSION: "6.0"
-        CODE_SIGN_ENTITLEMENTS: ShareExtension/StepkeeperShare.entitlements
+        CODE_SIGN_ENTITLEMENTS: ShareExtension/StepkipperShare.entitlements
 schemes:
-  Stepkeeper:
+  Stepkipper:
     build:
       targets:
-        Stepkeeper: all
+        Stepkipper: all
     run:
       config: Debug
     test:
       config: Debug
       targets:
-        - StepkeeperTests
+        - StepkipperTests

@@ -10,12 +10,12 @@ struct ContentView: View {
         }
         .task {
             #if DEBUG
-            if let url = ProcessInfo.processInfo.environment["STEPKEEPER_E2E_URL"] {
-                if let server = ProcessInfo.processInfo.environment["STEPKEEPER_SERVER_URL"] {
+            if let url = ProcessInfo.processInfo.environment["STEPKIPPER_E2E_URL"] {
+                if let server = ProcessInfo.processInfo.environment["STEPKIPPER_SERVER_URL"] {
                     UserDefaults.standard.set(server, forKey: Settings.serverURLKey)
                 }
                 try? KeychainStore.geminiKey.save("e2e-stub-key")
-                if ProcessInfo.processInfo.environment["STEPKEEPER_LINK_MODE"] == "1" {
+                if ProcessInfo.processInfo.environment["STEPKIPPER_LINK_MODE"] == "1" {
                     UserDefaults.standard.set(true, forKey: Settings.linkModeKey)
                 }
                 model.autoContinue = true
@@ -31,7 +31,7 @@ struct ContentView: View {
     }
 
     private func pickupSharedURL() {
-        model.startNextShared()
+        model.startNextShared(trigger: .automatic)
     }
 }
 

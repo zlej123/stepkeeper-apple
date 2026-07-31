@@ -34,4 +34,4 @@
 {{/steps}}
 
 ---
-*From [{{video_title}}]({{video_url}}) — kept with stepkeeper*
+*From [{{video_title}}]({{video_url}}) — kept with stepkipper*
