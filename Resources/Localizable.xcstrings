@@ -24,13 +24,13 @@
         }
       }
     },
-    "2. Click \\": {
+    "2. Click \"Create API key\"": {
       "extractionState": "manual",
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "2. \\"
+            "value": "2. \"API 키 만들기\" 클릭"
           }
         }
       }
@@ -123,6 +123,17 @@
         }
       }
     },
+    "After": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이후 장면"
+          }
+        }
+      }
+    },
     "Add your Gemini API key in Settings": {
       "extractionState": "manual",
       "localizations": {
@@ -189,13 +200,24 @@
         }
       }
     },
-    "Analyzing the video… (\\(MarkdownBuilder.hms(duration)), \\(model.profile))": {
+    "Analyzing the video… (%@, %@)": {
       "extractionState": "manual",
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "영상 분석 중… (\\(MarkdownBuilder.hms(duration)), \\(model.profile))"
+            "value": "영상 분석 중… (%@, %@)"
+          }
+        }
+      }
+    },
+    "Before": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이전 장면"
           }
         }
       }
@@ -222,6 +244,17 @@
         }
       }
     },
+    "Candidate frame": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "후보 장면"
+          }
+        }
+      }
+    },
     "Capture failed": {
       "extractionState": "manual",
       "localizations": {
@@ -244,13 +277,13 @@
         }
       }
     },
-    "Capturing frames… \\(current)/\\(total)": {
+    "Capturing frames… %lld/%lld": {
       "extractionState": "manual",
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "장면 캡처 중… \\(current)/\\(total)"
+            "value": "장면 캡처 중… %lld/%lld"
           }
         }
       }
@@ -262,6 +295,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "확인 중…"
+          }
+        }
+      }
+    },
+    "Close": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "닫기"
           }
         }
       }
@@ -295,6 +339,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "메일 앱을 열지 못했습니다 — 신고 내용을 클립보드에 복사했습니다"
+          }
+        }
+      }
+    },
+    "Couldn't reach Gemini — check your internet connection": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gemini에 연결할 수 없습니다 — 인터넷 연결을 확인하세요"
           }
         }
       }
@@ -365,6 +420,17 @@
         }
       }
     },
+    "Couldn't save to the folder": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "폴더에 저장하지 못했습니다"
+          }
+        }
+      }
+    },
     "Couldn't save — try again": {
       "extractionState": "manual",
       "localizations": {
@@ -409,6 +475,28 @@
         }
       }
     },
+    "Delete": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "삭제"
+          }
+        }
+      }
+    },
+    "Delete document?": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "문서를 삭제할까요?"
+          }
+        }
+      }
+    },
     "Document language": {
       "extractionState": "manual",
       "localizations": {
@@ -420,13 +508,24 @@
         }
       }
     },
-    "Doesn't fit\\nuse a link": {
+    "Doesn't fit\nuse a link": {
       "extractionState": "manual",
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "부적합\\n링크 사용"
+            "value": "부적합\n링크 사용"
+          }
+        }
+      }
+    },
+    "Edit URL": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "URL 수정"
           }
         }
       }
@@ -475,6 +574,17 @@
         }
       }
     },
+    "Gemini denied access — check API access and key restrictions": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gemini 접근이 거부되었습니다 — API 사용 설정과 키 제한을 확인하세요"
+          }
+        }
+      }
+    },
     "Gemini free-tier limit reached — try again in a moment": {
       "extractionState": "manual",
       "localizations": {
@@ -482,6 +592,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Gemini 무료 한도 도달 — 잠시 후 다시 시도해 주세요"
+          }
+        }
+      }
+    },
+    "Gemini rejected this API key — check it in Settings": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gemini가 이 API 키를 거부했습니다 — 설정에서 확인하세요"
           }
         }
       }
@@ -515,17 +636,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "AI Studio에서 무료 키 발급 (카드 불필요)"
-          }
-        }
-      }
-    },
-    "Got it": {
-      "extractionState": "manual",
-      "localizations": {
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "확인했어요"
           }
         }
       }
@@ -585,13 +695,24 @@
         }
       }
     },
-    "Length \\(MarkdownBuilder.hms(duration))": {
+    "Key moment": {
       "extractionState": "manual",
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "길이 \\(MarkdownBuilder.hms(duration))"
+            "value": "핵심 장면"
+          }
+        }
+      }
+    },
+    "Length %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "길이 %@"
           }
         }
       }
@@ -706,6 +827,17 @@
         }
       }
     },
+    "Not selected": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "선택 안 됨"
+          }
+        }
+      }
+    },
     "Nothing to report yet": {
       "extractionState": "manual",
       "localizations": {
@@ -790,6 +922,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Notion에서 열기"
+          }
+        }
+      }
+    },
+    "Open Settings": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정 열기"
           }
         }
       }
@@ -1003,13 +1146,24 @@
         }
       }
     },
-    "Saved.\nOpen stepkeeper to start the analysis.": {
+    "Saved to Recent": {
       "extractionState": "manual",
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "저장됐습니다.\nstepkeeper를 열면 분석이 시작됩니다."
+            "value": "최근 문서에 저장됨"
+          }
+        }
+      }
+    },
+    "Saved.\nOpen stepkipper to start the analysis.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "저장됐습니다.\nstepkipper를 열면 분석이 시작됩니다."
           }
         }
       }
@@ -1021,6 +1175,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "폴더로 저장 중…"
+          }
+        }
+      }
+    },
+    "Select this frame for the guide": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 가이드에 사용할 장면을 선택합니다"
+          }
+        }
+      }
+    },
+    "Selected": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "선택됨"
           }
         }
       }
@@ -1267,6 +1443,17 @@
         }
       }
     },
+    "This action can’t be undone.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 작업은 되돌릴 수 없습니다."
+          }
+        }
+      }
+    },
     "This document is already uploading to Notion": {
       "extractionState": "manual",
       "localizations": {
@@ -1355,13 +1542,24 @@
         }
       }
     },
-    "Used the old clipnote app? Its documents can't be read here — open them in clipnote and use \"Save to a folder\" before deleting it.": {
+    "Use the timestamped video link for this guide": {
       "extractionState": "manual",
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이전 clipnote 앱을 쓰셨나요? 그 문서는 여기서 읽을 수 없습니다 — 삭제 전에 clipnote에서 열어 \"폴더로 저장\"으로 내보내세요."
+            "value": "이 가이드에는 타임스탬프 영상 링크를 사용합니다"
+          }
+        }
+      }
+    },
+    "Use video link instead": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "대신 영상 링크 사용"
           }
         }
       }
@@ -1421,35 +1619,35 @@
         }
       }
     },
-    "\\(MarkdownBuilder.hms(candidate.time)) capture failed": {
+    "%@ capture failed": {
       "extractionState": "manual",
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "\\(MarkdownBuilder.hms(candidate.time)) 캡처 실패"
+            "value": "%@ 캡처 실패"
           }
         }
       }
     },
-    "stepkeeper server (optional)": {
+    "stepkipper server (optional)": {
       "extractionState": "manual",
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "stepkeeper 서버 (선택)"
+            "value": "stepkipper 서버 (선택)"
           }
         }
       }
     },
-    "— Written by the report button in the stepkeeper app.": {
+    "— Written by the report button in the stepkipper app.": {
       "extractionState": "manual",
       "localizations": {
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "— 이 메일은 stepkeeper 앱의 이상 신고 버튼으로 작성됐습니다."
+            "value": "— 이 메일은 stepkipper 앱의 이상 신고 버튼으로 작성됐습니다."
           }
         }
       }

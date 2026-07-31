@@ -8,7 +8,7 @@ struct HomeView: View {
     @State private var showSettings = false
     @State private var flowActive = false
     @State private var pendingShares = 0
-    @AppStorage("legacyNoticeDismissed") private var legacyNoticeDismissed = false
+    @State private var pendingDeletionIDs: [String] = []
 
     var body: some View {
         List {
@@ -34,16 +34,6 @@ struct HomeView: View {
                     } label: {
                         Label("Analyze next shared video (\(pendingShares) waiting)",
                               systemImage: "tray.full")
-                    }
-                }
-            }
-            if !legacyNoticeDismissed {
-                Section {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Used the old clipnote app? Its documents can't be read here — open them in clipnote and use \"Save to a folder\" before deleting it.")
-                            .font(.caption).foregroundStyle(.secondary)
-                        Button("Got it") { legacyNoticeDismissed = true }
-                            .font(.caption)
                     }
                 }
             }
@@ -75,18 +65,32 @@ struct HomeView: View {
                     }
                 }
                 .onDelete { indexSet in
-                    for index in indexSet { model.deleteDocument(id: documents[index].id) }
-                    documents = model.documents()
+                    pendingDeletionIDs = indexSet.compactMap { index in
+                        documents.indices.contains(index) ? documents[index].id : nil
+                    }
                 }
             }
         }
-        .navigationTitle("stepkeeper")
+        .navigationTitle("stepkipper")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button { showSettings = true } label: { Image(systemName: "gearshape") }
             }
         }
         .sheet(isPresented: $showSettings, onDismiss: refresh) { SettingsView() }
+        .confirmationDialog(
+            "Delete document?",
+            isPresented: Binding(
+                get: { !pendingDeletionIDs.isEmpty },
+                set: { if !$0 { pendingDeletionIDs.removeAll() } }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button("Delete", role: .destructive, action: deletePendingDocuments)
+            Button("Cancel", role: .cancel) { pendingDeletionIDs.removeAll() }
+        } message: {
+            Text("This action can’t be undone.")
+        }
         .navigationDestination(isPresented: $flowActive) { AnalyzeFlowView(model: model) }
         .navigationDestination(for: String.self) { id in
             if let doc = model.document(id: id) {
@@ -107,5 +111,14 @@ struct HomeView: View {
         documents = model.documents()
         pendingShares = ShareInbox.pendingCount
         hasKey = ((try? KeychainStore.geminiKey.load()) ?? "").isEmpty == false
+    }
+
+    private func deletePendingDocuments() {
+        let ids = pendingDeletionIDs
+        pendingDeletionIDs.removeAll()
+        for id in ids {
+            model.deleteDocument(id: id)
+        }
+        documents = model.documents()
     }
 }

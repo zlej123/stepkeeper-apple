@@ -33,4 +33,4 @@
 {{/steps}}
 
 ---
-*출처: [{{video_title}}]({{video_url}}) — stepkeeper로 생성*
+*출처: [{{video_title}}]({{video_url}}) — stepkipper로 생성*

@@ -17,7 +17,7 @@ enum ReportMailer {
 
     // 사용자가 보내기 전에 읽는 초안이므로 사용자 언어로 쓴다 (라벨은 시스템 언어, 값은 그대로)
     static func subject(for report: IssueReport) -> String {
-        "[stepkeeper] " + String(localized: "Report") + ": \(report.reason.label) (\(report.videoId))"
+        "[stepkipper] " + String(localized: "Report") + ": \(report.reason.label) (\(report.videoId))"
     }
 
     static func body(for report: IssueReport) -> String {
@@ -32,7 +32,7 @@ enum ReportMailer {
             String(localized: "Note") + ":",
             report.note.isEmpty ? String(localized: "(none)") : report.note,
             "",
-            String(localized: "— Written by the report button in the stepkeeper app."),
+            String(localized: "— Written by the report button in the stepkipper app."),
             String(localized: "The full analysis isn't attached (size limits) — the video URL above reproduces it."),
         ]
         return String(lines.joined(separator: "\n").prefix(bodyLimit))

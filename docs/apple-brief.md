@@ -1,6 +1,6 @@
-# stepkeeper Apple 앱 개발 브리프
+# stepkipper Apple 앱 개발 브리프
 
-Mac에서 iOS/iPadOS/macOS 앱(`stepkeeper-apple`) 개발을 시작하는 세션을 위한 핸드오버 문서.
+Mac에서 iOS/iPadOS/macOS 앱(`stepkipper-apple`) 개발을 시작하는 세션을 위한 핸드오버 문서.
 이 문서 + 세 레포가 컨텍스트의 전부다.
 
 ## 프로젝트 구조 (3-레포)
@@ -10,7 +10,7 @@ Mac에서 iOS/iPadOS/macOS 앱(`stepkeeper-apple`) 개발을 시작하는 세션
 | [stepkeeper](https://github.com/zlej123/stepkeeper) | Python 코어 + `skill-core/` 언어중립 자산 | 완료 (테스트 6도메인 54영상 통과) |
 | [stepkeeper-server](https://github.com/zlej123/stepkeeper-server) | 얇은 REST API (분석 두뇌) | 완료 (라이브 스모크 통과) |
 | [stepkeeper-extension](https://github.com/zlej123/stepkeeper-extension) | 크롬 확장 (캡처 클라이언트 참고 구현) | 완료 (수동 테스트 가이드 포함) |
-| stepkeeper-apple | SwiftUI 멀티플랫폼 앱 | **이번에 만들 것** |
+| stepkipper-apple | SwiftUI 멀티플랫폼 앱 | **이번에 만들 것** |
 
 ## 제품 한 줄
 
@@ -51,7 +51,7 @@ POST {server}/v1/documents
 
 ## 앱 화면 최소 구성 (v1)
 
-1. **공유 시트 확장**: 유튜브 앱에서 공유 → stepkeeper (URL 수신이 주 진입점)
+1. **공유 시트 확장**: 유튜브 앱에서 공유 → stepkipper (URL 수신이 주 진입점)
 2. 분석 진행 화면 → 가이드별 3후보 선택 화면 (확장의 패널 UX 참고)
 3. 결과 문서 뷰 + 내보내기: 공유시트(md), Goodnotes(PDF는 서버 확장 예정 — v1은 md+이미지), Obsidian(파일 저장)
 4. 설정: Gemini 키(Keychain), 언어, 서버 URL, **링크 모드 토글**
@@ -68,5 +68,5 @@ git clone https://github.com/zlej123/stepkeeper        # 이 문서 + skill-core
 git clone https://github.com/zlej123/stepkeeper-server # 로컬 서버 실행용
 git clone https://github.com/zlej123/stepkeeper-extension # 캡처 로직 참고
 cd stepkeeper-server && pip install -r requirements.txt && python app.py  # 127.0.0.1:8787
-# Xcode에서 stepkeeper-apple 신규 생성 (SwiftUI, iOS+iPadOS+macOS 멀티플랫폼 타깃)
+# Xcode에서 stepkipper-apple 신규 생성 (SwiftUI, iOS+iPadOS+macOS 멀티플랫폼 타깃)
 ```

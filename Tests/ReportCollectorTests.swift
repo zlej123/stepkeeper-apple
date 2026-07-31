@@ -1,11 +1,11 @@
 import Testing
 import Foundation
-@testable import stepkeeper
+@testable import stepkipper
 
 struct ReportCollectorTests {
     private func makeDefaults() -> UserDefaults {
-        let suite = UserDefaults(suiteName: "stepkeeper.tests.collector")!
-        suite.removePersistentDomain(forName: "stepkeeper.tests.collector")
+        let suite = UserDefaults(suiteName: "stepkipper.tests.collector")!
+        suite.removePersistentDomain(forName: "stepkipper.tests.collector")
         return suite
     }
 

@@ -1,0 +1,896 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		07138DDB9EA95B491CD3D2F3 /* KeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5901FD99C7EC48EA133C4A /* KeychainStore.swift */; };
+		090CBF42A4D32953F0545E5C /* NotionExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80155525EA88A02C06FCD4F /* NotionExporter.swift */; };
+		0E234E4CD52CB7A167805356 /* AnalysisNormalizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E43A4DFBE8C79B6D3377531 /* AnalysisNormalizer.swift */; };
+		0E72615D3D493B379D647B42 /* MustacheLiteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9874FCA8421107863FE2D716 /* MustacheLiteTests.swift */; };
+		0F1E986528BE80F1D0866B06 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 019255F8DAA488F42717520B /* AppModel.swift */; };
+		0FDDD6BEA45F8637B5ACCAC1 /* YouTubeURLTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6A1B1742D7A814AA018FE85 /* YouTubeURLTests.swift */; };
+		0FE4FC53384FC4BCFE834651 /* GeminiAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78B9C737898273DD0CFA653C /* GeminiAPI.swift */; };
+		10455224F9A86EF3E81C8C62 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5E6087EE47896B9A203A841 /* SettingsView.swift */; };
+		14B8103929130A10BFE83B74 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 358351BB5B88DE9756A7822A /* Localizable.xcstrings */; };
+		17C3CB1C87DA3D04C600E552 /* MarkdownBuilderGoldenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F99E88DA50A0178E9F5BB3B7 /* MarkdownBuilderGoldenTests.swift */; };
+		19A0721F27D7FEB8855502B2 /* HighRiskDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39380EC6F70D89B6919A1087 /* HighRiskDetector.swift */; };
+		1B1C5953F112742F0072CFC3 /* AutoPickTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5F259951466F0739AA58AD9 /* AutoPickTests.swift */; };
+		20686D7B9BA2472EA9818EA0 /* KeychainStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A1B05660D74F320982E58F0 /* KeychainStoreTests.swift */; };
+		284A8372A54728B438D1E2E7 /* skill-core in Resources */ = {isa = PBXBuildFile; fileRef = 4449A3A4D6951B0A2EE0D2B9 /* skill-core */; };
+		2859653DF4796D0D4A1245C5 /* StepkipperAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 914ADFED97956E4ED4305DF6 /* StepkipperAPI.swift */; };
+		2AB25404F0075DD6A95C295D /* PlayerWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B7BE81C1D45525262DBF3E4 /* PlayerWebView.swift */; };
+		2F07D7A372D81EAD95F9B673 /* NotionPageID.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF44A08632B50C9C5BAA4C28 /* NotionPageID.swift */; };
+		2F382F774825F1C8A4D626BD /* DocumentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 542F6A4CD2F23C382B4A9213 /* DocumentView.swift */; };
+		349F3C3E9DA3D66AAB9A1E36 /* YouTubeURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521966A140AEA74D5D18ADF1 /* YouTubeURL.swift */; };
+		36BCADD5D5B8A84150A1FB09 /* YouTubeURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 521966A140AEA74D5D18ADF1 /* YouTubeURL.swift */; };
+		4392CEE072DF4096E4333A79 /* IssueReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39970E2C474565F73C0F0D12 /* IssueReport.swift */; };
+		4439D2D79B0E770E88930570 /* StepkipperAPITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C845E103A9FB92BCBC9EF9AE /* StepkipperAPITests.swift */; };
+		44B91B0733FE2A526210968D /* StepkipperApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F747D496506418BF8BEFE3C /* StepkipperApp.swift */; };
+		4644E7B6BE17911F4D9C34BC /* Analysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51C41CF692E404B754676001 /* Analysis.swift */; };
+		4A4B0A318126ABE3462E150D /* MustacheLite.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5872E40B03AB80636AEE1C51 /* MustacheLite.swift */; };
+		4E2D788E7DCD394287197D83 /* NotionBlockBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB1EA556D782580B9553B908 /* NotionBlockBuilder.swift */; };
+		4E3E8026B37873A1CC9AA86D /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BA85A1EE5827B523E947DB6 /* ShareViewController.swift */; };
+		4FCD1CD1E0AB79161EB4D2D7 /* AnalysisNormalizerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3458B2CDED396E6CC65093F1 /* AnalysisNormalizerTests.swift */; };
+		53CAC94F0C8DD830E4259879 /* StepkipperShare.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 6D3EE75CC73FAFEBD6C71A08 /* StepkipperShare.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		5414B92450787A4CAF068637 /* GeminiAPITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 666CCBDA500338F5D92E7DEA /* GeminiAPITests.swift */; };
+		54CF481F1A0F0142DBC482E7 /* PlayerBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF341DDD39962116F2EBD31A /* PlayerBridge.swift */; };
+		55E893A1A43D1F8DEBE07F55 /* ReportCollectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09EBA65939CDF44DF5795E9 /* ReportCollectorTests.swift */; };
+		561A8F927AB7D8E7B45BA557 /* TestBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F13A20DD22A2D4421C6FE20 /* TestBundle.swift */; };
+		57F4B755D66DDC40F2C2D750 /* NotionAPITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4BD754FCDC30B61CBF6D67F /* NotionAPITests.swift */; };
+		5AF24EDC1BB77FCA5CC05874 /* SettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30DEA703606E56A02F0687DD /* SettingsTests.swift */; };
+		60495AA7C8DE8E6803FEA9B4 /* CaptureScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA65DB81D05A1EF2BFFB792C /* CaptureScript.swift */; };
+		6483F85E73C7D2DAD3187F14 /* MarkdownBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F0AFE548883313B5CABFD22 /* MarkdownBuilder.swift */; };
+		669C5EBCCE1796A31C06CCED /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75209F75D1CD4169BC1481E6 /* HomeView.swift */; };
+		6752619DD774039E963158E7 /* Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E5642F9819534D782334E79 /* Support.swift */; };
+		6C7549D864D769F6B46A56FF /* NotionBlockBuilderGoldenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0DD485943C00CE1650A5F93 /* NotionBlockBuilderGoldenTests.swift */; };
+		6ED76CDA67728F763880DEA0 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F1D3746E18A83FB1BBCDE6 /* ContentView.swift */; };
+		72E4C1C64313C5FD5E40A432 /* CapturePipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E8D8395F7019FB9F1F7F5DA /* CapturePipelineTests.swift */; };
+		7722E7F9FFEBECAE2040BC28 /* NotionAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A6B74A6450E9203100DCDD /* NotionAPI.swift */; };
+		799B32E84C4F733CCEAAE6AA /* DocumentStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4C65B3260D0AEAFD8093B00 /* DocumentStore.swift */; };
+		7BD283A33B00EA20D529DDBE /* ReportSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54BD6B7A5B944317D9686A15 /* ReportSheet.swift */; };
+		84CE89B208438E1DC5D611D6 /* StubURLProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD585AED9159DCBF02023495 /* StubURLProtocol.swift */; };
+		884E1657166F0A24C34D8A93 /* AppModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51C270C3F0B4FBDC06AE1AD1 /* AppModelTests.swift */; };
+		9242D2F5F09F5C3D8917FB0D /* InMemorySecretStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C090D258B09214796497B102 /* InMemorySecretStore.swift */; };
+		965BF44C8B4E3042531D48AB /* CandidateTimes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3211C0D78DF31C6E12E5536A /* CandidateTimes.swift */; };
+		9E6D67EEB90A79796D6E341A /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = C199A0DDD76C4D3F4D41EEFD /* Settings.swift */; };
+		A0D9B2E355CADA91A6E367B1 /* CandidatePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7290CD88578D605B6250802 /* CandidatePickerView.swift */; };
+		ACE458EDC8971A814DF126E4 /* ReportCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0129EA90F99147C9EB972D7 /* ReportCollector.swift */; };
+		AFC9D05466DE641793F99AB6 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 358351BB5B88DE9756A7822A /* Localizable.xcstrings */; };
+		BA0B551A437BB21E08301094 /* LocalizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A5081C82199C5036F36EA80 /* LocalizationTests.swift */; };
+		BC813A2703D042EFB5E293CE /* CandidateTimesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB8C5E055F3319371BB1245 /* CandidateTimesTests.swift */; };
+		BC96A18557F3AA128C7E9A7A /* DocumentStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 920CC449B6A75B6388C6EFFD /* DocumentStoreTests.swift */; };
+		C23F8BA642A5C1EEDAE11A47 /* AnalyzeFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED08A82739B4EA5B876814A5 /* AnalyzeFlowView.swift */; };
+		C26510394EC5950A7D16E2D6 /* NotionExporterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DBF42AF0C7BE3B7D0E3A154 /* NotionExporterTests.swift */; };
+		C5724345F7BD0786A7844E79 /* NotionPageIDTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F3470F28643329C02EE2D24 /* NotionPageIDTests.swift */; };
+		C7315BC864F8121AFAD44ACE /* ShareInboxTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6946FEC2E1A4965B6F119B63 /* ShareInboxTests.swift */; };
+		C785C815E3215E3163585787 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8F20C813C268D6322B761B07 /* Assets.xcassets */; };
+		CC1EEAB6E1727B14529AF0A0 /* AnalysisTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11EA1ADA6F0D2A3C9B2CA61A /* AnalysisTests.swift */; };
+		CC74FB47AABE700225A969B4 /* NotionExportTrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5506C90F7ABA285537FAA58 /* NotionExportTrackerTests.swift */; };
+		D0E078C12C9C71587BAD975C /* SpikeCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A94EC5CFCC2D2B992EFC55ED /* SpikeCaptureView.swift */; };
+		D7FABCD2BDD14EFBDD5ECECD /* Fixtures in Resources */ = {isa = PBXBuildFile; fileRef = 0F8511CDD2258554A8D4749D /* Fixtures */; };
+		E1DC7C364B1C8E3A5E125A21 /* ShareInbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37E093E3B29758544F006C2B /* ShareInbox.swift */; };
+		F1A193C84755FA43DDF5279C /* ReportMailer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 256C229059B10FAF99113E3E /* ReportMailer.swift */; };
+		F6C7B4038D93894B3351DE0F /* ShareInbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37E093E3B29758544F006C2B /* ShareInbox.swift */; };
+		F87AB6C3CA21061531A9C690 /* ReportMailerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 917098BAB8EE7333CF419E78 /* ReportMailerTests.swift */; };
+		FD57CD6CE58E1EC4A0741AB3 /* DocumentStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95215C8A4A00374E10BB4081 /* DocumentStrings.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		3B66698F2CABA3CE217F4AAC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 443E5E8A080219C45B05998F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6AB7BA212973DA6421A075D9;
+			remoteInfo = StepkipperShare;
+		};
+		BCAF128B4FD7FA5F39DC9340 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 443E5E8A080219C45B05998F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 870688B596DD69852B9D5528;
+			remoteInfo = Stepkipper;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		9E5F387644204522914A2C9F /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				53CAC94F0C8DD830E4259879 /* StepkipperShare.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		019255F8DAA488F42717520B /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
+		02B1F5A0E03C6E5F4DD7522A /* Stepkipper-iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Stepkipper-iOS.entitlements"; sourceTree = "<group>"; };
+		0E8D8395F7019FB9F1F7F5DA /* CapturePipelineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturePipelineTests.swift; sourceTree = "<group>"; };
+		0F8511CDD2258554A8D4749D /* Fixtures */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Fixtures; path = Tests/Fixtures; sourceTree = SOURCE_ROOT; };
+		11EA1ADA6F0D2A3C9B2CA61A /* AnalysisTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisTests.swift; sourceTree = "<group>"; };
+		1F3470F28643329C02EE2D24 /* NotionPageIDTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotionPageIDTests.swift; sourceTree = "<group>"; };
+		256C229059B10FAF99113E3E /* ReportMailer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportMailer.swift; sourceTree = "<group>"; };
+		2A1B05660D74F320982E58F0 /* KeychainStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainStoreTests.swift; sourceTree = "<group>"; };
+		2F13A20DD22A2D4421C6FE20 /* TestBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestBundle.swift; sourceTree = "<group>"; };
+		30DEA703606E56A02F0687DD /* SettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTests.swift; sourceTree = "<group>"; };
+		320283E29ADF2BF513E601E7 /* Stepkipper.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Stepkipper.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3211C0D78DF31C6E12E5536A /* CandidateTimes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CandidateTimes.swift; sourceTree = "<group>"; };
+		3458B2CDED396E6CC65093F1 /* AnalysisNormalizerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisNormalizerTests.swift; sourceTree = "<group>"; };
+		358351BB5B88DE9756A7822A /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		37E093E3B29758544F006C2B /* ShareInbox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareInbox.swift; sourceTree = "<group>"; };
+		39380EC6F70D89B6919A1087 /* HighRiskDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HighRiskDetector.swift; sourceTree = "<group>"; };
+		39970E2C474565F73C0F0D12 /* IssueReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueReport.swift; sourceTree = "<group>"; };
+		3F0AFE548883313B5CABFD22 /* MarkdownBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownBuilder.swift; sourceTree = "<group>"; };
+		4449A3A4D6951B0A2EE0D2B9 /* skill-core */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "skill-core"; path = "Resources/skill-core"; sourceTree = SOURCE_ROOT; };
+		4F747D496506418BF8BEFE3C /* StepkipperApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepkipperApp.swift; sourceTree = "<group>"; };
+		51C270C3F0B4FBDC06AE1AD1 /* AppModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModelTests.swift; sourceTree = "<group>"; };
+		51C41CF692E404B754676001 /* Analysis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Analysis.swift; sourceTree = "<group>"; };
+		521966A140AEA74D5D18ADF1 /* YouTubeURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeURL.swift; sourceTree = "<group>"; };
+		542F6A4CD2F23C382B4A9213 /* DocumentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentView.swift; sourceTree = "<group>"; };
+		54BD6B7A5B944317D9686A15 /* ReportSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportSheet.swift; sourceTree = "<group>"; };
+		5872E40B03AB80636AEE1C51 /* MustacheLite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MustacheLite.swift; sourceTree = "<group>"; };
+		58F1D3746E18A83FB1BBCDE6 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		5A5081C82199C5036F36EA80 /* LocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationTests.swift; sourceTree = "<group>"; };
+		5E5642F9819534D782334E79 /* Support.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Support.swift; sourceTree = "<group>"; };
+		60A6B74A6450E9203100DCDD /* NotionAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotionAPI.swift; sourceTree = "<group>"; };
+		666CCBDA500338F5D92E7DEA /* GeminiAPITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeminiAPITests.swift; sourceTree = "<group>"; };
+		6946FEC2E1A4965B6F119B63 /* ShareInboxTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareInboxTests.swift; sourceTree = "<group>"; };
+		6D3EE75CC73FAFEBD6C71A08 /* StepkipperShare.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = StepkipperShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		6E43A4DFBE8C79B6D3377531 /* AnalysisNormalizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisNormalizer.swift; sourceTree = "<group>"; };
+		75209F75D1CD4169BC1481E6 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		7875680ECC56642300D5D7D6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		78B9C737898273DD0CFA653C /* GeminiAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeminiAPI.swift; sourceTree = "<group>"; };
+		8AB0CE56BD589A91A677226F /* Stepkipper-macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Stepkipper-macOS.entitlements"; sourceTree = "<group>"; };
+		8B7BE81C1D45525262DBF3E4 /* PlayerWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerWebView.swift; sourceTree = "<group>"; };
+		8BA85A1EE5827B523E947DB6 /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
+		8F20C813C268D6322B761B07 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		914ADFED97956E4ED4305DF6 /* StepkipperAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepkipperAPI.swift; sourceTree = "<group>"; };
+		917098BAB8EE7333CF419E78 /* ReportMailerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportMailerTests.swift; sourceTree = "<group>"; };
+		920CC449B6A75B6388C6EFFD /* DocumentStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentStoreTests.swift; sourceTree = "<group>"; };
+		95215C8A4A00374E10BB4081 /* DocumentStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentStrings.swift; sourceTree = "<group>"; };
+		9874FCA8421107863FE2D716 /* MustacheLiteTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MustacheLiteTests.swift; sourceTree = "<group>"; };
+		99E03F62CF44D9D9ED15B167 /* StepkipperShare.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = StepkipperShare.entitlements; sourceTree = "<group>"; };
+		9DBF42AF0C7BE3B7D0E3A154 /* NotionExporterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotionExporterTests.swift; sourceTree = "<group>"; };
+		A09EBA65939CDF44DF5795E9 /* ReportCollectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportCollectorTests.swift; sourceTree = "<group>"; };
+		A0DD485943C00CE1650A5F93 /* NotionBlockBuilderGoldenTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotionBlockBuilderGoldenTests.swift; sourceTree = "<group>"; };
+		A5F259951466F0739AA58AD9 /* AutoPickTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoPickTests.swift; sourceTree = "<group>"; };
+		A94EC5CFCC2D2B992EFC55ED /* SpikeCaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpikeCaptureView.swift; sourceTree = "<group>"; };
+		AC5C969FFED93D31F720ECFD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		AD585AED9159DCBF02023495 /* StubURLProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StubURLProtocol.swift; sourceTree = "<group>"; };
+		B7290CD88578D605B6250802 /* CandidatePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CandidatePickerView.swift; sourceTree = "<group>"; };
+		BF341DDD39962116F2EBD31A /* PlayerBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerBridge.swift; sourceTree = "<group>"; };
+		C090D258B09214796497B102 /* InMemorySecretStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InMemorySecretStore.swift; sourceTree = "<group>"; };
+		C199A0DDD76C4D3F4D41EEFD /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
+		C4C65B3260D0AEAFD8093B00 /* DocumentStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentStore.swift; sourceTree = "<group>"; };
+		C5E6087EE47896B9A203A841 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		C845E103A9FB92BCBC9EF9AE /* StepkipperAPITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepkipperAPITests.swift; sourceTree = "<group>"; };
+		D4BD754FCDC30B61CBF6D67F /* NotionAPITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotionAPITests.swift; sourceTree = "<group>"; };
+		D80155525EA88A02C06FCD4F /* NotionExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotionExporter.swift; sourceTree = "<group>"; };
+		DB1EA556D782580B9553B908 /* NotionBlockBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotionBlockBuilder.swift; sourceTree = "<group>"; };
+		DC5901FD99C7EC48EA133C4A /* KeychainStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainStore.swift; sourceTree = "<group>"; };
+		DF44A08632B50C9C5BAA4C28 /* NotionPageID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotionPageID.swift; sourceTree = "<group>"; };
+		E0129EA90F99147C9EB972D7 /* ReportCollector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportCollector.swift; sourceTree = "<group>"; };
+		E5506C90F7ABA285537FAA58 /* NotionExportTrackerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotionExportTrackerTests.swift; sourceTree = "<group>"; };
+		EA65DB81D05A1EF2BFFB792C /* CaptureScript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureScript.swift; sourceTree = "<group>"; };
+		ED08A82739B4EA5B876814A5 /* AnalyzeFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyzeFlowView.swift; sourceTree = "<group>"; };
+		EEB8C5E055F3319371BB1245 /* CandidateTimesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CandidateTimesTests.swift; sourceTree = "<group>"; };
+		F6A1B1742D7A814AA018FE85 /* YouTubeURLTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeURLTests.swift; sourceTree = "<group>"; };
+		F99E88DA50A0178E9F5BB3B7 /* MarkdownBuilderGoldenTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownBuilderGoldenTests.swift; sourceTree = "<group>"; };
+		FFDF3519829B23755EC62BEB /* StepkipperTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = StepkipperTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		2D080E667239A3FD2F665A72 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				320283E29ADF2BF513E601E7 /* Stepkipper.app */,
+				6D3EE75CC73FAFEBD6C71A08 /* StepkipperShare.appex */,
+				FFDF3519829B23755EC62BEB /* StepkipperTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		848B2F8A090932607F0337EE /* Capture */ = {
+			isa = PBXGroup;
+			children = (
+				EA65DB81D05A1EF2BFFB792C /* CaptureScript.swift */,
+				BF341DDD39962116F2EBD31A /* PlayerBridge.swift */,
+				8B7BE81C1D45525262DBF3E4 /* PlayerWebView.swift */,
+				A94EC5CFCC2D2B992EFC55ED /* SpikeCaptureView.swift */,
+			);
+			path = Capture;
+			sourceTree = "<group>";
+		};
+		897BD7996654365E0AC8C84A /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				8F20C813C268D6322B761B07 /* Assets.xcassets */,
+				358351BB5B88DE9756A7822A /* Localizable.xcstrings */,
+				4449A3A4D6951B0A2EE0D2B9 /* skill-core */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		90ED28A618E0B1DDFFA12364 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				ED08A82739B4EA5B876814A5 /* AnalyzeFlowView.swift */,
+				B7290CD88578D605B6250802 /* CandidatePickerView.swift */,
+				542F6A4CD2F23C382B4A9213 /* DocumentView.swift */,
+				75209F75D1CD4169BC1481E6 /* HomeView.swift */,
+				54BD6B7A5B944317D9686A15 /* ReportSheet.swift */,
+				C5E6087EE47896B9A203A841 /* SettingsView.swift */,
+				5E5642F9819534D782334E79 /* Support.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		AE591F5C0CFB65352ABA3038 = {
+			isa = PBXGroup;
+			children = (
+				897BD7996654365E0AC8C84A /* Resources */,
+				CD8F1770C19D765C4A1F1D05 /* ShareExtension */,
+				D44C7723DDC1AE84220B5B5C /* Sources */,
+				E4874EBE96E0FEF7E0BAA64E /* Tests */,
+				2D080E667239A3FD2F665A72 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		C0DD65C613CA541561167987 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				019255F8DAA488F42717520B /* AppModel.swift */,
+				37E093E3B29758544F006C2B /* ShareInbox.swift */,
+				4F747D496506418BF8BEFE3C /* StepkipperApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		C6BD2AE5E0857616C7E4E668 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				6E43A4DFBE8C79B6D3377531 /* AnalysisNormalizer.swift */,
+				C4C65B3260D0AEAFD8093B00 /* DocumentStore.swift */,
+				78B9C737898273DD0CFA653C /* GeminiAPI.swift */,
+				DC5901FD99C7EC48EA133C4A /* KeychainStore.swift */,
+				3F0AFE548883313B5CABFD22 /* MarkdownBuilder.swift */,
+				5872E40B03AB80636AEE1C51 /* MustacheLite.swift */,
+				60A6B74A6450E9203100DCDD /* NotionAPI.swift */,
+				DB1EA556D782580B9553B908 /* NotionBlockBuilder.swift */,
+				D80155525EA88A02C06FCD4F /* NotionExporter.swift */,
+				C199A0DDD76C4D3F4D41EEFD /* Settings.swift */,
+				914ADFED97956E4ED4305DF6 /* StepkipperAPI.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		CD8F1770C19D765C4A1F1D05 /* ShareExtension */ = {
+			isa = PBXGroup;
+			children = (
+				7875680ECC56642300D5D7D6 /* Info.plist */,
+				8BA85A1EE5827B523E947DB6 /* ShareViewController.swift */,
+				99E03F62CF44D9D9ED15B167 /* StepkipperShare.entitlements */,
+			);
+			path = ShareExtension;
+			sourceTree = "<group>";
+		};
+		CDE5F03F60EA2A1E073290DD /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				51C41CF692E404B754676001 /* Analysis.swift */,
+				3211C0D78DF31C6E12E5536A /* CandidateTimes.swift */,
+				95215C8A4A00374E10BB4081 /* DocumentStrings.swift */,
+				39380EC6F70D89B6919A1087 /* HighRiskDetector.swift */,
+				39970E2C474565F73C0F0D12 /* IssueReport.swift */,
+				DF44A08632B50C9C5BAA4C28 /* NotionPageID.swift */,
+				E0129EA90F99147C9EB972D7 /* ReportCollector.swift */,
+				256C229059B10FAF99113E3E /* ReportMailer.swift */,
+				521966A140AEA74D5D18ADF1 /* YouTubeURL.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		D44C7723DDC1AE84220B5B5C /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				58F1D3746E18A83FB1BBCDE6 /* ContentView.swift */,
+				AC5C969FFED93D31F720ECFD /* Info.plist */,
+				02B1F5A0E03C6E5F4DD7522A /* Stepkipper-iOS.entitlements */,
+				8AB0CE56BD589A91A677226F /* Stepkipper-macOS.entitlements */,
+				C0DD65C613CA541561167987 /* App */,
+				848B2F8A090932607F0337EE /* Capture */,
+				CDE5F03F60EA2A1E073290DD /* Models */,
+				C6BD2AE5E0857616C7E4E668 /* Services */,
+				90ED28A618E0B1DDFFA12364 /* Views */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		E4874EBE96E0FEF7E0BAA64E /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				3458B2CDED396E6CC65093F1 /* AnalysisNormalizerTests.swift */,
+				11EA1ADA6F0D2A3C9B2CA61A /* AnalysisTests.swift */,
+				51C270C3F0B4FBDC06AE1AD1 /* AppModelTests.swift */,
+				A5F259951466F0739AA58AD9 /* AutoPickTests.swift */,
+				EEB8C5E055F3319371BB1245 /* CandidateTimesTests.swift */,
+				0E8D8395F7019FB9F1F7F5DA /* CapturePipelineTests.swift */,
+				920CC449B6A75B6388C6EFFD /* DocumentStoreTests.swift */,
+				0F8511CDD2258554A8D4749D /* Fixtures */,
+				666CCBDA500338F5D92E7DEA /* GeminiAPITests.swift */,
+				C090D258B09214796497B102 /* InMemorySecretStore.swift */,
+				2A1B05660D74F320982E58F0 /* KeychainStoreTests.swift */,
+				5A5081C82199C5036F36EA80 /* LocalizationTests.swift */,
+				F99E88DA50A0178E9F5BB3B7 /* MarkdownBuilderGoldenTests.swift */,
+				9874FCA8421107863FE2D716 /* MustacheLiteTests.swift */,
+				D4BD754FCDC30B61CBF6D67F /* NotionAPITests.swift */,
+				A0DD485943C00CE1650A5F93 /* NotionBlockBuilderGoldenTests.swift */,
+				9DBF42AF0C7BE3B7D0E3A154 /* NotionExporterTests.swift */,
+				E5506C90F7ABA285537FAA58 /* NotionExportTrackerTests.swift */,
+				1F3470F28643329C02EE2D24 /* NotionPageIDTests.swift */,
+				A09EBA65939CDF44DF5795E9 /* ReportCollectorTests.swift */,
+				917098BAB8EE7333CF419E78 /* ReportMailerTests.swift */,
+				30DEA703606E56A02F0687DD /* SettingsTests.swift */,
+				6946FEC2E1A4965B6F119B63 /* ShareInboxTests.swift */,
+				C845E103A9FB92BCBC9EF9AE /* StepkipperAPITests.swift */,
+				AD585AED9159DCBF02023495 /* StubURLProtocol.swift */,
+				2F13A20DD22A2D4421C6FE20 /* TestBundle.swift */,
+				F6A1B1742D7A814AA018FE85 /* YouTubeURLTests.swift */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		6AB7BA212973DA6421A075D9 /* StepkipperShare */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 541061E6D10F7024241893CA /* Build configuration list for PBXNativeTarget "StepkipperShare" */;
+			buildPhases = (
+				39A22A9D5C9C1B8389D779FC /* Sources */,
+				B1DDD1F52468180B809D36E7 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = StepkipperShare;
+			packageProductDependencies = (
+			);
+			productName = StepkipperShare;
+			productReference = 6D3EE75CC73FAFEBD6C71A08 /* StepkipperShare.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		870688B596DD69852B9D5528 /* Stepkipper */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 73D892A7DED3B20A6446828E /* Build configuration list for PBXNativeTarget "Stepkipper" */;
+			buildPhases = (
+				B5F38E0E798DDD5455CF494E /* Sources */,
+				77908ED4CA1676BF881AB2B3 /* Resources */,
+				9E5F387644204522914A2C9F /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				61A380F3B57E151CA14EF662 /* PBXTargetDependency */,
+			);
+			name = Stepkipper;
+			packageProductDependencies = (
+			);
+			productName = Stepkipper;
+			productReference = 320283E29ADF2BF513E601E7 /* Stepkipper.app */;
+			productType = "com.apple.product-type.application";
+		};
+		B28FDAD2116B29238EE9B7B9 /* StepkipperTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 921D5CEB7D6C157D15EC6FE5 /* Build configuration list for PBXNativeTarget "StepkipperTests" */;
+			buildPhases = (
+				6A1F236EE02DBD9F33F22541 /* Sources */,
+				6AFF4236BAB94DB33820D4AE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				FB03D5D3A7A7E5C2E5750DE8 /* PBXTargetDependency */,
+			);
+			name = StepkipperTests;
+			packageProductDependencies = (
+			);
+			productName = StepkipperTests;
+			productReference = FFDF3519829B23755EC62BEB /* StepkipperTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		443E5E8A080219C45B05998F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					870688B596DD69852B9D5528 = {
+						ProvisioningStyle = Manual;
+					};
+					B28FDAD2116B29238EE9B7B9 = {
+						ProvisioningStyle = Manual;
+					};
+				};
+			};
+			buildConfigurationList = B39C635708EFAACBA977A5DC /* Build configuration list for PBXProject "stepkipper-apple" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = AE591F5C0CFB65352ABA3038;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 2D080E667239A3FD2F665A72 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				870688B596DD69852B9D5528 /* Stepkipper */,
+				B28FDAD2116B29238EE9B7B9 /* StepkipperTests */,
+				6AB7BA212973DA6421A075D9 /* StepkipperShare */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		6AFF4236BAB94DB33820D4AE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D7FABCD2BDD14EFBDD5ECECD /* Fixtures in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		77908ED4CA1676BF881AB2B3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C785C815E3215E3163585787 /* Assets.xcassets in Resources */,
+				14B8103929130A10BFE83B74 /* Localizable.xcstrings in Resources */,
+				284A8372A54728B438D1E2E7 /* skill-core in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B1DDD1F52468180B809D36E7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AFC9D05466DE641793F99AB6 /* Localizable.xcstrings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		39A22A9D5C9C1B8389D779FC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E1DC7C364B1C8E3A5E125A21 /* ShareInbox.swift in Sources */,
+				4E3E8026B37873A1CC9AA86D /* ShareViewController.swift in Sources */,
+				349F3C3E9DA3D66AAB9A1E36 /* YouTubeURL.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6A1F236EE02DBD9F33F22541 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4FCD1CD1E0AB79161EB4D2D7 /* AnalysisNormalizerTests.swift in Sources */,
+				CC1EEAB6E1727B14529AF0A0 /* AnalysisTests.swift in Sources */,
+				884E1657166F0A24C34D8A93 /* AppModelTests.swift in Sources */,
+				1B1C5953F112742F0072CFC3 /* AutoPickTests.swift in Sources */,
+				BC813A2703D042EFB5E293CE /* CandidateTimesTests.swift in Sources */,
+				72E4C1C64313C5FD5E40A432 /* CapturePipelineTests.swift in Sources */,
+				BC96A18557F3AA128C7E9A7A /* DocumentStoreTests.swift in Sources */,
+				5414B92450787A4CAF068637 /* GeminiAPITests.swift in Sources */,
+				9242D2F5F09F5C3D8917FB0D /* InMemorySecretStore.swift in Sources */,
+				20686D7B9BA2472EA9818EA0 /* KeychainStoreTests.swift in Sources */,
+				BA0B551A437BB21E08301094 /* LocalizationTests.swift in Sources */,
+				17C3CB1C87DA3D04C600E552 /* MarkdownBuilderGoldenTests.swift in Sources */,
+				0E72615D3D493B379D647B42 /* MustacheLiteTests.swift in Sources */,
+				57F4B755D66DDC40F2C2D750 /* NotionAPITests.swift in Sources */,
+				6C7549D864D769F6B46A56FF /* NotionBlockBuilderGoldenTests.swift in Sources */,
+				CC74FB47AABE700225A969B4 /* NotionExportTrackerTests.swift in Sources */,
+				C26510394EC5950A7D16E2D6 /* NotionExporterTests.swift in Sources */,
+				C5724345F7BD0786A7844E79 /* NotionPageIDTests.swift in Sources */,
+				55E893A1A43D1F8DEBE07F55 /* ReportCollectorTests.swift in Sources */,
+				F87AB6C3CA21061531A9C690 /* ReportMailerTests.swift in Sources */,
+				5AF24EDC1BB77FCA5CC05874 /* SettingsTests.swift in Sources */,
+				C7315BC864F8121AFAD44ACE /* ShareInboxTests.swift in Sources */,
+				4439D2D79B0E770E88930570 /* StepkipperAPITests.swift in Sources */,
+				84CE89B208438E1DC5D611D6 /* StubURLProtocol.swift in Sources */,
+				561A8F927AB7D8E7B45BA557 /* TestBundle.swift in Sources */,
+				0FDDD6BEA45F8637B5ACCAC1 /* YouTubeURLTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B5F38E0E798DDD5455CF494E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4644E7B6BE17911F4D9C34BC /* Analysis.swift in Sources */,
+				0E234E4CD52CB7A167805356 /* AnalysisNormalizer.swift in Sources */,
+				C23F8BA642A5C1EEDAE11A47 /* AnalyzeFlowView.swift in Sources */,
+				0F1E986528BE80F1D0866B06 /* AppModel.swift in Sources */,
+				A0D9B2E355CADA91A6E367B1 /* CandidatePickerView.swift in Sources */,
+				965BF44C8B4E3042531D48AB /* CandidateTimes.swift in Sources */,
+				60495AA7C8DE8E6803FEA9B4 /* CaptureScript.swift in Sources */,
+				6ED76CDA67728F763880DEA0 /* ContentView.swift in Sources */,
+				799B32E84C4F733CCEAAE6AA /* DocumentStore.swift in Sources */,
+				FD57CD6CE58E1EC4A0741AB3 /* DocumentStrings.swift in Sources */,
+				2F382F774825F1C8A4D626BD /* DocumentView.swift in Sources */,
+				0FE4FC53384FC4BCFE834651 /* GeminiAPI.swift in Sources */,
+				19A0721F27D7FEB8855502B2 /* HighRiskDetector.swift in Sources */,
+				669C5EBCCE1796A31C06CCED /* HomeView.swift in Sources */,
+				4392CEE072DF4096E4333A79 /* IssueReport.swift in Sources */,
+				07138DDB9EA95B491CD3D2F3 /* KeychainStore.swift in Sources */,
+				6483F85E73C7D2DAD3187F14 /* MarkdownBuilder.swift in Sources */,
+				4A4B0A318126ABE3462E150D /* MustacheLite.swift in Sources */,
+				7722E7F9FFEBECAE2040BC28 /* NotionAPI.swift in Sources */,
+				4E2D788E7DCD394287197D83 /* NotionBlockBuilder.swift in Sources */,
+				090CBF42A4D32953F0545E5C /* NotionExporter.swift in Sources */,
+				2F07D7A372D81EAD95F9B673 /* NotionPageID.swift in Sources */,
+				54CF481F1A0F0142DBC482E7 /* PlayerBridge.swift in Sources */,
+				2AB25404F0075DD6A95C295D /* PlayerWebView.swift in Sources */,
+				ACE458EDC8971A814DF126E4 /* ReportCollector.swift in Sources */,
+				F1A193C84755FA43DDF5279C /* ReportMailer.swift in Sources */,
+				7BD283A33B00EA20D529DDBE /* ReportSheet.swift in Sources */,
+				9E6D67EEB90A79796D6E341A /* Settings.swift in Sources */,
+				10455224F9A86EF3E81C8C62 /* SettingsView.swift in Sources */,
+				F6C7B4038D93894B3351DE0F /* ShareInbox.swift in Sources */,
+				D0E078C12C9C71587BAD975C /* SpikeCaptureView.swift in Sources */,
+				2859653DF4796D0D4A1245C5 /* StepkipperAPI.swift in Sources */,
+				44B91B0733FE2A526210968D /* StepkipperApp.swift in Sources */,
+				6752619DD774039E963158E7 /* Support.swift in Sources */,
+				36BCADD5D5B8A84150A1FB09 /* YouTubeURL.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		61A380F3B57E151CA14EF662 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			platformFilter = ios;
+			target = 6AB7BA212973DA6421A075D9 /* StepkipperShare */;
+			targetProxy = 3B66698F2CABA3CE217F4AAC /* PBXContainerItemProxy */;
+		};
+		FB03D5D3A7A7E5C2E5750DE8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 870688B596DD69852B9D5528 /* Stepkipper */;
+			targetProxy = BCAF128B4FD7FA5F39DC9340 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		19E948D795E9F18E604975B6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		6EE92FCE8431DEE747117C3C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGNING_REQUIRED = NO;
+				"CODE_SIGN_ENTITLEMENTS[sdk=iphone*]" = "Sources/Stepkipper-iOS.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "Sources/Stepkipper-macOS.entitlements";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = Sources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.stepkipper.app;
+				PRODUCT_MODULE_NAME = stepkipper;
+				PRODUCT_NAME = stepkipper;
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		A86D07260DD685E674678F0B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = ShareExtension/StepkipperShare.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = ShareExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.stepkipper.app.share;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		A910E7760B0E8DE1BAA8F1B3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.stepkipper.tests;
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Stepkipper.app/Stepkipper";
+				"TEST_HOST[sdk=iphoneos*]" = "$(BUILT_PRODUCTS_DIR)/stepkipper.app/stepkipper";
+				"TEST_HOST[sdk=iphonesimulator*]" = "$(BUILT_PRODUCTS_DIR)/stepkipper.app/stepkipper";
+				"TEST_HOST[sdk=macosx*]" = "$(BUILT_PRODUCTS_DIR)/stepkipper.app/Contents/MacOS/stepkipper";
+			};
+			name = Debug;
+		};
+		AE9A60DDD6F30B1A6E21DB2A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = ShareExtension/StepkipperShare.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = ShareExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.stepkipper.app.share;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		D1214A14A0958BB40800CF86 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		E028DAC414F15B9616B06C67 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGNING_REQUIRED = NO;
+				"CODE_SIGN_ENTITLEMENTS[sdk=iphone*]" = "Sources/Stepkipper-iOS.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "Sources/Stepkipper-macOS.entitlements";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = Sources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.stepkipper.app;
+				PRODUCT_MODULE_NAME = stepkipper;
+				PRODUCT_NAME = stepkipper;
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		EDC8468D1893C1424B6F0E8D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.stepkipper.tests;
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Stepkipper.app/Stepkipper";
+				"TEST_HOST[sdk=iphoneos*]" = "$(BUILT_PRODUCTS_DIR)/stepkipper.app/stepkipper";
+				"TEST_HOST[sdk=iphonesimulator*]" = "$(BUILT_PRODUCTS_DIR)/stepkipper.app/stepkipper";
+				"TEST_HOST[sdk=macosx*]" = "$(BUILT_PRODUCTS_DIR)/stepkipper.app/Contents/MacOS/stepkipper";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		541061E6D10F7024241893CA /* Build configuration list for PBXNativeTarget "StepkipperShare" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AE9A60DDD6F30B1A6E21DB2A /* Debug */,
+				A86D07260DD685E674678F0B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		73D892A7DED3B20A6446828E /* Build configuration list for PBXNativeTarget "Stepkipper" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E028DAC414F15B9616B06C67 /* Debug */,
+				6EE92FCE8431DEE747117C3C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		921D5CEB7D6C157D15EC6FE5 /* Build configuration list for PBXNativeTarget "StepkipperTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A910E7760B0E8DE1BAA8F1B3 /* Debug */,
+				EDC8468D1893C1424B6F0E8D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		B39C635708EFAACBA977A5DC /* Build configuration list for PBXProject "stepkipper-apple" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				19E948D795E9F18E604975B6 /* Debug */,
+				D1214A14A0958BB40800CF86 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 443E5E8A080219C45B05998F /* Project object */;
+}

@@ -17,4 +17,4 @@
    ![자작해짐](vg-2.jpg)
 
 ---
-*From [돼지고기 김치볶음](https://youtu.be/4ioPBiTWm3M) — kept with stepkeeper*
+*From [돼지고기 김치볶음](https://youtu.be/4ioPBiTWm3M) — kept with stepkipper*

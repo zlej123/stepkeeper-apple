@@ -167,7 +167,7 @@ struct SpikeCaptureView: View {
         }
         .padding()
         .task {
-            if ProcessInfo.processInfo.environment["STEPKEEPER_SPIKE"] == "1" { await runner.run() }
+            if ProcessInfo.processInfo.environment["STEPKIPPER_SPIKE"] == "1" { await runner.run() }
         }
         .toolbar { Button("실행") { Task { await runner.run() } } }
     }

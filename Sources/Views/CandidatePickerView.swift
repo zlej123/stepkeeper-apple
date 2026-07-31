@@ -24,11 +24,6 @@ struct CandidatePickerView: View {
                 ForEach(model.captures) { capture in
                     guideCard(capture)
                 }
-                Button("Make document") {
-                    Task { await model.finishPicking(picks: picks) }
-                }
-                .buttonStyle(.borderedProminent)
-                .frame(maxWidth: .infinity)
                 Button {
                     // 수집기가 없어도 시트를 연다 — 보내기 시 메일 앱으로 폴백
                     reportNotice = nil
@@ -44,6 +39,38 @@ struct CandidatePickerView: View {
                 }
             }
             .padding(.vertical)
+            // 하단 고정 CTA와 마지막 신고 UI 사이에 시각적 여유를 둔다.
+            .padding(.bottom, 12)
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            VStack(spacing: 0) {
+                Divider()
+                HStack(spacing: 12) {
+                    Label {
+                        Text(verbatim: "\(selectedGuideCount)/\(totalGuideCount)")
+                            .monospacedDigit()
+                    } icon: {
+                        Image(systemName: allGuidesSelected
+                              ? "checkmark.circle.fill"
+                              : "checkmark.circle")
+                    }
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(allGuidesSelected ? Color.accentColor : Color.secondary)
+                    .accessibilityLabel(Text("Selected"))
+                    .accessibilityValue(Text(verbatim: "\(selectedGuideCount)/\(totalGuideCount)"))
+
+                    Spacer(minLength: 8)
+
+                    Button("Make document") {
+                        Task { await model.finishPicking(picks: picks) }
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(!allGuidesSelected)
+                }
+                .padding(.horizontal)
+                .padding(.vertical, 12)
+            }
+            .background(.regularMaterial)
         }
         .sheet(isPresented: $reporting) {
             ReportSheet { reason, note in
@@ -51,6 +78,24 @@ struct CandidatePickerView: View {
             }
         }
         .onAppear { if picks.isEmpty { picks = model.suggestedPicks() } }
+    }
+
+    private var totalGuideCount: Int {
+        model.captures.count
+    }
+
+    private var selectedGuideCount: Int {
+        model.captures.count(where: hasValidPick)
+    }
+
+    private var allGuidesSelected: Bool {
+        totalGuideCount > 0 && selectedGuideCount == totalGuideCount
+    }
+
+    private func hasValidPick(for capture: GuideCapture) -> Bool {
+        guard let pick = picks[capture.guide.id] else { return false }
+        if pick == "none" { return true }
+        return capture.candidates.contains { $0.slot == pick && $0.jpeg != nil }
     }
 
     @ViewBuilder private func guideCard(_ capture: GuideCapture) -> some View {
@@ -69,15 +114,25 @@ struct CandidatePickerView: View {
                 // 적응형 그리드(아이폰 2열) — 가로 4분할 대비 썸네일 약 2배 (UX 피드백 반영)
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 8)], spacing: 8) {
                     ForEach(capture.candidates, id: \.slot) { candidate in
-                        candidateCell(guideId: capture.guide.id, candidate: candidate)
+                        candidateCell(
+                            guideId: capture.guide.id,
+                            guidePhrase: capture.guide.phrase,
+                            candidate: candidate)
                     }
-                    noneCell(guideId: capture.guide.id)
+                    noneCell(
+                        guideId: capture.guide.id,
+                        guidePhrase: capture.guide.phrase,
+                        timestamp: capture.guide.bestVisualTimestamp)
                 }
             }
         }
     }
 
-    @ViewBuilder private func candidateCell(guideId: String, candidate: CaptureCandidate) -> some View {
+    @ViewBuilder private func candidateCell(
+        guideId: String,
+        guidePhrase: String,
+        candidate: CaptureCandidate
+    ) -> some View {
         if candidate.jpeg == nil {
             // 슬롯 단위 실패는 자리표시로 남긴다 — 셀이 그냥 사라지면 후보가 몇 개였는지 알 수 없다
             VStack(spacing: 4) {
@@ -90,20 +145,40 @@ struct CandidatePickerView: View {
             }
             .foregroundStyle(.secondary)
         } else if let jpeg = candidate.jpeg {
+            let selected = picks[guideId] == candidate.slot
+            let position = positionLabel(for: candidate.slot)
+            let time = MarkdownBuilder.hms(candidate.time)
             Button {
                 picks[guideId] = candidate.slot
             } label: {
                 VStack(spacing: 4) {
-                    JPEGImage(data: jpeg)
-                        .overlay(RoundedRectangle(cornerRadius: 6).stroke(
-                            picks[guideId] == candidate.slot ? Color.red : Color.secondary.opacity(0.3),
-                            lineWidth: picks[guideId] == candidate.slot ? 3 : 1))
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
-                    Text("\(MarkdownBuilder.hms(candidate.time)) (\(candidate.slot))")
-                        .font(.caption2).foregroundStyle(.secondary)
+                    ZStack(alignment: .topTrailing) {
+                        JPEGImage(data: jpeg)
+                            .overlay(RoundedRectangle(cornerRadius: 6).stroke(
+                                selected ? Color.accentColor : Color.secondary.opacity(0.3),
+                                lineWidth: selected ? 3 : 1))
+                        if selected {
+                            Image(systemName: "checkmark.circle.fill")
+                                .symbolRenderingMode(.palette)
+                                .foregroundStyle(.white, Color.accentColor)
+                                .font(.title3)
+                                .padding(6)
+                                .accessibilityHidden(true)
+                        }
+                    }
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    Text(verbatim: "\(position) · \(time)")
+                        .font(.caption2)
+                        .fontWeight(selected ? .semibold : .regular)
+                        .foregroundStyle(selected ? Color.accentColor : Color.secondary)
                 }
             }
             .buttonStyle(.plain)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text(verbatim: "\(guidePhrase), \(position), \(time)"))
+            .accessibilityValue(selected ? Text("Selected") : Text("Not selected"))
+            .accessibilityAddTraits(selected ? .isSelected : [])
+            .accessibilityHint("Select this frame for the guide")
             .contextMenu {
                 Button("Pick this frame") { picks[guideId] = candidate.slot }
             } preview: {
@@ -117,18 +192,56 @@ struct CandidatePickerView: View {
         }
     }
 
-    private func noneCell(guideId: String) -> some View {
-        Button {
+    private func noneCell(guideId: String, guidePhrase: String, timestamp: Int?) -> some View {
+        let selected = picks[guideId] == "none"
+        let linkLabel = String(localized: "Use video link instead")
+        let time = timestamp.map(MarkdownBuilder.hms)
+        let accessibilityLabel = [guidePhrase, linkLabel, time].compactMap { $0 }.joined(separator: ", ")
+        return Button {
             picks[guideId] = "none"
         } label: {
-            VStack {
-                Text("Doesn't fit\nuse a link").font(.caption).multilineTextAlignment(.center)
+            ZStack(alignment: .topTrailing) {
+                VStack(spacing: 4) {
+                    Image(systemName: "link")
+                    Text("Doesn't fit\nuse a link")
+                        .font(.caption)
+                        .multilineTextAlignment(.center)
+                    if let time {
+                        Text(verbatim: time)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .frame(maxWidth: .infinity, minHeight: 64)
+                .background(selected ? Color.accentColor.opacity(0.12) : Color.clear)
+                .overlay(RoundedRectangle(cornerRadius: 6).stroke(
+                    selected ? Color.accentColor : Color.secondary.opacity(0.3),
+                    lineWidth: selected ? 3 : 1))
+                if selected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .symbolRenderingMode(.palette)
+                        .foregroundStyle(.white, Color.accentColor)
+                        .font(.title3)
+                        .padding(6)
+                        .accessibilityHidden(true)
+                }
             }
-            .frame(maxWidth: .infinity, minHeight: 64)
-            .overlay(RoundedRectangle(cornerRadius: 6).stroke(
-                picks[guideId] == "none" ? Color.red : Color.secondary.opacity(0.3),
-                lineWidth: picks[guideId] == "none" ? 3 : 1))
+            .clipShape(RoundedRectangle(cornerRadius: 6))
         }
         .buttonStyle(.plain)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(verbatim: accessibilityLabel))
+        .accessibilityValue(selected ? Text("Selected") : Text("Not selected"))
+        .accessibilityAddTraits(selected ? .isSelected : [])
+        .accessibilityHint("Use the timestamped video link for this guide")
+    }
+
+    private func positionLabel(for slot: String) -> String {
+        switch slot {
+        case "before": String(localized: "Before")
+        case "center": String(localized: "Key moment")
+        case "after": String(localized: "After")
+        default: String(localized: "Candidate frame")
+        }
     }
 }

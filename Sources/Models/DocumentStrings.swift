@@ -20,7 +20,7 @@ struct DocumentStrings: Sendable {
         highRiskNotice: "Safety-critical topic. Treat this document as reference only — do not follow it without expert guidance.",
         guidePrefix: { phrase in "What '\(phrase)' looks like:" },
         seeAt: { time in time.map { "▶ See it in the video at \($0)" } ?? "▶ See it in the video" },
-        source: { title in "From \(title) — kept with stepkeeper" })
+        source: { title in "From \(title) — kept with stepkipper" })
 
     static let korean = DocumentStrings(
         ingredients: "준비 재료", materials: "준비물",
@@ -28,7 +28,7 @@ struct DocumentStrings: Sendable {
         highRiskNotice: "안전이 걸린 주제입니다. 이 문서는 참고용입니다 — 전문가 확인 없이 따라 하지 마세요.",
         guidePrefix: { phrase in "'\(phrase)' 기준:" },
         seeAt: { time in time.map { "▶ 영상 \($0)에서 직접 확인" } ?? "▶ 영상에서 직접 확인" },
-        source: { title in "출처: \(title) — stepkeeper로 생성" })
+        source: { title in "출처: \(title) — stepkipper로 생성" })
 
     static let japanese = DocumentStrings(
         ingredients: "材料", materials: "用意するもの",
@@ -36,7 +36,7 @@ struct DocumentStrings: Sendable {
         highRiskNotice: "安全に関わるテーマです。この文書は参考用です — 専門家の確認なしに実行しないでください。",
         guidePrefix: { phrase in "「\(phrase)」とは:" },
         seeAt: { time in time.map { "▶ 動画の \($0) で確認" } ?? "▶ 動画で確認" },
-        source: { title in "出典: \(title) — stepkeeper で作成" })
+        source: { title in "出典: \(title) — stepkipper で作成" })
 
     /// 번역본이 없는 언어는 영어 (코어 load_template의 폴백과 동일)
     static func forLanguage(_ language: String) -> DocumentStrings {

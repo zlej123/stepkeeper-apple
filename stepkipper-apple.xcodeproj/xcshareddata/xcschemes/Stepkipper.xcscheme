@@ -15,10 +15,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "40AEEC756ACF629B35441BC1"
-               BuildableName = "Stepkeeper.app"
-               BlueprintName = "Stepkeeper"
-               ReferencedContainer = "container:stepkeeper-apple.xcodeproj">
+               BlueprintIdentifier = "870688B596DD69852B9D5528"
+               BuildableName = "Stepkipper.app"
+               BlueprintName = "Stepkipper"
+               ReferencedContainer = "container:stepkipper-apple.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -32,10 +32,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "40AEEC756ACF629B35441BC1"
-            BuildableName = "Stepkeeper.app"
-            BlueprintName = "Stepkeeper"
-            ReferencedContainer = "container:stepkeeper-apple.xcodeproj">
+            BlueprintIdentifier = "870688B596DD69852B9D5528"
+            BuildableName = "Stepkipper.app"
+            BlueprintName = "Stepkipper"
+            ReferencedContainer = "container:stepkipper-apple.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <Testables>
@@ -44,10 +44,10 @@
             parallelizable = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "858226F79D88DDC33F22426D"
-               BuildableName = "StepkeeperTests.xctest"
-               BlueprintName = "StepkeeperTests"
-               ReferencedContainer = "container:stepkeeper-apple.xcodeproj">
+               BlueprintIdentifier = "B28FDAD2116B29238EE9B7B9"
+               BuildableName = "StepkipperTests.xctest"
+               BlueprintName = "StepkipperTests"
+               ReferencedContainer = "container:stepkipper-apple.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -68,10 +68,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "40AEEC756ACF629B35441BC1"
-            BuildableName = "Stepkeeper.app"
-            BlueprintName = "Stepkeeper"
-            ReferencedContainer = "container:stepkeeper-apple.xcodeproj">
+            BlueprintIdentifier = "870688B596DD69852B9D5528"
+            BuildableName = "Stepkipper.app"
+            BlueprintName = "Stepkipper"
+            ReferencedContainer = "container:stepkipper-apple.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <CommandLineArguments>
@@ -87,10 +87,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "40AEEC756ACF629B35441BC1"
-            BuildableName = "Stepkeeper.app"
-            BlueprintName = "Stepkeeper"
-            ReferencedContainer = "container:stepkeeper-apple.xcodeproj">
+            BlueprintIdentifier = "870688B596DD69852B9D5528"
+            BuildableName = "Stepkipper.app"
+            BlueprintName = "Stepkipper"
+            ReferencedContainer = "container:stepkipper-apple.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

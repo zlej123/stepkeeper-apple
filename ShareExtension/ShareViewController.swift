@@ -41,7 +41,7 @@ final class ShareViewController: UIViewController {
                     return
                 }
                 ShareInbox.push(urlString)   // FIFO — 여러 번 공유해도 덮어쓰지 않는다
-                self.finish(String(localized: "Saved.\nOpen stepkeeper to start the analysis."))
+                self.finish(String(localized: "Saved.\nOpen stepkipper to start the analysis."))
             }
         }
     }

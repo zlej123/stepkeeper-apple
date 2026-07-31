@@ -23,20 +23,17 @@ struct SavedDocument: Sendable {
     var folder: URL
 }
 
-/// 스펙 4.6: Documents/stepkeeper/<id>/ 아래 document.md + vg-N.jpg + meta.json + analysis.json + picks.json
+/// 스펙 4.6: Documents/stepkipper/<id>/ 아래 document.md + vg-N.jpg + meta.json + analysis.json + picks.json
 final class DocumentStore: Sendable {
-    static let log = Logger(subsystem: "stepkeeper", category: "DocumentStore")
+    static let log = Logger(subsystem: "stepkipper", category: "DocumentStore")
     private let root: URL
 
     init(root: URL) { self.root = root }
 
-    /// clipnote 시절 문서는 여기로 이전되지 않는다 — 샌드박스 컨테이너가 번들 ID 기준이라
-    /// (com.clipnote.app → com.stepkeeper.app) 새 앱에서는 옛 컨테이너 자체가 보이지 않는다.
-    /// 옛 앱이 설치돼 있다면 그 앱에서 공유·폴더 저장으로 문서를 꺼내야 한다.
     static func defaultRoot() throws -> URL {
         try FileManager.default.url(for: .documentDirectory, in: .userDomainMask,
                                     appropriateFor: nil, create: true)
-            .appendingPathComponent("stepkeeper", isDirectory: true)
+            .appendingPathComponent("stepkipper", isDirectory: true)
     }
 
     func folderURL(id: String) -> URL { root.appendingPathComponent(id, isDirectory: true) }

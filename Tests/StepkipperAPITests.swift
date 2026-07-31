@@ -1,6 +1,6 @@
 import Testing
 import Foundation
-@testable import stepkeeper
+@testable import stepkipper
 
 extension URLRequest {
     /// URLSession이 body를 스트림으로 넘길 때가 있어 둘 다 처리
@@ -23,21 +23,21 @@ extension URLRequest {
 }
 
 @Suite(.serialized)
-struct StepkeeperAPITests {
-    private func makeAPI() -> StepkeeperAPI {
+struct StepkipperAPITests {
+    private func makeAPI() -> StepkipperAPI {
         let config = URLSessionConfiguration.ephemeral
-        config.protocolClasses = [StepkeeperAPIStub.self]
-        return StepkeeperAPI(baseURL: URL(string: "http://stub.local:8787")!,
+        config.protocolClasses = [StepkipperAPIStub.self]
+        return StepkipperAPI(baseURL: URL(string: "http://stub.local:8787")!,
                            session: URLSession(configuration: config))
     }
     private func reset() {
-        StepkeeperAPIStub.shared.reset()
+        StepkipperAPIStub.shared.reset()
     }
 
     @Test func successDecodesAndPreservesRawAnalysis() async throws {
         defer { reset() }
         let fixture = try Bundle.fixtureData("analyze-response")
-        StepkeeperAPIStub.shared.handler = { _ in (200, fixture) }
+        StepkipperAPIStub.shared.handler = { _ in (200, fixture) }
         let result = try await makeAPI().analyze(
             videoURL: "https://m.youtube.com/watch?v=dQw4w9WgXcQ",
             profile: "generic", language: "ko", duration: 90, geminiKey: "test-key")
@@ -48,11 +48,11 @@ struct StepkeeperAPITests {
 
         // 요청 형태 검증 — 핸들러 클로저 안 #expect는 Swift Testing 컨텍스트에 전파되지 않아
         // 위반이 배너에서 위장되므로(리뷰 확인) 캡처 후 테스트 본문에서 단언한다.
-        let request = try #require(StepkeeperAPIStub.shared.capturedRequest)
+        let request = try #require(StepkipperAPIStub.shared.capturedRequest)
         #expect(request.url?.path == "/v1/analyze")
         #expect(request.value(forHTTPHeaderField: "X-Gemini-Key") == "test-key")
         let body = try JSONSerialization.jsonObject(
-            with: try #require(StepkeeperAPIStub.shared.capturedBody)) as! [String: Any]
+            with: try #require(StepkipperAPIStub.shared.capturedBody)) as! [String: Any]
         #expect(body["duration"] as? Int == 90)          // 결정 #3: duration은 앱이 보낸다
         #expect(body["max_guides"] as? Int == 5)
         #expect(body["model"] == nil)                    // 서버 기본값 사용
@@ -60,10 +60,10 @@ struct StepkeeperAPITests {
 
     @Test func maps401ToMissingKey() async throws {
         defer { reset() }
-        StepkeeperAPIStub.shared.handler = { _ in
+        StepkipperAPIStub.shared.handler = { _ in
             (401, Data(#"{"detail": "X-Gemini-Key 헤더가 필요합니다."}"#.utf8))
         }
-        await #expect(throws: StepkeeperAPIError.missingKey) {
+        await #expect(throws: StepkipperAPIError.missingKey) {
             _ = try await self.makeAPI().analyze(
                 videoURL: "u", profile: "generic", language: "ko", duration: 10, geminiKey: "k")
         }
@@ -71,25 +71,25 @@ struct StepkeeperAPITests {
 
     @Test func maps422To429To502() async throws {
         defer { reset() }
-        StepkeeperAPIStub.shared.handler = { _ in (422, Data(#"{"detail": "bad url"}"#.utf8)) }
-        await #expect(throws: StepkeeperAPIError.badRequest("bad url")) {
+        StepkipperAPIStub.shared.handler = { _ in (422, Data(#"{"detail": "bad url"}"#.utf8)) }
+        await #expect(throws: StepkipperAPIError.badRequest("bad url")) {
             _ = try await self.makeAPI().analyze(
                 videoURL: "u", profile: "generic", language: "ko", duration: 10, geminiKey: "k")
         }
-        StepkeeperAPIStub.shared.handler = { _ in (429, Data(#"{"detail": "quota"}"#.utf8)) }
-        await #expect(throws: StepkeeperAPIError.rateLimited) {
+        StepkipperAPIStub.shared.handler = { _ in (429, Data(#"{"detail": "quota"}"#.utf8)) }
+        await #expect(throws: StepkipperAPIError.rateLimited) {
             _ = try await self.makeAPI().analyze(
                 videoURL: "u", profile: "generic", language: "ko", duration: 10, geminiKey: "k")
         }
         // FastAPI는 detail이 객체일 수도 있음 (계약 위반 케이스)
-        StepkeeperAPIStub.shared.handler = { _ in
+        StepkipperAPIStub.shared.handler = { _ in
             (502, Data(#"{"detail": {"message": "분석 결과 계약 위반", "errors": ["steps"]}}"#.utf8))
         }
         do {
             _ = try await makeAPI().analyze(
                 videoURL: "u", profile: "generic", language: "ko", duration: 10, geminiKey: "k")
             Issue.record("should throw")
-        } catch let error as StepkeeperAPIError {
+        } catch let error as StepkipperAPIError {
             guard case .modelFailure(let detail) = error else {
                 Issue.record("wrong case: \(error)"); return
             }
@@ -99,19 +99,19 @@ struct StepkeeperAPITests {
 
     @Test func mapsTransportErrorToNetwork() async throws {
         defer { reset() }
-        StepkeeperAPIStub.shared.networkError = URLError(.cannotConnectToHost)
+        StepkipperAPIStub.shared.networkError = URLError(.cannotConnectToHost)
         do {
             _ = try await makeAPI().analyze(
                 videoURL: "u", profile: "generic", language: "ko", duration: 10, geminiKey: "k")
             Issue.record("should throw")
-        } catch let error as StepkeeperAPIError {
+        } catch let error as StepkipperAPIError {
             guard case .network = error else { Issue.record("wrong case: \(error)"); return }
         }
     }
 
     @Test func submitReportPostsPayloadWithoutKey() async throws {
         defer { reset() }
-        StepkeeperAPIStub.shared.handler = { _ in (200, Data(#"{"status": "ok"}"#.utf8)) }
+        StepkipperAPIStub.shared.handler = { _ in (200, Data(#"{"status": "ok"}"#.utf8)) }
         let raw = try JSONSerialization.data(withJSONObject: ["title": "t", "_model": "m"])
         let report = IssueReport(
             url: "https://m.youtube.com/watch?v=GziiD4XqCpc", videoId: "GziiD4XqCpc",
@@ -119,11 +119,11 @@ struct StepkeeperAPITests {
             rawAnalysis: raw, picks: ["vg-1": "none"], client: "apple/test")
         try await makeAPI().submitReport(report)
 
-        let request = try #require(StepkeeperAPIStub.shared.capturedRequest)
+        let request = try #require(StepkipperAPIStub.shared.capturedRequest)
         #expect(request.url?.path == "/v1/reports")
         #expect(request.value(forHTTPHeaderField: "X-Gemini-Key") == nil)   // 키 불필요 경로
         let body = try JSONSerialization.jsonObject(
-            with: try #require(StepkeeperAPIStub.shared.capturedBody)) as! [String: Any]
+            with: try #require(StepkipperAPIStub.shared.capturedBody)) as! [String: Any]
         #expect(body["reason"] as? String == "candidates")
         #expect((body["analysis"] as? [String: Any])?["_model"] as? String == "m")   // 원본 병합
         #expect((body["picks"] as? [String: String]) == ["vg-1": "none"])
@@ -131,14 +131,14 @@ struct StepkeeperAPITests {
 
     @Test func submitReportMapsServerFailure() async throws {
         defer { reset() }
-        StepkeeperAPIStub.shared.handler = { _ in (500, Data(#"{"detail": "disk"}"#.utf8)) }
+        StepkipperAPIStub.shared.handler = { _ in (500, Data(#"{"detail": "disk"}"#.utf8)) }
         let report = IssueReport(
             url: "u", videoId: "v", reason: .other, note: "", profile: "generic",
             language: "ko", rawAnalysis: Data("{}".utf8), picks: [:], client: "apple/test")
         do {
             try await makeAPI().submitReport(report)
             Issue.record("should throw")
-        } catch let error as StepkeeperAPIError {
+        } catch let error as StepkipperAPIError {
             guard case .server(500, _) = error else { Issue.record("wrong: \(error)"); return }
         }
     }

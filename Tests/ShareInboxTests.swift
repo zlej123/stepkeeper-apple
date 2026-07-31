@@ -1,12 +1,11 @@
 import Testing
 import Foundation
-@testable import stepkeeper
+@testable import stepkipper
 
 @Suite(.serialized)
 struct ShareInboxTests {
     private func reset() {
         ShareInbox.defaults?.removeObject(forKey: ShareInbox.urlKey)
-        ShareInbox.defaults?.removeObject(forKey: ShareInbox.legacyURLKey)
     }
 
     @Test func fifoKeepsEveryShareInOrder() {
@@ -36,13 +35,74 @@ struct ShareInboxTests {
         #expect(ShareInbox.pop() == "https://youtu.be/video000003")   // 가장 오래된 3개가 밀려남
     }
 
-    @Test func legacySingleValueIsAbsorbedFirst() {
+    @Test @MainActor
+    func automaticPickupStartsOnlyFromIdleAndNeverConsumesBlockedWork() async {
         reset(); defer { reset() }
-        // 구 버전 확장이 남긴 단일 값은 큐 맨 앞으로 흡수된다 (업그레이드 직후 공유 유실 방지)
-        ShareInbox.defaults?.set("https://youtu.be/legacy00001", forKey: ShareInbox.legacyURLKey)
-        ShareInbox.push("https://youtu.be/video000001")
-        #expect(ShareInbox.pop() == "https://youtu.be/legacy00001")
-        #expect(ShareInbox.pop() == "https://youtu.be/video000001")
-        #expect(ShareInbox.defaults?.string(forKey: ShareInbox.legacyURLKey) == nil)
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("stepkipper-share-policy-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let model = AppModel(
+            keychain: InMemorySecretStore(nil),
+            documentStore: DocumentStore(root: root))
+        let done = DocumentMeta(
+            id: "done", title: "Done", videoId: "video000001",
+            profile: "generic", language: "ko", createdAt: .now)
+        let blockedStages: [FlowStage] = [
+            .analyzing(duration: 90),
+            .picking,
+            .failed("Keep this error visible"),
+            .done(done),
+        ]
+
+        for (index, blockedStage) in blockedStages.enumerated() {
+            let url = "blocked-\(index)"
+            ShareInbox.push(url)
+            model.stage = blockedStage
+
+            #expect(model.startNextShared(trigger: .automatic) == false)
+            #expect(model.stage == blockedStage)
+            #expect(ShareInbox.pop() == url)
+        }
+
+        ShareInbox.push("idle-start")
+        model.stage = .idle
+        #expect(model.startNextShared(trigger: .automatic))
+        #expect(model.stage == .loadingPlayer)
+        #expect(ShareInbox.pendingCount == 0)
+        await Task.yield()
+    }
+
+    @Test @MainActor
+    func userInitiatedPickupBlocksInProgressButAllowsTerminalStages() async {
+        reset(); defer { reset() }
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("stepkipper-share-policy-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let model = AppModel(
+            keychain: InMemorySecretStore(nil),
+            documentStore: DocumentStore(root: root))
+
+        ShareInbox.push("keep-while-busy")
+        model.stage = .capturing(current: 1, total: 3)
+        #expect(model.startNextShared() == false)
+        #expect(model.stage == .capturing(current: 1, total: 3))
+        #expect(ShareInbox.pop() == "keep-while-busy")
+
+        let terminalStages: [FlowStage] = [
+            .failed("The user saw this error"),
+            .done(DocumentMeta(
+                id: "done", title: "Done", videoId: "video000001",
+                profile: "generic", language: "ko", createdAt: .now)),
+        ]
+        for (index, terminalStage) in terminalStages.enumerated() {
+            ShareInbox.push("terminal-start-\(index)")
+            model.stage = terminalStage
+
+            #expect(model.startNextShared())
+            #expect(model.stage == .loadingPlayer)
+            #expect(ShareInbox.pendingCount == 0)
+            // URL/키 검사까지 Task를 진행시켜 다음 terminal 상태 테스트가 명시적 시작 조건을 갖게 한다.
+            await Task.yield()
+        }
     }
 }

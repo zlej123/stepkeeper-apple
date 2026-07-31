@@ -1,6 +1,6 @@
 import Testing
 import Foundation
-@testable import stepkeeper
+@testable import stepkipper
 
 /// 앱 UI는 **시스템 언어**(String Catalog), 문서 본문은 **문서 언어**(DocumentStrings)를 따른다.
 /// 이 둘이 섞이면 "영어 기기에서 한국어 문서를 열었더니 본문까지 영어" 같은 회귀가 난다.
@@ -14,6 +14,66 @@ struct LocalizationTests {
         #expect(korean.localizedString(forKey: "Make document", value: nil, table: nil) == "문서 만들기")
         #expect(korean.localizedString(forKey: "Add your Gemini API key in Settings",
                                        value: nil, table: nil) == "설정에서 Gemini API 키를 입력하세요")
+        #expect(korean.localizedString(forKey: "2. Click \"Create API key\"",
+                                       value: nil, table: nil) == "2. \"API 키 만들기\" 클릭")
+    }
+
+    @Test func interpolatedRuntimeKeysTranslateAndFormat() throws {
+        let path = try #require(Bundle.main.path(forResource: "ko", ofType: "lproj"))
+        let korean = try #require(Bundle(path: path))
+
+        let analyzing = korean.localizedString(
+            forKey: "Analyzing the video… (%@, %@)", value: nil, table: nil)
+        #expect(String(format: analyzing, "1:02", "recipe") == "영상 분석 중… (1:02, recipe)")
+
+        let capturing = korean.localizedString(
+            forKey: "Capturing frames… %lld/%lld", value: nil, table: nil)
+        #expect(String(format: capturing, Int64(2), Int64(5)) == "장면 캡처 중… 2/5")
+
+        let length = korean.localizedString(forKey: "Length %@", value: nil, table: nil)
+        #expect(String(format: length, "1:02") == "길이 1:02")
+
+        let failed = korean.localizedString(forKey: "%@ capture failed", value: nil, table: nil)
+        #expect(String(format: failed, "1:02") == "1:02 캡처 실패")
+    }
+
+    @Test func pickerAccessibilityVocabularyIsTranslated() throws {
+        let path = try #require(Bundle.main.path(forResource: "ko", ofType: "lproj"))
+        let korean = try #require(Bundle(path: path))
+        #expect(korean.localizedString(forKey: "Before", value: nil, table: nil) == "이전 장면")
+        #expect(korean.localizedString(forKey: "Key moment", value: nil, table: nil) == "핵심 장면")
+        #expect(korean.localizedString(forKey: "After", value: nil, table: nil) == "이후 장면")
+        #expect(korean.localizedString(forKey: "Use video link instead",
+                                       value: nil, table: nil) == "대신 영상 링크 사용")
+        #expect(korean.localizedString(forKey: "Selected", value: nil, table: nil) == "선택됨")
+        #expect(korean.localizedString(forKey: "Not selected",
+                                       value: nil, table: nil) == "선택 안 됨")
+    }
+
+    @Test func completionAndGeminiRecoveryStringsAreTranslated() throws {
+        let path = try #require(Bundle.main.path(forResource: "ko", ofType: "lproj"))
+        let korean = try #require(Bundle(path: path))
+        let expected = [
+            ("Close", "닫기"),
+            ("Saved to Recent", "최근 문서에 저장됨"),
+            ("Open Settings", "설정 열기"),
+            ("Edit URL", "URL 수정"),
+            ("Doesn't fit\nuse a link", "부적합\n링크 사용"),
+            ("Saved.\nOpen stepkipper to start the analysis.",
+             "저장됐습니다.\nstepkipper를 열면 분석이 시작됩니다."),
+            ("stepkipper server (optional)", "stepkipper 서버 (선택)"),
+            ("— Written by the report button in the stepkipper app.",
+             "— 이 메일은 stepkipper 앱의 이상 신고 버튼으로 작성됐습니다."),
+            ("Gemini rejected this API key — check it in Settings",
+             "Gemini가 이 API 키를 거부했습니다 — 설정에서 확인하세요"),
+            ("Gemini denied access — check API access and key restrictions",
+             "Gemini 접근이 거부되었습니다 — API 사용 설정과 키 제한을 확인하세요"),
+            ("Couldn't reach Gemini — check your internet connection",
+             "Gemini에 연결할 수 없습니다 — 인터넷 연결을 확인하세요"),
+        ]
+        for (key, translation) in expected {
+            #expect(korean.localizedString(forKey: key, value: nil, table: nil) == translation)
+        }
     }
 
     @Test func baseLanguageIsEnglish() throws {
@@ -27,16 +87,40 @@ struct LocalizationTests {
         let english = DocumentStrings.forLanguage("en")
         #expect(korean.steps == "순서")
         #expect(korean.guidePrefix("한입 크기") == "'한입 크기' 기준:")
-        #expect(korean.source("영상") == "출처: 영상 — stepkeeper로 생성")
+        #expect(korean.source("영상") == "출처: 영상 — stepkipper로 생성")
         #expect(english.steps == "Steps")
         #expect(english.guidePrefix("bite-sized") == "What 'bite-sized' looks like:")
+        #expect(english.source("Video") == "From Video — kept with stepkipper")
         let japanese = DocumentStrings.forLanguage("ja")
         #expect(japanese.steps == "手順")
         #expect(japanese.guidePrefix("一口大") == "「一口大」とは:")
         #expect(japanese.stepsTitle(isRecipe: true) == "作り方")   // 코어 recipe/template.ja.md
+        #expect(japanese.source("動画") == "出典: 動画 — stepkipper で作成")
         // 번역본이 없는 언어는 코어 load_template과 같이 영어로 (한국어로 새지 않는다)
         #expect(DocumentStrings.forLanguage("de").steps == "Steps")
         #expect(DocumentStrings.forLanguage("").steps == "Steps")
+    }
+
+    @Test func bundledSkillCoreKeepsStepkipperBrandAfterSync() throws {
+        let legacyPhrases = [
+            "kept with stepkeeper",
+            "stepkeeper로 생성",
+            "stepkeeper で作成",
+        ]
+        for profile in ["generic", "recipe"] {
+            for language in ["", "ko", "ja"] {
+                let template = try Templates.load(profile: profile, language: language)
+                #expect(template.contains("stepkipper"))
+                for phrase in legacyPhrases {
+                    #expect(!template.contains(phrase))
+                }
+            }
+            let schemaURL = try #require(Bundle.main.url(
+                forResource: "schema", withExtension: "json",
+                subdirectory: "skill-core/\(profile)"))
+            let schema = try String(contentsOf: schemaURL, encoding: .utf8)
+            #expect(schema.contains("stepkipper \(profile) analysis result"))
+        }
     }
 
     @Test func recipeAndGenericTitlesMatchCoreTemplates() {

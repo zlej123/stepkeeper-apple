@@ -19,4 +19,4 @@
    ▶ [영상 0:30에서 직접 확인](https://youtu.be/dQw4w9WgXcQ?t=30)
 
 ---
-*출처: [테스트 하우투 영상](https://youtu.be/dQw4w9WgXcQ) — stepkeeper로 생성*
+*출처: [테스트 하우투 영상](https://youtu.be/dQw4w9WgXcQ) — stepkipper로 생성*

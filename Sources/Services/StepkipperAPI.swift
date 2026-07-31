@@ -1,22 +1,29 @@
 import Foundation
 
-enum StepkeeperAPIError: Error, Equatable, LocalizedError {
+enum StepkipperAPIError: Error, Equatable, LocalizedError {
     case missingKey            // 401
+    case invalidKey            // Gemini가 키를 거절
+    case geminiPermission      // Gemini API 비활성화·키 제한 등 권한 거절
     case badRequest(String)    // 422
     case rateLimited           // 429
     case modelFailure(String)  // 502 (모델 오류·계약 위반)
     case server(Int, String)   // 기타 상태코드
     case network(String)       // 연결 실패
+    case geminiNetwork(String) // 직접 Gemini 호출 연결 실패
     case invalidResponse       // 200이지만 해석 불가
 
     var errorDescription: String? {
         switch self {
         case .missingKey: String(localized: "Add your Gemini API key in Settings")
+        case .invalidKey: String(localized: "Gemini rejected this API key — check it in Settings")
+        case .geminiPermission:
+            String(localized: "Gemini denied access — check API access and key restrictions")
         case .badRequest(let detail): String(localized: "Problem with the URL or request") + " — \(detail)"
         case .rateLimited: String(localized: "Gemini free-tier limit reached — try again in a moment")
         case .modelFailure(let detail): String(localized: "Analysis failed — try again") + " (\(detail))"
         case .server(let code, let detail): String(localized: "Server error") + " (HTTP \(code)) — \(detail)"
         case .network: String(localized: "Couldn't reach the server — check the server URL")
+        case .geminiNetwork: String(localized: "Couldn't reach Gemini — check your internet connection")
         case .invalidResponse: String(localized: "Couldn't read the server's response")
         }
     }
@@ -29,7 +36,7 @@ struct AnalyzeResult: Sendable {
     var rawAnalysis: Data
 }
 
-final class StepkeeperAPI: Sendable {
+final class StepkipperAPI: Sendable {
     private let baseURL: URL
     private let session: URLSession
 
@@ -57,25 +64,25 @@ final class StepkeeperAPI: Sendable {
         do {
             (data, response) = try await session.data(for: request)
         } catch {
-            throw StepkeeperAPIError.network(String(describing: error))
+            throw StepkipperAPIError.network(String(describing: error))
         }
         guard let http = response as? HTTPURLResponse else {
-            throw StepkeeperAPIError.invalidResponse
+            throw StepkipperAPIError.invalidResponse
         }
         switch http.statusCode {
         case 200: break
-        case 401: throw StepkeeperAPIError.missingKey
-        case 422: throw StepkeeperAPIError.badRequest(Self.detail(from: data))
-        case 429: throw StepkeeperAPIError.rateLimited
-        case 502: throw StepkeeperAPIError.modelFailure(Self.detail(from: data))
-        default: throw StepkeeperAPIError.server(http.statusCode, Self.detail(from: data))
+        case 401: throw StepkipperAPIError.missingKey
+        case 422: throw StepkipperAPIError.badRequest(Self.detail(from: data))
+        case 429: throw StepkipperAPIError.rateLimited
+        case 502: throw StepkipperAPIError.modelFailure(Self.detail(from: data))
+        default: throw StepkipperAPIError.server(http.statusCode, Self.detail(from: data))
         }
 
         guard let envelope = try? JSONDecoder().decode(AnalyzeEnvelope.self, from: data),
               let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let rawAnalysisObject = object["analysis"],
               let rawAnalysis = try? JSONSerialization.data(withJSONObject: rawAnalysisObject)
-        else { throw StepkeeperAPIError.invalidResponse }
+        else { throw StepkipperAPIError.invalidResponse }
         return AnalyzeResult(videoId: envelope.videoId,
                              analysis: envelope.analysis, rawAnalysis: rawAnalysis)
     }
@@ -105,13 +112,13 @@ final class StepkeeperAPI: Sendable {
         do {
             (data, response) = try await session.data(for: request)
         } catch {
-            throw StepkeeperAPIError.network(String(describing: error))
+            throw StepkipperAPIError.network(String(describing: error))
         }
         guard let http = response as? HTTPURLResponse else {
-            throw StepkeeperAPIError.invalidResponse
+            throw StepkipperAPIError.invalidResponse
         }
         guard (200...299).contains(http.statusCode) else {
-            throw StepkeeperAPIError.server(http.statusCode, Self.detail(from: data))
+            throw StepkipperAPIError.server(http.statusCode, Self.detail(from: data))
         }
     }
 

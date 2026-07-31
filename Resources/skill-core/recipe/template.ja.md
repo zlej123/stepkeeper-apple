@@ -33,4 +33,4 @@
 {{/steps}}
 
 ---
-*出典: [{{video_title}}]({{video_url}}) — stepkeeper で作成*
+*出典: [{{video_title}}]({{video_url}}) — stepkipper で作成*

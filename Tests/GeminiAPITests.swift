@@ -1,6 +1,6 @@
 import Testing
 import Foundation
-@testable import stepkeeper
+@testable import stepkipper
 
 @Suite(.serialized)
 struct GeminiAPITests {
@@ -69,22 +69,57 @@ struct GeminiAPITests {
     @Test func mapsRateLimitAndModelErrors() async throws {
         defer { reset() }
         GeminiAPIStub.shared.handler = { _ in (429, Data("{}".utf8)) }
-        await #expect(throws: StepkeeperAPIError.rateLimited) {
+        await #expect(throws: StepkipperAPIError.rateLimited) {
             _ = try await self.makeAPI().analyze(
                 videoURL: "https://youtu.be/4ioPBiTWm3M", profile: "generic",
                 language: "ko", duration: 10, geminiKey: "k")
         }
         GeminiAPIStub.shared.handler = { _ in (500, Data("{}".utf8)) }
-        await #expect(throws: StepkeeperAPIError.modelFailure("Gemini error (HTTP 500)")) {
+        await #expect(throws: StepkipperAPIError.modelFailure("Gemini error (HTTP 500)")) {
             _ = try await self.makeAPI().analyze(
                 videoURL: "https://youtu.be/4ioPBiTWm3M", profile: "generic",
                 language: "ko", duration: 10, geminiKey: "k")
         }
         GeminiAPIStub.shared.handler = { _ in (200, Data(#"{"candidates": []}"#.utf8)) }
-        await #expect(throws: StepkeeperAPIError.invalidResponse) {
+        await #expect(throws: StepkipperAPIError.invalidResponse) {
             _ = try await self.makeAPI().analyze(
                 videoURL: "https://youtu.be/4ioPBiTWm3M", profile: "generic",
                 language: "ko", duration: 10, geminiKey: "k")
+        }
+    }
+
+    @Test func mapsRejectedKeyAndDirectNetworkErrors() async throws {
+        defer { reset() }
+        GeminiAPIStub.shared.handler = { _ in
+            (400, Data(#"{"error":{"message":"API key not valid.","status":"INVALID_ARGUMENT"}}"#.utf8))
+        }
+        await #expect(throws: StepkipperAPIError.invalidKey) {
+            _ = try await self.makeAPI().analyze(
+                videoURL: "https://youtu.be/4ioPBiTWm3M", profile: "generic",
+                language: "ko", duration: 10, geminiKey: "bad")
+        }
+
+        GeminiAPIStub.shared.handler = { _ in
+            (403, Data(#"{"error":{"message":"Requests are blocked by API key restrictions.","status":"PERMISSION_DENIED"}}"#.utf8))
+        }
+        await #expect(throws: StepkipperAPIError.geminiPermission) {
+            _ = try await self.makeAPI().analyze(
+                videoURL: "https://youtu.be/4ioPBiTWm3M", profile: "generic",
+                language: "ko", duration: 10, geminiKey: "restricted")
+        }
+
+        GeminiAPIStub.shared.handler = nil
+        GeminiAPIStub.shared.networkError = URLError(.notConnectedToInternet)
+        do {
+            _ = try await makeAPI().analyze(
+                videoURL: "https://youtu.be/4ioPBiTWm3M", profile: "generic",
+                language: "ko", duration: 10, geminiKey: "k")
+            Issue.record("should throw")
+        } catch let error as StepkipperAPIError {
+            guard case .geminiNetwork = error else {
+                Issue.record("wrong case: \(error)")
+                return
+            }
         }
     }
 }

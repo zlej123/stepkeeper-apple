@@ -1,5 +1,5 @@
 import Testing
-@testable import stepkeeper
+@testable import stepkipper
 
 struct YouTubeURLTests {
     @Test func parsesCommonForms() {

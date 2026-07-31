@@ -6,7 +6,7 @@
 enum CaptureScript {
     static let source = #"""
     (() => {
-      if (window.__stepkeeper) return;
+      if (window.__stepkipper) return;
       const video = () => document.querySelector("video");
       const sleep = (ms) => new Promise(r => setTimeout(r, ms));
       // 광고 대응(macOS www 실측: 프리롤 광고가 video 엘리먼트를 점유해 잘못된 프레임이 잡힘).
@@ -102,7 +102,7 @@ enum CaptureScript {
         if (!s.paused) { try { await v.play(); } catch (e) {} }
         return true;
       }
-      window.__stepkeeper = { waitMeta, capture, prime, captureBegin, captureEnd };
+      window.__stepkipper = { waitMeta, capture, prime, captureBegin, captureEnd };
     })();
     """#
 }

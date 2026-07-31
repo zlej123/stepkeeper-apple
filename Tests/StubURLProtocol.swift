@@ -76,27 +76,27 @@ class StubURLProtocolBase: URLProtocol {
     }
 }
 
-final class StepkeeperAPIStub: StubURLProtocolBase {
-    nonisolated(unsafe) static let shared = StubStorage()
+final class StepkipperAPIStub: StubURLProtocolBase {
+    static let shared = StubStorage()
     override class var storage: StubStorage { shared }
 }
 
 final class AppModelStub: StubURLProtocolBase {
-    nonisolated(unsafe) static let shared = StubStorage()
+    static let shared = StubStorage()
     override class var storage: StubStorage { shared }
 }
 
 final class NotionAPIStub: StubURLProtocolBase {
-    nonisolated(unsafe) static let shared = StubStorage()
+    static let shared = StubStorage()
     override class var storage: StubStorage { shared }
 }
 
 final class NotionExporterStub: StubURLProtocolBase {
-    nonisolated(unsafe) static let shared = StubStorage()
+    static let shared = StubStorage()
     override class var storage: StubStorage { shared }
 }
 
 final class GeminiAPIStub: StubURLProtocolBase {
-    nonisolated(unsafe) static let shared = StubStorage()
+    static let shared = StubStorage()
     override class var storage: StubStorage { shared }
 }
