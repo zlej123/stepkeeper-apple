@@ -67,11 +67,11 @@ private struct DebugUIScenarioView: View {
                 importance: 1
             )
             let candidates = [
-                CaptureCandidate(slot: "before", time: center - 4,
+                CaptureCandidate(slot: "before", time: center - 1,
                                  jpeg: makeJPEG(red: 0.30, green: 0.55, blue: 0.95)),
                 CaptureCandidate(slot: "center", time: center,
                                  jpeg: makeJPEG(red: 0.28, green: 0.72, blue: 0.52)),
-                CaptureCandidate(slot: "after", time: center + 4,
+                CaptureCandidate(slot: "after", time: center + 1,
                                  jpeg: makeJPEG(red: 0.94, green: 0.58, blue: 0.28)),
             ]
             return GuideCapture(guide: guide, candidates: candidates)

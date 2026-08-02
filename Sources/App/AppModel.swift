@@ -316,7 +316,8 @@ final class AppModel {
             guard gen == generation else { await bridge.endCaptureSession(); return }
             stage = .capturing(current: index + 1, total: guides.count)
             let times = CandidateTimes(step: steps[guide.stepId],
-                                       center: guide.bestVisualTimestamp!, duration: duration)
+                                       center: guide.bestVisualTimestamp!, duration: duration,
+                                       guideType: guide.type)
             var candidates: [CaptureCandidate] = []
             for (slot, time) in times.slots {
                 let jpeg = try? await bridge.captureFrame(at: time)
