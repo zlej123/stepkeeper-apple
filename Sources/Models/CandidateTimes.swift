@@ -3,24 +3,26 @@
 /// 예전에는 before/after를 스텝 경계(t_start-1, t_end+1)에 뒀는데, 긴 스텝에서는 그 둘이
 /// **다른 주제**를 찍는다. 실측: 19초짜리 스텝에서 후보가 18·31·39초로 잡혔고 18초는 이전 섹션,
 /// 39초는 다음 섹션이라, 가이드가 요구한 26~29초 동작이 세 장 어디에도 없었다.
-/// 이제 스텝 길이의 1/4(최대 spreadLimit초)만큼만 벌린다.
+/// 동작 가이드는 center±1초, 나머지는 최대 ±2초로 제한해 서로 다른 작업 단계가 섞이지 않게 한다.
 struct CandidateTimes: Equatable, Sendable {
-    /// center 앞뒤 최대 간격(초) — 코어 CANDIDATE_SPREAD와 동일해야 한다
-    static let spreadLimit = 4
+    /// 코어 ACTION_CANDIDATE_SPREAD / DEFAULT_CANDIDATE_SPREAD와 동일해야 한다.
+    static let actionSpreadLimit = 1
+    static let defaultSpreadLimit = 2
 
     let before: Int
     let center: Int
     let after: Int
 
-    init(step: Step?, center: Int, duration: Int) {
+    init(step: Step?, center: Int, duration: Int, guideType: String) {
         self.center = center
         let last = max(0, duration - 1)
+        let limit = guideType == "action" ? Self.actionSpreadLimit : Self.defaultSpreadLimit
         let spread: Int
         if let step {
             let length = max(0, step.tEnd - step.tStart)
-            spread = max(1, min(Self.spreadLimit, length / 4))
+            spread = max(1, min(limit, length / 4))
         } else {
-            spread = Self.spreadLimit
+            spread = limit
         }
         before = max(0, center - spread)
         after = min(last, center + spread)
