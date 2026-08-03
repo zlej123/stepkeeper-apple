@@ -184,38 +184,38 @@ extension GeminiAPI {
 
     /// 후보가 하나도 없는 가이드는 질문에서 빼고, 모델이 빠뜨린 가이드는 "none"으로 채운다
     /// (코어와 동일한 안전 기본값 — 억지 선택 대신 링크 폴백).
+    /// 가이드별 **독립 호출** (외부 리뷰 P2-4): 묶음 호출에서는 앞 가이드의 장면이 뒤
+    /// 가이드 근거에 새어 들어왔다 (실측 ㄱ20). 이미지 수는 같아 토큰 총량은 동일하고
+    /// 요청 횟수만 늘어난다. 다른 가이드를 참칭하는 응답 항목은 무시한다.
     func autoPick(captures: [(guideId: String, phrase: String, whatToShow: String,
                               guideText: String, candidates: [(slot: String, jpeg: Data)])],
                   language: String, geminiKey: String) async throws -> [String: AutoPick] {
-        var parts: [[String: Any]] = [["text": Self.autoPickPrompt
-            + "\nreason은 \(language) 언어로 작성하세요."]]
-        var asked: [String] = []
+        var picks: [String: AutoPick] = [:]
+        let valid: Set<String> = ["before", "center", "after", "none"]
         for capture in captures where capture.candidates.count == 3 {
-            asked.append(capture.guideId)
-            parts.append(["text": """
-            [\(capture.guideId)] 표현: \(capture.phrase)
-            보여야 할 것: \(capture.whatToShow)
-            가이드: \(capture.guideText)
-            """])
+            var parts: [[String: Any]] = [
+                ["text": Self.autoPickPrompt + "\nreason은 \(language) 언어로 작성하세요."],
+                ["text": """
+                [\(capture.guideId)] 표현: \(capture.phrase)
+                보여야 할 것: \(capture.whatToShow)
+                가이드: \(capture.guideText)
+                """],
+            ]
             for candidate in capture.candidates {
                 parts.append(["text": "\(capture.guideId) 후보 \(candidate.slot):"])
                 parts.append(["inline_data": ["mime_type": "image/jpeg",
                                               "data": candidate.jpeg.base64EncodedString()]])
             }
-        }
-        guard !asked.isEmpty else { return [:] }
-
-        let object = try await generateJSON(parts: parts, schema: Self.autoPickSchema,
-                                            geminiKey: geminiKey)
-        var picks: [String: AutoPick] = [:]
-        let valid: Set<String> = ["before", "center", "after", "none"]
-        for item in (object["picks"] as? [[String: Any]]) ?? [] {
-            guard let id = item["guide_id"] as? String, asked.contains(id),
-                  let slot = item["slot"] as? String, valid.contains(slot) else { continue }
-            picks[id] = AutoPick(slot: slot, reason: (item["reason"] as? String) ?? "")
-        }
-        for id in asked where picks[id] == nil {
-            picks[id] = AutoPick(slot: "none", reason: "")
+            let object = try await generateJSON(parts: parts, schema: Self.autoPickSchema,
+                                                geminiKey: geminiKey)
+            for item in (object["picks"] as? [[String: Any]]) ?? [] {
+                guard let id = item["guide_id"] as? String, id == capture.guideId,
+                      let slot = item["slot"] as? String, valid.contains(slot) else { continue }
+                picks[id] = AutoPick(slot: slot, reason: (item["reason"] as? String) ?? "")
+            }
+            if picks[capture.guideId] == nil {
+                picks[capture.guideId] = AutoPick(slot: "none", reason: "")
+            }
         }
         return picks
     }

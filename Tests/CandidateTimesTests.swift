@@ -28,6 +28,23 @@ struct CandidateTimesTests {
                                  guideType: "state")
         #expect(end.after == 99)                  // duration-1 클램프
     }
+    /// 스텝 경계 클램프 (외부 리뷰 P2-3): 스텝이 10초에 시작하고 center=10이면
+    /// before=9는 이전 단계의 장면이다.
+    @Test func clampsToStepBoundaries() {
+        let start = CandidateTimes(step: makeStep(10, 30), center: 10, duration: 100,
+                                   guideType: "state")
+        #expect(start.before == 10 && start.after == 12)
+        let end = CandidateTimes(step: makeStep(0, 20), center: 20, duration: 100,
+                                 guideType: "state")
+        #expect(end.before == 18 && end.after == 20)
+    }
+    @Test func centerOutsideStepDistrustsStepBoundaries() {
+        // 모델이 준 center가 스텝 밖이면 스텝 정보를 불신한다 — 경계로 끌어오면
+        // "가장 잘 보이는 순간"에서 멀어진다
+        let t = CandidateTimes(step: makeStep(10, 20), center: 40, duration: 100,
+                               guideType: "state")
+        #expect(t.before == 38 && t.center == 40 && t.after == 42)
+    }
     @Test func withoutStepUsesGuideTypeLimit() {
         let t = CandidateTimes(step: nil, center: 2, duration: 100, guideType: "state")
         #expect(t.before == 0 && t.center == 2 && t.after == 4)
