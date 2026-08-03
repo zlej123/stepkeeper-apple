@@ -20,15 +20,56 @@ struct AutoPickTests {
     private func reply(_ picks: String) -> (Int, Data) {
         (200, Data(#"{"candidates":[{"content":{"parts":[{"text":"{\"picks\":\#(picks)}"}]}}]}"#.utf8))
     }
+    private static func isVerify(_ request: URLRequest) -> Bool {
+        String(data: request.bodyData ?? Data(), encoding: .utf8)?
+            .contains("선택된 프레임을 검증") == true
+    }
+    /// 검증 호출에는 shows로, 선택 호출에는 picks로 답하는 핸들러
+    private func handler(picks: String, shows: Bool = true, verifyReason: String = "")
+        -> @Sendable (URLRequest) -> (Int, Data) {
+        let verify = (200, Data(
+            #"{"candidates":[{"content":{"parts":[{"text":"{\"shows\":\#(shows),\"reason\":\"\#(verifyReason)\"}"}]}}]}"#.utf8))
+        let pick = reply(picks)
+        return { request in Self.isVerify(request) ? verify : pick }
+    }
 
     @Test func mapsSlotsAndReasons() async throws {
         defer { GeminiAPIStub.shared.reset() }
-        GeminiAPIStub.shared.handler = { _ in
-            self.reply(#"[{\"guide_id\":\"vg-1\",\"slot\":\"after\",\"reason\":\"crust visible\"}]"#)
-        }
+        GeminiAPIStub.shared.handler = self.handler(
+            picks: #"[{\"guide_id\":\"vg-1\",\"slot\":\"after\",\"reason\":\"crust visible\"}]"#)
         let picks = try await makeAPI().autoPick(
             captures: [capture("vg-1")], language: "en", geminiKey: "k")
         #expect(picks["vg-1"] == GeminiAPI.AutoPick(slot: "after", reason: "crust visible"))
+    }
+
+    @Test func verificationRejectionFallsBackToNone() async throws {
+        // 자기 검증 패스: 고른 한 장을 다시 보여 "정말 보이는가"를 묻는다.
+        // 실측 #6 — 렌치가 어느 후보에도 없는데 "그중 제일 나은" center를 골랐다.
+        defer { GeminiAPIStub.shared.reset() }
+        GeminiAPIStub.shared.handler = self.handler(
+            picks: #"[{\"guide_id\":\"vg-1\",\"slot\":\"center\",\"reason\":\"best\"}]"#,
+            shows: false, verifyReason: "렌치가 보이지 않음")
+        let picks = try await makeAPI().autoPick(
+            captures: [capture("vg-1")], language: "ko", geminiKey: "k")
+        #expect(picks["vg-1"] == GeminiAPI.AutoPick(slot: "none", reason: "렌치가 보이지 않음"))
+    }
+
+    @Test func verificationRequestCarriesOnlyThePickedFrame() async throws {
+        defer { GeminiAPIStub.shared.reset() }
+        GeminiAPIStub.shared.handler = self.handler(
+            picks: #"[{\"guide_id\":\"vg-1\",\"slot\":\"center\",\"reason\":\"ok\"}]"#)
+        _ = try await makeAPI().autoPick(
+            captures: [capture("vg-1")], language: "en", geminiKey: "k")
+        // 마지막 요청 = 검증 호출: 이미지 1장 + '보여야 할 것'만 담는다
+        let body = try #require(GeminiAPIStub.shared.capturedBody)
+        let payload = try #require(
+            try JSONSerialization.jsonObject(with: body) as? [String: Any])
+        let parts = try #require(((payload["contents"] as? [[String: Any]])?
+            .first?["parts"] as? [[String: Any]]))
+        let texts = parts.compactMap { $0["text"] as? String }.joined(separator: "\n")
+        #expect(texts.contains("선택된 프레임을 검증"))
+        #expect(texts.contains("what-vg-1"))
+        #expect(parts.filter { $0["inline_data"] != nil }.count == 1)
     }
 
     @Test func missingOrInvalidPicksFallBackToNone() async throws {
