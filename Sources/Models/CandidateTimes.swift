@@ -24,8 +24,16 @@ struct CandidateTimes: Equatable, Sendable {
         } else {
             spread = limit
         }
-        before = max(0, center - spread)
-        after = min(last, center + spread)
+        var before = max(0, center - spread)
+        var after = min(last, center + spread)
+        // 후보가 스텝 경계를 넘으면 이전/다음 단계의 장면이 들어온다 (외부 리뷰 P2-3).
+        // 단 center가 스텝 밖이면 스텝 정보를 불신하고 클램프하지 않는다 — 코어와 동일.
+        if let step, step.tStart <= center, center <= step.tEnd {
+            before = max(before, step.tStart)
+            after = min(after, step.tEnd)
+        }
+        self.before = before
+        self.after = after
     }
 
     var slots: [(slot: String, time: Int)] {
