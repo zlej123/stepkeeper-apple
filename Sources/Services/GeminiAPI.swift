@@ -160,9 +160,26 @@ extension GeminiAPI {
     각 가이드마다 후보 3장(before/center/after)이 순서대로 첨부됩니다.
     가이드의 '보여야 할 것'이 실제로 가장 명확하게 보이는 후보 하나를 고르세요.
     동작을 보여야 하는 가이드는 동작이 수행되는 중인 순간이 담긴 후보를 고르세요 — 완성된 결과물만 보이는 후보는 그 동작을 보여주지 못한 것입니다.
+    가이드가 특정 도구나 재료를 요구하면 그것이 실제로 보이는 후보만 유효합니다 — 어느 후보에도 보이지 않으면 "none"입니다.
     세 장 모두에서 그것이 보이지 않으면 반드시 "none"을 고르세요 — 억지로 고르지 않습니다.
     각 선택에 한 문장 근거(reason)를 답하세요. JSON만 출력합니다.
     """
+
+    /// 코어 autopick.VERIFY_PROMPT와 동일 문구 유지.
+    static let autoPickVerifyPrompt = """
+    당신은 선택된 프레임을 검증하는 검수자입니다.
+    아래 '보여야 할 것'이 이 프레임 한 장에 실제로 보이면 shows=true, 아니면 shows=false를 답하세요.
+    후하게 보지 않습니다 — 비슷한 장면이 아니라 요구된 그 내용(대상·도구·동작)이 보여야 합니다. JSON만 출력합니다.
+    """
+
+    static var autoPickVerifySchema: [String: Any] { [
+        "type": "object",
+        "required": ["shows"],
+        "properties": [
+            "shows": ["type": "boolean"],
+            "reason": ["type": "string"],
+        ],
+    ] }
 
     /// [String: Any]는 non-Sendable이라 static let으로 둘 수 없다 (Swift 6) — 호출마다 조립
     static var autoPickSchema: [String: Any] { [
@@ -215,6 +232,23 @@ extension GeminiAPI {
             }
             if picks[capture.guideId] == nil {
                 picks[capture.guideId] = AutoPick(slot: "none", reason: "")
+            }
+            // 자기 검증 패스: 고른 한 장만 다시 보여 "정말 보이는가"를 묻는다 —
+            // 후보 비교의 "그중 제일 낫다" 편향을 끊는다 (실측 #6: 렌치가 어느
+            // 후보에도 없는데 center를 골랐다).
+            if let picked = picks[capture.guideId], picked.slot != "none",
+               let frame = capture.candidates.first(where: { $0.slot == picked.slot }) {
+                let verdict = try await generateJSON(parts: [
+                    ["text": Self.autoPickVerifyPrompt
+                        + "\nreason은 \(language) 언어로 작성하세요."],
+                    ["text": "보여야 할 것: \(capture.whatToShow)"],
+                    ["inline_data": ["mime_type": "image/jpeg",
+                                     "data": frame.jpeg.base64EncodedString()]],
+                ], schema: Self.autoPickVerifySchema, geminiKey: geminiKey)
+                if (verdict["shows"] as? Bool) != true {
+                    picks[capture.guideId] = AutoPick(
+                        slot: "none", reason: (verdict["reason"] as? String) ?? "")
+                }
             }
         }
         return picks

@@ -289,8 +289,13 @@ struct AutoPickFlowTests {
 
     @Test func aiPickOverridesTheDefaultSelection() async {
         defer { AppModelStub.shared.reset() }
-        AppModelStub.shared.handler = { _ in
-            (200, Data(#"{"candidates":[{"content":{"parts":[{"text":"{\"picks\":[{\"guide_id\":\"vg-1\",\"slot\":\"after\",\"reason\":\"crust only visible here\"}]}"}]}}]}"#.utf8))
+        AppModelStub.shared.handler = { request in
+            // 선택 후 자기 검증 호출이 이어진다 — 검증에는 shows로 답한다
+            if String(data: request.bodyData ?? Data(), encoding: .utf8)?
+                .contains("선택된 프레임을 검증") == true {
+                return (200, Data(#"{"candidates":[{"content":{"parts":[{"text":"{\"shows\":true}"}]}}]}"#.utf8))
+            }
+            return (200, Data(#"{"candidates":[{"content":{"parts":[{"text":"{\"picks\":[{\"guide_id\":\"vg-1\",\"slot\":\"after\",\"reason\":\"crust only visible here\"}]}"}]}}]}"#.utf8))
         }
         let (model, _) = makeModel(autoPick: true)
         await model.runAutoPickIfEnabled()
